@@ -14,15 +14,15 @@ export default new Vuex.Store({
     },{
       type:      'office',
       email:     'central',
-      password:  'impulse2023',
+      password:  'cbm2023',
       id:        'central',
       name:      'Central',
     },{
       type:      'office',
-      email:     '65750952',
-      password:  'impulse2023',
+      email:     'secundaria',
+      password:  'cbm2023',
       id:        'secondary',
-      name:      'Ledezma',
+      name:      'Secundaria',
     }],
 
     account: null,
