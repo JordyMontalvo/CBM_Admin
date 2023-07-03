@@ -68,8 +68,8 @@ class Promos {
   GET() {
     return axios.get (`/admin/promos`)
   }
-  POST({ id, img }) {
-    return axios.post(`/admin/promos`, { id, img })
+  POST({ id, img, pos }) {
+    return axios.post(`/admin/promos`, { id, img, pos })
   }
 }
 class Promo {
