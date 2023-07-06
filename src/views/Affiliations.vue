@@ -24,6 +24,7 @@
                 <th>Usuario</th>
                 <th>Oficina</th>
                 <th>Plan</th>
+                <th>Precio</th>
                 <th>Productos</th>
                 <th>Voucher</th>
                 <th>Estado</th>
@@ -40,8 +41,14 @@
                 </td>
                 <td>{{ affiliation.office }}</td>
                 <td>
-                  {{ affiliation.plan.name }} <br>
+                  {{ affiliation.plan.name }}
+                </td>
+                <td>
                   $ {{ affiliation.plan.amount }}
+                  <small v-if="affiliation.plan.pay"> <br>
+                    pagado: {{ affiliation.plan.pay }} <br>
+                    cobrar: {{ affiliation.remaining }}
+                  </small>
                 </td>
                 <td style="min-width: 200px;">
                     Productos:
