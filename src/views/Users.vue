@@ -173,7 +173,8 @@ export default {
           if(
             user.name.toLowerCase().includes(word.toLowerCase()) ||
             user.lastName.toLowerCase().includes(word.toLowerCase()) ||
-            user.country.toLowerCase().includes(word.toLowerCase())) {
+            user.country.toLowerCase().includes(word.toLowerCase()) ||
+            user.dni.toLowerCase().includes(word.toLowerCase())) {
 
             user.visible = true
           }
