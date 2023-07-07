@@ -46,9 +46,16 @@
                 <td>
                   $ {{ affiliation.plan.amount }}
                   <small v-if="affiliation.plan.pay"> <br>
-                    pagado: {{ affiliation.plan.pay }} <br>
-                    cobrar: {{ affiliation.remaining }}
+                    pagado: ${{ affiliation.plan.pay }} <br>
+                    cobrar: ${{ affiliation.remaining }}
                   </small>
+
+                  <div v-if="affiliation.amounts">
+                    <small>no disponible: ${{ affiliation.amounts[0] }}</small> <br>
+                    <small>disponible:    ${{ affiliation.amounts[1] }}</small> <br>
+                    <small>cobrar:        ${{ affiliation.amounts[2] }}</small> <br>
+                  </div>
+
                 </td>
                 <td style="min-width: 200px;">
                     Productos:
