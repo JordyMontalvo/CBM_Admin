@@ -8,7 +8,6 @@
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
           <strong>{{ title }}</strong>
-          {{ search }}
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
