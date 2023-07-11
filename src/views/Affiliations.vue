@@ -46,8 +46,11 @@
                 <td>
                   $ {{ affiliation.plan.amount }}
                   <small v-if="affiliation.remaining != null"> <br>
-                    pagado: ${{ affiliation.plan.pay }} <br>
-                    cobrar: ${{ affiliation.remaining }}
+                    <span v-if="affiliation.amounts">
+                    saldo:    ${{ affiliation.amounts[0] }} <br>
+                    </span>
+                    ganancia: ${{ affiliation.plan.pay }} <br>
+                    cobrar:   ${{ affiliation.remaining }}
                   </small>
 
                   <div v-if="affiliation.amounts && affiliation.remaining == null">
