@@ -13,8 +13,8 @@
 
       <div class="container">
 
-        <div class="tree">
-          <div class="row" v-for="row in tree">
+        <!-- <div> -->
+          <!-- <div class="row" v-for="row in tree">
             <div class="el" v-for="el in row">
               <div v-if="el">
                 <i class="fas fa-user-tie"></i> <br>
@@ -22,9 +22,181 @@
                 <small><small>{{ el.id.substring(0, 5) }}</small></small>
               </div>
             </div>
+          </div> -->
+        <!-- </div> -->
+
+        <div id="body">
+
+          <!-- <div class="tree-container">
+            <h1>The tree title</h1>
+            <ul class="tree">
+              <li><span class="highlighted">Machine learning</span>
+                <ul>
+                  <li>
+                    <span>Unsupervised learning</span>
+                    <ul>
+                      <li>
+                        <span>Gaussian mixtures</span>
+                      </li>
+                      <li>
+                        <span>K-means Clustering</span>
+                      </li>
+                      <li>
+                        <span>Boosting</span>
+                      </li>
+                      <li>
+                        <span>Hierarchical Clustering</span>
+                      </li>
+                      <li>
+                        <span>Spectral Clustering</span>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <span>Supervised learning</span>
+                    <ul>
+                      <li>
+                        <span>Classification</span>
+                        <ul>
+                          <li>
+                            <span>Decision Trees</span>
+                          </li>
+                          <li>
+                            <span>...</span>
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        <span>Regression</span>
+                        <ul>
+                          <li>
+                            <span>Linear Regression</span>
+                          </li>
+                          <li>
+                            <span>Super vector Regression</span>
+                          </li>
+                          <li>
+                            <span>Decision Tree</span>
+                          </li>
+                          <li>
+                            <span>Gaussian Progresses Regression</span>
+                          </li>
+                          <li>
+                            <span>... </span>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+            </li>
+            </ul>
+          </div>
+
+          <div class="tree-container">
+            <ul class="tree">
+              <li>
+                <span>1</span>
+                <ul>
+                  <li>
+                    <span>2</span>
+                    <ul>
+                      <li>
+                        <span>4</span>
+                      </li>
+                      <li>
+                        <span>5</span>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <span>3</span>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div> -->
+
+          <div class="tree-container">
+            <ul class="tree">
+              <li>
+
+                <span>{{ node.name }}</span>
+
+                <ul v-if="node._childs">
+                  <li v-for="_child1 in node._childs">
+
+                    <span>{{ _child1.name }}</span>
+
+                    <ul v-if="_child1._childs">
+                      <li v-for="_child2 in _child1._childs">
+
+                        <span>{{ _child2.name }}</span>
+
+                        <ul v-if="_child2._childs">
+                          <li v-for="_child3 in _child2._childs">
+
+                            <span>{{ _child3.name }}</span>
+
+                            <ul v-if="_child3._childs">
+                              <li v-for="_child4 in _child3._childs">
+
+                                <span>{{ _child4.name }}</span>
+
+                                <ul v-if="_child4._childs">
+                                  <li v-for="_child5 in _child4._childs">
+
+                                    <span>{{ _child5.name }}</span>
+
+                                    <ul v-if="_child5._childs">
+                                      <li v-for="_child6 in _child5._childs">
+
+                                        <span>{{ _child6.name }}</span>
+
+                                        <ul v-if="_child6._childs">
+                                          <li v-for="_child7 in _child6._childs">
+
+                                            <span>{{ _child7.name }}</span>
+
+                                            <ul v-if="_child7._childs">
+                                              <li v-for="_child8 in _child7._childs">
+
+                                                <span>{{ _child8.name }}</span>
+
+                                                <ul v-if="_child8._childs">
+                                                  <li v-for="_child9 in _child8._childs">
+
+                                                    <span>{{ _child9.name }}</span>
+
+                                                    <ul v-if="_child9._childs">
+                                                      <li v-for="_child10 in _child9._childs">
+
+                                                        <span>{{ _child10.name }}</span>
+
+                                                      </li>
+                                                    </ul>
+                                                  </li>
+                                                </ul>
+                                              </li>
+                                            </ul>
+                                          </li>
+                                        </ul>
+                                      </li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </div>
-
       </div>
 
     </section>
@@ -65,7 +237,198 @@ export default {
     // if(data.error && data.msg == 'invalid filter') this.$router.push('collects/all')
 
     // success
-    this.tree = data.tree
+    // this.tree = data.tree
+    this.node = data.node
   },
 };
 </script>
+
+<style>
+/* https://codepen.io/ea-ger/pen/rNJjxYr
+https://codepen.io/team/amcharts/pen/poPxojR */
+  /*.container{
+    overflow: auto;
+  }*/
+
+  @import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap');
+
+  #body {
+    margin: 0;
+    padding: 0;
+/*    background: #fafafa;*/
+    font-family: 'Oxygen', sans-serif;
+    letter-spacing: 0.2px;
+    height: 100vh;
+/*    width: 100vw;*/
+/*    background-color: var(--bg-1);*/
+    position: relative;
+  }
+
+  :root {
+    --col-1: #c8ddef;
+    --col-2: #c8ddef;
+    --bg-1: #0e182d;
+    --highlighted: #ff5722;
+  }
+
+  .tree-container {
+    /*display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;*/
+
+    overflow: auto;
+
+    width: 100%;
+    padding-top: 5em;
+    padding-bottom: 5em;
+  }
+
+  .tree-container>h1 {
+    color: var(--col-1);
+    font-weight: 400;
+  }
+
+  .tree,
+  .tree ul,
+  .tree li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .tree {
+    margin: 0 0 1em;
+    text-align: center;
+  }
+
+  .tree,
+  .tree ul {
+    display: table;
+  }
+
+  .tree ul {
+    width: 100%;
+  }
+
+  .tree li {
+    display: table-cell;
+    padding: .5em 0;
+    vertical-align: top;
+  }
+
+  .tree li:before {
+    outline: solid 1px var(--col-2);
+    content: "";
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    direction: rtl;
+  }
+
+  .tree li:hover:before {
+    outline: solid 1px var(--col-1);
+  }
+
+  .tree li:first-child:before {
+    left: 50%;
+  }
+
+  .tree li:last-child:before {
+    right: 50%;
+  }
+
+  .tree code,
+  .tree span {
+    border: solid .1em var(--col-1);
+    border-radius: .2em;
+    display: inline-block;
+    margin: 0 .2em .5em;
+    padding: .2em .5em;
+    position: relative;
+/*    background-color: var(--bg-1);*/
+    transition: all 0.2s ease;
+/*    color: var(--col-1);*/
+    font-size: 14px;
+  }
+
+  .tree span:hover {
+    background-color: var(--col-1);
+    color: var(--bg-1);
+  }
+
+  .tree li:hover>span {
+    background-color: var(--col-1);
+    color: var(--bg-1);
+  }
+
+  .tree span:hover::after,
+  .tree li:hover>span::after {
+    box-shadow: 0 0 5px 8px var(--col-1) inset;
+  }
+
+  .tree ul:before,
+  .tree code:before,
+  .tree span:before {
+    outline: solid 1px var(--col-2);
+    content: "";
+    height: .5em;
+    left: 50%;
+    position: absolute;
+  }
+
+  .tree ul:hover:before,
+  .tree code:hover:before,
+  .tree li:hover>span:before {
+    outline: solid 1px var(--col-1);
+  }
+
+  .tree span::after {
+    outline: solid 1px var(--col-1);
+    content: "";
+    top: -8px;
+    left: calc(50% - 5px);
+    width: 8px;
+    height: 8px;
+/*    background-color: var(--bg-1);*/
+    background-color: #888;
+    border: 1px solid var(--col-1);
+    position: absolute;
+    opacity: 1;
+    border-radius: 100%;
+    transition: all 0.2s ease;
+  }
+
+  .tree ul:before {
+    top: -.5em;
+  }
+
+  .tree code:before,
+  .tree span:before {
+    top: -.55em;
+  }
+
+  .tree>li {
+    margin-top: 0;
+  }
+
+  .tree>li:before,
+  .tree>li:after,
+  .tree>li>code:before,
+  .tree>li>span:before,
+  .tree>li>span:after {
+    outline: none;
+    display: none;
+
+  }
+
+  .highlighted {
+    border: 2px solid var(--highlighted) !important;
+  }
+
+  .highlighted:hover {
+    background-color: var(--highlighted) !important;
+  }
+</style>
