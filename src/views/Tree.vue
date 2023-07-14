@@ -246,9 +246,6 @@ export default {
 <style>
 /* https://codepen.io/ea-ger/pen/rNJjxYr
 https://codepen.io/team/amcharts/pen/poPxojR */
-  /*.container{
-    overflow: auto;
-  }*/
 
   @import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap');
 
@@ -342,7 +339,7 @@ https://codepen.io/team/amcharts/pen/poPxojR */
 
   .tree code,
   .tree span {
-    border: solid .1em var(--col-1);
+/*    border: solid .1em var(--col-1);*/
     border-radius: .2em;
     display: inline-block;
     margin: 0 .2em .5em;
