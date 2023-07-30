@@ -8,6 +8,7 @@
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
           <strong>{{ title }}</strong>
+          <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
 
@@ -245,16 +246,37 @@ export default {
     },
     input() {
       console.log('input ...')
-      for(let activation of this.activations) {
+      // for(let activation of this.activations) {
 
-        const date = this.$options.filters.date(activation.date)
-        console.log({ date })
+      //   const date = this.$options.filters.date(activation.date)
+      //   console.log({ date })
 
-        if (date.includes(this.search)) {
-          activation.visible = true
-        }
-        else {
-          activation.visible = false
+      //   if (date.includes(this.search)) {
+      //     activation.visible = true
+      //   }
+      //   else {
+      //     activation.visible = false
+      //   }
+      // }
+      if(!this.search) return
+
+      const words = this.search.match(/\b(\w+)\b/g)
+      console.log({ words })
+
+      for(let word of words) {
+        for(let activation of this.activations) {
+          if(
+            activation.name.toLowerCase().includes(word.toLowerCase()) ||
+            activation.lastName.toLowerCase().includes(word.toLowerCase())
+            // user.country.toLowerCase().includes(word.toLowerCase()) ||
+            // activation.dni.toLowerCase().includes(word.toLowerCase())
+            ) {
+
+            activation.visible = true
+          }
+          else {
+            activation.visible = false
+          }
         }
       }
     },

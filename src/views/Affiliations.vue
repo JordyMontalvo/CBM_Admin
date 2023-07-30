@@ -8,6 +8,7 @@
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
           <strong>{{ title }}</strong>
+          <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
 
@@ -17,9 +18,6 @@
             <thead>
               <tr>
                 <th>#</th>
-                <!-- <th style="display: flex">
-                  Fecha <input class="input" style="margin-left: 6px;" placeholder="buscar" v-model="search" @input="input">
-                </th> -->
                 <th>Fecha</th>
                 <th>Usuario</th>
                 <th>Oficina</th>
@@ -187,7 +185,7 @@ export default {
 
       this.affiliations.forEach((affiliation) => {
         const office = this.accounts.find(x => x.id == affiliation.office)
-        affiliation.office = office.name
+        affiliation.office = office ? office.name : ''
       })
 
       if(filter == 'all')     this.title = 'Todas las Afiliaciones'
@@ -248,16 +246,36 @@ export default {
     },
     input() {
       console.log('input ...')
-      for(let affiliation of this.affiliations) {
+      // for(let affiliation of this.affiliations) {
 
-        const date = this.$options.filters.date(affiliation.date)
-        console.log({ date })
+      //   const date = this.$options.filters.date(affiliation.date)
+      //   console.log({ date })
 
-        if (date.includes(this.search)) {
-          affiliation.visible = true
-        }
-        else {
-          affiliation.visible = false
+      //   if (date.includes(this.search)) {
+      //     affiliation.visible = true
+      //   }
+      //   else {
+      //     affiliation.visible = false
+      //   }
+      // }
+      if(!this.search) return
+
+      const words = this.search.match(/\b(\w+)\b/g)
+      console.log({ words })
+
+      for(let word of words) {
+        for(let affiliation of this.affiliations) {
+          if(
+            affiliation.name.toLowerCase().includes(word.toLowerCase()) ||
+            affiliation.lastName.toLowerCase().includes(word.toLowerCase()) ||
+            // user.country.toLowerCase().includes(word.toLowerCase()) ||
+            affiliation.dni.toLowerCase().includes(word.toLowerCase())) {
+
+            affiliation.visible = true
+          }
+          else {
+            affiliation.visible = false
+          }
         }
       }
     },
