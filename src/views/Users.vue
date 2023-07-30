@@ -23,7 +23,10 @@
                 <th>Estado</th>
                 <th>Código</th>
                 <th>Puntos</th>
-                <th>Saldo disponible</th>
+                <th>
+                  Saldo disponible
+                  <input type="checkbox" v-model="check" @change="input2">
+                </th>
                 <th>No Disponible</th>
                 <th>Patrocinador</th>
                 <th>País</th>
@@ -118,6 +121,7 @@ export default {
       title: null,
 
       search: null,
+      check: null,
     }
   },
   filters: {
@@ -184,6 +188,22 @@ export default {
       }
 
     },
+    input2() {
+
+      const check = this.check
+      console.log({ check })
+
+      for(let user of this.users) {
+        if( !check || (check && user.balance > 0) ) {
+
+          user.visible = true
+        }
+        else {
+          user.visible = false
+        }
+      }
+    },
+
     async migrate(user) {
       console.log('migrate ..')
       console.log({ user })
