@@ -16,6 +16,7 @@ import Stock        from './views/Stock.vue'
 import Offices      from './views/Offices.vue'
 import Operations   from './views/Operations.vue'
 import Pay          from './views/Pay.vue'
+import Wallet       from './views/Wallet.vue'
 
 // import Reports      from './views/Reports.vue'
 
@@ -100,6 +101,11 @@ const routes = [
   {
     path: '/pay',
     component: Pay,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/wallet',
+    component: Wallet,
     meta: { requiresAuth: true }
   },
   // {

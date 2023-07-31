@@ -53,6 +53,7 @@
           <a class="navbar-item" href="/tree" v-if="account.type == 'admin'">Red</a>
           
           <a class="navbar-item" href="/pay">Pagar</a>
+          <a class="navbar-item" href="/wallet">Billetera</a>
 
           <a class="navbar-item" href="/stock" v-if="account.type == 'office'">Stock</a>
           <a class="navbar-item" href="/offices" v-if="account.type == 'admin'">Oficinas</a>
