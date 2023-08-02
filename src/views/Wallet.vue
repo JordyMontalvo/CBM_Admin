@@ -17,6 +17,7 @@
             <thead>
               <tr>
                 <th>#</th>
+                <th>Fecha</th>
                 <th>Origen</th>
                 <th>valor</th>
                 <th>Destino</th>
@@ -26,6 +27,7 @@
             <tbody>
               <tr v-for="(transaction, i) in transactions">
                 <th>{{ i + 1 }}</th>
+                <td>{{ transaction.date | date }}</td>
                 <td>{{ transaction.name }}</td>
                 <td>{{ transaction.value }}</td>
                 <td>{{ transaction._name }}</td>
@@ -52,6 +54,11 @@ export default {
     return{
       loading: false,
     }
+  },
+  filters: {
+    date(val) {
+      return new Date(val).toLocaleDateString()
+    },
   },
   created() {
     const account = JSON.parse(localStorage.getItem('session'))
