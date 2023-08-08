@@ -22,7 +22,7 @@
                 <th>Usuario</th>
                 <th>Oficina</th>
                 <th>Plan</th>
-                <th>Precio</th>
+                <th>Total</th>
                 <th>Productos</th>
                 <th>Voucher</th>
                 <th>Estado</th>
@@ -39,10 +39,11 @@
                 </td>
                 <td>{{ affiliation.office }}</td>
                 <td>
-                  {{ affiliation.plan.name }}
+                  {{ affiliation.plan.name }} <br>
+                  ${{ affiliation.plan.amount }}
                 </td>
                 <td>
-                  $ {{ affiliation.plan.amount }}
+                  $ {{ affiliation.price }}
                   <small v-if="affiliation.remaining != null"> <br>
                     <span v-if="affiliation.amounts">
                     saldo:    ${{ affiliation.amounts[0] }} <br>
@@ -58,13 +59,19 @@
                   </div>
 
                 </td>
-                <td style="min-width: 200px;">
+                <td  v-if="!affiliation.products">
                     Productos:
                     <div v-for="group in affiliation.plan.products">
                       <div v-for="product in group.list" v-if="product.total">
                         {{ product.total }} {{ product.name }}
                       </div>
                     </div>
+                </td>
+                <td v-if="affiliation.products">
+                    Productos:
+                    <p v-for="product in affiliation.products" v-if="product.total > 0">
+                      {{ product.total }} {{ product.name }}
+                    </p>
                 </td>
                 <td>
                   <a :href="affiliation.voucher" target="_blank">
