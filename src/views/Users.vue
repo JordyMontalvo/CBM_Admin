@@ -39,38 +39,41 @@
               <tr v-for="(user, i) in users" v-show="user.visible">
                 <th>{{ i + 1 }}</th>
                 <td>{{ user.date | date }}</td>
-                <td>
+                <td style="position: relative;">
                   <span v-if="!user.edit">{{ user.name }} {{ user.lastName }}</span>
-                  <!-- <span v-if="!user.edit">{{ user.name }}</span> -->
 
-                  <input class="input" v-model="user._name" style="max-width: 120px;" v-if="user.edit">
-                  <input class="input" v-model="user._lastName" style="max-width: 120px;" v-if="user.edit">
+                  <input class="input" v-model="user._name"     placeholder="Nombre"   style="max-width: 120px;" v-if="user.edit">
+                  <input class="input" v-model="user._lastName" placeholder="Apellido" style="max-width: 120px;" v-if="user.edit">
 
                   <br>
 
                   <a v-if="!user.edit">{{ user.dni }}</a>
 
-                  <input class="input" v-model="user._dni" style="max-width: 120px;" v-if="user.edit">
+                  <input class="input" v-model="user._dni" placeholder="Documento" style="max-width: 120px;" v-if="user.edit">
+
+                  <input class="input" v-model= "user._password" placeholder="Contraseña" style="max-width: 240px;" v-if="user.edit"><br>
+
+                  <div style="position: absolute; top: 8px; right: -8px;">
+                    <i
+                      class="fa-regular fa-pen-to-square"
+                      style="color: #ccc; cursor: pointer; margin-right: 8px;"
+                      v-if="!user.edit"
+                      @click="edit(user)"></i>
+                    <i
+                      class="fa-solid fa-check"
+                      style="color: #ccc; cursor: pointer; margin-right: 8px;"
+                      v-if="user.edit"
+                      @click="save(user)"></i>
+                    <i
+                      class="fa-solid fa-xmark"
+                      style="color: #ccc; cursor: pointer; margin-right: 8px;"
+                      v-if="user.edit"
+                      @click="cancel(user)"></i>
+                  </div>
 
                   <br>
 
-                  {{ user.phone }} <br>
-
-                  <i
-                    class="fa-regular fa-pen-to-square"
-                    style="color: #ccc; cursor: pointer; margin-left: 8px;"
-                    v-if="!user.edit"
-                    @click="edit(user)"></i>
-                  <i
-                    class="fa-solid fa-check"
-                    style="color: #ccc; cursor: pointer; margin-left: 8px;"
-                    v-if="user.edit"
-                    @click="save(user)"></i>
-                  <i
-                    class="fa-solid fa-xmark"
-                    style="color: #ccc; cursor: pointer; margin-left: 8px;"
-                    v-if="user.edit"
-                    @click="cancel(user)"></i>
+                  tel: {{ user.phone }} <br>
 
                 </td>
                 <td>
@@ -124,7 +127,9 @@ export default {
       title: null,
 
       search: null,
-      check: null,
+      check:  null,
+
+      show: false,
     }
   },
   computed: {
@@ -175,7 +180,16 @@ export default {
 
       // success
       this.users = data.users
-                    .map(i => ({ ...i, sending: false, visible: true, edit: false, _name: '', _lastName: '', _dni: '' }))
+                    .map(i => ({
+                      ...i,
+                      sending: false,
+                      visible: true,
+                      edit: false,
+                      _name: '',
+                      _lastName: '',
+                      _dni: '',
+                      _password: '',
+                    }))
                     .reverse()
 
       if(filter == 'all')        this.title = 'Todos los usuarios'
@@ -241,7 +255,16 @@ export default {
     },
     async save(user) {
       // post new name
-      const { data } = await api.users.POST({ action: 'name', id: user.id, data: { _name: user._name, _lastName: user._lastName, _dni: user._dni } })
+      const { data } = await api.users.POST({
+        action: 'name',
+        id: user.id,
+        data: {
+          _name:     user._name,
+          _lastName: user._lastName,
+          _dni:      user._dni,
+          _password: user._password,
+        }
+      })
 
       user.name     = user._name
       user.lastName = user._lastName
