@@ -43,9 +43,7 @@
                   <span v-if="!user.edit">{{ user.name }} {{ user.lastName }}</span>
 
                   <input class="input" v-model="user._name"     placeholder="Nombre"   style="max-width: 120px;" v-if="user.edit">
-                  <input class="input" v-model="user._lastName" placeholder="Apellido" style="max-width: 120px;" v-if="user.edit">
-
-                  <br>
+                  <input class="input" v-model="user._lastName" placeholder="Apellido" style="max-width: 120px;" v-if="user.edit"> <br>
 
                   <a v-if="!user.edit">{{ user.dni }}</a>
 
@@ -69,9 +67,7 @@
                       style="color: #ccc; cursor: pointer; margin-right: 8px;"
                       v-if="user.edit"
                       @click="cancel(user)"></i>
-                  </div>
-
-                  <br>
+                  </div> <br>
 
                   tel: {{ user.phone }} <br>
 
