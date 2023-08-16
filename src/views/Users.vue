@@ -92,7 +92,11 @@
                 <td>
                   <div v-if="user.parent">
                     {{ user.parent.name }} {{ user.parent.lastName }} <br>
-                    <a>{{ user.parent.dni }}</a> <br>
+
+                    <a v-if="!user.edit">{{ user.parent.dni }}</a>
+
+                    <input class="input" v-model="user._parent_dni" placeholder="Documento" style="max-width: 120px;" v-if="user.edit"><br>
+
                     {{ user.parent.phone }}
                   </div>
                 </td>
@@ -185,6 +189,7 @@ export default {
                       _lastName: '',
                       _dni: '',
                       _password: '',
+                      _parent_dni: '',
                     }))
                     .reverse()
 
@@ -248,6 +253,8 @@ export default {
       if(!user._name)     user._name     = user.name
       if(!user._lastName) user._lastName = user.lastName
       if(!user._dni)      user._dni      = user.dni
+
+      if(!user._parent_dni) user._parent_dni = user.parent.dni
     },
     async save(user) {
       // post new name
@@ -259,12 +266,16 @@ export default {
           _lastName: user._lastName,
           _dni:      user._dni,
           _password: user._password,
+
+          _parent_dni: user._parent_dni
         }
       })
 
       user.name     = user._name
       user.lastName = user._lastName
       user.dni      = user._dni
+
+      user.parent.dni = user._parent_dni
 
       user.edit = false
     },
