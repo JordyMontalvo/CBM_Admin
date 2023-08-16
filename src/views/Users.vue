@@ -69,6 +69,7 @@
                       @click="cancel(user)"></i>
                   </div> <br>
 
+                  {{ user.rank }} <br>
                   tel: {{ user.phone }} <br>
 
                 </td>
