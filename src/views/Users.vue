@@ -69,7 +69,7 @@
                       @click="cancel(user)"></i>
                   </div> <br>
 
-                  {{ user.rank }} <br>
+                  <p v-if="user.rank">{{ user.rank }}</p>
                   tel: {{ user.phone }} <br>
 
                 </td>
