@@ -32,6 +32,7 @@
                 <th>Voucher</th>
                 <th>Saldo</th>
                 <th>Estado</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -120,6 +121,12 @@
                       @click="uncheck(activation)"></i>
                   </label>
 
+                </td>
+                <td v-if="activation.status == 'approved' && !activation.closed">
+                  <i
+                    class="fa-solid fa-xmark"
+                    style="color: #ccc; cursor: pointer; margin-right: 8px;"
+                    @click="revert(activation)"></i>
                 </td>
               </tr>
             </tbody>
@@ -293,6 +300,15 @@ export default {
 
       const { data } = await api.activations.POST({ action: 'uncheck', id: activation.id })
     },
+
+    async revert(activation) {
+      if(!confirm("Desea revertir la activación?")) return
+
+      console.log('revert ...')
+
+      const { data } = await api.activations.POST({ action: 'revert', id: activation.id })
+      location.reload()
+    }
   }
 };
 </script>
