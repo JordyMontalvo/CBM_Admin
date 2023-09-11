@@ -41,6 +41,7 @@
                 <td>
                   {{ affiliation.plan.name }} <br>
                   ${{ affiliation.plan.amount }}
+                  <a :href=" `${INVOICE_ROOT}?id=${activation.id}` " target="_blank" style="color: gray;" v-if="activation.status == 'approved'">boleta</a>
                 </td>
                 <td>
                   $ {{ affiliation.price }}
@@ -127,6 +128,9 @@
 import Layout from '@/views/Layout'
 import api    from '@/api'
 
+const INVOICE_ROOT = process.env.VUE_APP_INVOICE_ROOT
+console.log({ INVOICE_ROOT })
+
 export default {
   components: { Layout },
   data() {
@@ -139,6 +143,8 @@ export default {
       title: null,
 
       search: null,
+
+      INVOICE_ROOT,
     }
   },
   computed: {
