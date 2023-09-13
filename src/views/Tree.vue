@@ -13,15 +13,25 @@
 
       <div class="container">
         Niveles: <input type="number" v-model="N">
-        <button @click="reset">reset</button>
+        <button @click="reset">reset</button> <br><br>
+
+        Mover:     <input type="text" v-model="to"> <br>
+        Debajo de: <input type="text" v-model="from">
+        <button @click="clear">clear</button> <br><br>
+
+        <small style="color: red;">{{ error }} <br></small>
+        <button class="button" @click="move">Mover</button>
 
         <div id="body">
           <div class="tree-container">
             <ul class="tree">
               <li>
-                <span>{{ node.name }}</span>
+                <span @click="select(node)">
+                  {{ node.name }} <br>
+                  <small style="font-size: 10px;">{{ node.dni }}</small>
+                </span>
 
-                <Node :node="node" :N="N" :n="0" @selectNode="update"/>
+                <Node :node="node" :N="N" :n="0" @filter="update" @select="select"/>
 
                 <!-- <ul v-if="node._childs">
                   <li v-for="_child1 in node._childs">
@@ -121,6 +131,10 @@ export default {
       // tree: null,
       node: null,
       N: 5,
+      to: null,
+      from: null,
+
+      error: '',
     }
   },
   async created() {
@@ -150,6 +164,37 @@ export default {
     },
     reset(child) {
       this.node = this.Node
+    },
+
+    select(child) {
+      if(this.to   && this.to   == child.dni) return this.to   = null
+      if(this.from && this.from == child.dni) return this.from = null
+
+      if(!this.to)   return this.to   = child.dni
+      if(!this.from) return this.from = child.dni
+    },
+    clear() {
+      this.to   = null
+      this.from = null
+      this.error = ''
+    },
+
+    async move() {
+      if(!this.to || !this.from) return
+      if(this.to == this.from) return
+
+      await confirm(`se moverá ${this.to} debajo de ${this.from}, esta operación on puede revertirse`)
+
+      const { to, from } = this
+      const { data } = await api.Tree.POST({ to, from }); console.log({ data })
+
+      if(data.error) return this.error = data.msg
+
+      const { _data } = await api.Tree.GET(); console.log({ _data })
+
+      this.node = _data.node
+      this.Node = _data.node
+
     },
   }
 };

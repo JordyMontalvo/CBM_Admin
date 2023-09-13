@@ -96,6 +96,9 @@ class Tree {
   GET() {
     return axios.get (`/admin/tree`)
   }
+  POST({ to, from }) {
+    return axios.post(`/admin/tree`, { to, from })
+  }
 }
 
 class Stock {

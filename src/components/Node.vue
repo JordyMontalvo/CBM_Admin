@@ -1,8 +1,11 @@
 <template>
   <ul v-if="node._childs" v-show="n < N">
-    <li v-for="_child in node._childs">
-      <span @click="passEvent(_child)">{{ _child.name }}</span>
-      <Node :node="_child" :N="N" :n="n+1" @selectNode="passEvent" />
+    <li v-for="child in node._childs">
+      <span @dblclick="dblclick(child)" @click="click(child)">
+        {{ child.name }} <br>
+        <small style="font-size: 10px;">{{ child.dni }}</small>
+      </span>
+      <Node :node="child" :N="N" :n="n+1" @filter="dblclick" @select="pasTop" />
     </li>
   </ul>
 </template>
@@ -11,12 +14,24 @@
 export default {
   name: 'Node',
   props: ['node', 'N', 'n'],
-
+  data() {
+    return{
+      count: 0,
+    }
+  },
   methods:{
-    passEvent(child)
-    {
-      console.log('emit ...')
-      this.$emit('selectNode', child)
+    dblclick(child) {
+      this.$emit('filter', child)
+    },
+    async click(child) {
+      this.count += 1
+      setTimeout( () => {
+        if(this.count == 1) this.$emit('select', child)
+        this.count = 0
+      }, 250)
+    },
+    pasTop(child) {
+      this.$emit('select', child)
     }
   }
 }
