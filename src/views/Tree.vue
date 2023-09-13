@@ -12,118 +12,18 @@
       </div>
 
       <div class="container">
-
-        <!-- <div> -->
-          <!-- <div class="row" v-for="row in tree">
-            <div class="el" v-for="el in row">
-              <div v-if="el">
-                <i class="fas fa-user-tie"></i> <br>
-                <small>{{ el.name }}</small> <br>
-                <small><small>{{ el.id.substring(0, 5) }}</small></small>
-              </div>
-            </div>
-          </div> -->
-        <!-- </div> -->
+        Niveles: <input type="number" v-model="N">
+        <button @click="reset">reset</button>
 
         <div id="body">
-
-          <!-- <div class="tree-container">
-            <h1>The tree title</h1>
-            <ul class="tree">
-              <li><span class="highlighted">Machine learning</span>
-                <ul>
-                  <li>
-                    <span>Unsupervised learning</span>
-                    <ul>
-                      <li>
-                        <span>Gaussian mixtures</span>
-                      </li>
-                      <li>
-                        <span>K-means Clustering</span>
-                      </li>
-                      <li>
-                        <span>Boosting</span>
-                      </li>
-                      <li>
-                        <span>Hierarchical Clustering</span>
-                      </li>
-                      <li>
-                        <span>Spectral Clustering</span>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <span>Supervised learning</span>
-                    <ul>
-                      <li>
-                        <span>Classification</span>
-                        <ul>
-                          <li>
-                            <span>Decision Trees</span>
-                          </li>
-                          <li>
-                            <span>...</span>
-                          </li>
-                        </ul>
-                      </li>
-                      <li>
-                        <span>Regression</span>
-                        <ul>
-                          <li>
-                            <span>Linear Regression</span>
-                          </li>
-                          <li>
-                            <span>Super vector Regression</span>
-                          </li>
-                          <li>
-                            <span>Decision Tree</span>
-                          </li>
-                          <li>
-                            <span>Gaussian Progresses Regression</span>
-                          </li>
-                          <li>
-                            <span>... </span>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-            </li>
-            </ul>
-          </div>
-
           <div class="tree-container">
             <ul class="tree">
               <li>
-                <span>1</span>
-                <ul>
-                  <li>
-                    <span>2</span>
-                    <ul>
-                      <li>
-                        <span>4</span>
-                      </li>
-                      <li>
-                        <span>5</span>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <span>3</span>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </div> -->
-
-          <div class="tree-container">
-            <ul class="tree">
-              <li>
-
                 <span>{{ node.name }}</span>
 
-                <ul v-if="node._childs">
+                <Node :node="node" :N="N" :n="0" @selectNode="update"/>
+
+                <!-- <ul v-if="node._childs">
                   <li v-for="_child1 in node._childs">
 
                     <span>{{ _child1.name }}</span>
@@ -192,7 +92,7 @@
                       </li>
                     </ul>
                   </li>
-                </ul>
+                </ul> -->
               </li>
             </ul>
           </div>
@@ -206,10 +106,11 @@
 
 <script>
 import Layout from '@/views/Layout'
+import Node from '@/components/Node'
 import api from '@/api'
 
 export default {
-  components: { Layout },
+  components: { Layout, Node },
   data() {
     return{
       // tree,
@@ -217,7 +118,9 @@ export default {
       // id,
       loading: true,
       title: 'Red',
-      tree: null,
+      // tree: null,
+      node: null,
+      N: 5,
     }
   },
   async created() {
@@ -239,7 +142,16 @@ export default {
     // success
     // this.tree = data.tree
     this.node = data.node
+    this.Node = data.node
   },
+  methods: {
+    update(child) {
+      this.node = child
+    },
+    reset(child) {
+      this.node = this.Node
+    },
+  }
 };
 </script>
 
