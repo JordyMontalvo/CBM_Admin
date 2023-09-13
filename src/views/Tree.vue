@@ -7,7 +7,7 @@
 
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
-          <strong>{{ title }}</strong>
+          <strong>{{ title }}</strong> <br>
         </div>
       </div>
 
@@ -15,12 +15,19 @@
         Niveles: <input type="number" v-model="N">
         <button @click="reset">reset</button> <br><br>
 
-        Mover:     <input type="text" v-model="to"> <br>
-        Debajo de: <input type="text" v-model="from">
-        <button @click="clear">clear</button> <br><br>
-
-        <small style="color: red;">{{ error }} <br></small>
-        <button class="button" @click="move">Mover</button>
+        <div style="display: flex; align-items: flex-start;">
+          <div>
+            Mover:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="text" v-model="to"> <br>
+            Debajo de: <input type="text" v-model="from">
+            <button @click="clear">clear</button> <br><br>
+          </div>
+          <div>
+            <small v-show="error" style="color: red;">{{ error }} <br></small>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <button class="button" @click="move">Mover</button>
+          </div>
+        </div>
 
         <div id="body">
           <div class="tree-container">
@@ -31,78 +38,10 @@
                   <small style="font-size: 10px;">{{ node.dni }}</small>
                 </span>
 
-                <Node :node="node" :N="N" :n="0" @filter="update" @select="select"/>
+                <Node :node="node"
+                      :N="N" :n="0" :to="to" :from="from"
+                      @filter="update" @select="select"/>
 
-                <!-- <ul v-if="node._childs">
-                  <li v-for="_child1 in node._childs">
-
-                    <span>{{ _child1.name }}</span>
-
-                    <ul v-if="_child1._childs">
-                      <li v-for="_child2 in _child1._childs">
-
-                        <span>{{ _child2.name }}</span>
-
-                        <ul v-if="_child2._childs">
-                          <li v-for="_child3 in _child2._childs">
-
-                            <span>{{ _child3.name }}</span>
-
-                            <ul v-if="_child3._childs">
-                              <li v-for="_child4 in _child3._childs">
-
-                                <span>{{ _child4.name }}</span>
-
-                                <ul v-if="_child4._childs">
-                                  <li v-for="_child5 in _child4._childs">
-
-                                    <span>{{ _child5.name }}</span>
-
-                                    <ul v-if="_child5._childs">
-                                      <li v-for="_child6 in _child5._childs">
-
-                                        <span>{{ _child6.name }}</span>
-
-                                        <ul v-if="_child6._childs">
-                                          <li v-for="_child7 in _child6._childs">
-
-                                            <span>{{ _child7.name }}</span>
-
-                                            <ul v-if="_child7._childs">
-                                              <li v-for="_child8 in _child7._childs">
-
-                                                <span>{{ _child8.name }}</span>
-
-                                                <ul v-if="_child8._childs">
-                                                  <li v-for="_child9 in _child8._childs">
-
-                                                    <span>{{ _child9.name }}</span>
-
-                                                    <ul v-if="_child9._childs">
-                                                      <li v-for="_child10 in _child9._childs">
-
-                                                        <span>{{ _child10.name }}</span>
-
-                                                      </li>
-                                                    </ul>
-                                                  </li>
-                                                </ul>
-                                              </li>
-                                            </ul>
-                                          </li>
-                                        </ul>
-                                      </li>
-                                    </ul>
-                                  </li>
-                                </ul>
-                              </li>
-                            </ul>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                </ul> -->
               </li>
             </ul>
           </div>
@@ -123,17 +62,12 @@ export default {
   components: { Layout, Node },
   data() {
     return{
-      // tree,
-      // l,
-      // id,
       loading: true,
       title: 'Red',
-      // tree: null,
       node: null,
       N: 5,
       to: null,
       from: null,
-
       error: '',
     }
   },
@@ -150,11 +84,7 @@ export default {
 
     this.loading = false
 
-    // error
-    // if(data.error && data.msg == 'invalid filter') this.$router.push('collects/all')
-
     // success
-    // this.tree = data.tree
     this.node = data.node
     this.Node = data.node
   },
@@ -190,11 +120,10 @@ export default {
 
       if(data.error) return this.error = data.msg
 
-      const { _data } = await api.Tree.GET(); console.log({ _data })
+      const { data: _data } = await api.Tree.GET(); console.log({ _data })
 
       this.node = _data.node
       this.Node = _data.node
-
     },
   }
 };
@@ -234,7 +163,7 @@ https://codepen.io/team/amcharts/pen/poPxojR */
     overflow: auto;
 
     width: 100%;
-    padding-top: 5em;
+/*    padding-top: 5em;*/
     padding-bottom: 5em;
   }
 
@@ -306,6 +235,13 @@ https://codepen.io/team/amcharts/pen/poPxojR */
     transition: all 0.2s ease;
 /*    color: var(--col-1);*/
     font-size: 14px;
+  }
+
+  .tree span.green {
+    background: rgba(201, 242, 155) !important;
+  }
+  .tree span.red {
+    background: #fe7968 !important;
   }
 
   .tree span:hover {

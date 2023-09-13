@@ -1,11 +1,15 @@
 <template>
   <ul v-if="node._childs" v-show="n < N">
     <li v-for="child in node._childs">
-      <span @dblclick="dblclick(child)" @click="click(child)">
-        {{ child.name }} <br>
+      <span @dblclick="dblclick(child)"
+            @click="click(child)"
+            :class="{green: child.dni == to, red: child.dni == from}">
+        {{ child.name }}<br>
         <small style="font-size: 10px;">{{ child.dni }}</small>
       </span>
-      <Node :node="child" :N="N" :n="n+1" @filter="dblclick" @select="pasTop" />
+      <Node :node="child"
+            :N="N" :n="n+1" :to="to" :from="from"
+            @filter="dblclick" @select="pasTop" />
     </li>
   </ul>
 </template>
@@ -13,7 +17,7 @@
 <script>
 export default {
   name: 'Node',
-  props: ['node', 'N', 'n'],
+  props: ['node', 'N', 'n', 'to', 'from'],
   data() {
     return{
       count: 0,
