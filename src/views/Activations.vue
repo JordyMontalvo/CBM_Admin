@@ -67,7 +67,8 @@
                   <a :href=" `${INVOICE_ROOT}?id=${activation.id}` " target="_blank" style="color: gray;" v-if="activation.status == 'approved'">boleta</a>
                 </td>
                 <td>
-                  {{ activation.points }}
+                  <!-- {{ activation.points }} -->
+                  <input v-model="activation.points" @change="change(activation)" style="width: 50px;">
                 </td>
                 <td>
                   <a :href="activation.voucher" target="_blank">
@@ -308,7 +309,13 @@ export default {
 
       const { data } = await api.activations.POST({ action: 'revert', id: activation.id })
       location.reload()
-    }
+    },
+
+    async change(activation) {
+      const { data } = await api.activations.POST({ action: 'change', id: activation.id,
+                                                                      points: activation.points })
+
+    },
   }
 };
 </script>

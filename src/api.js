@@ -60,8 +60,8 @@ class Activations {
   GET({ filter, account }) {
     return axios.get (`/admin/activations?filter=${filter}&&account=${account}`)
   }
-  POST({ action, id }) {
-    return axios.post(`/admin/activations`, { action, id })
+  POST({ action, id, points }) {
+    return axios.post(`/admin/activations`, { action, id, points })
   }
 }
 
