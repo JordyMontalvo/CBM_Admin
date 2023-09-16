@@ -93,8 +93,8 @@
                   {{ user.balance | money }}
                 </td>
                 <td>
-                  {{ user.virtualbalance | money }}
-                  <!-- <a v-if="user.virtualbalance > 0" @click="migrate(user)">migrar saldo</a> -->
+                  {{ user.virtualbalance | money }} <br>
+                  <a v-if="user.virtualbalance > 0" @click="migrate(user)">migrar saldo</a>
                 </td>
                 <td>
                   <div v-if="user.parent">
