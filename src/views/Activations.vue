@@ -67,8 +67,8 @@
                   <a :href=" `${INVOICE_ROOT}?id=${activation.id}` " target="_blank" style="color: gray;" v-if="activation.status == 'approved'">boleta</a>
                 </td>
                 <td>
-                  <!-- {{ activation.points }} -->
-                  <input v-model="activation.points" @change="change(activation)" style="width: 50px;">
+                  {{ activation.points }}
+                  <!-- <input v-model="activation.points" @change="change(activation)" style="width: 50px;"> -->
                 </td>
                 <td>
                   <a :href="activation.voucher" target="_blank">
