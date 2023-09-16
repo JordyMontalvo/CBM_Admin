@@ -79,7 +79,13 @@
                   <span v-else>Registrado</span>
                 </td>
                 <td>{{ user.token }}</td>
-                <td>{{ user.points }}</td>
+                <!-- <td>{{ user.points }}</td> -->
+                <td>
+                  <p v-if="!user.edit">{{ user.points }}</p>
+
+                  <input class="input" v-model="user._points" placeholder="Puntos" style="max-width: 120px;" v-if="user.edit">
+
+                </td>
                 <td>
                   <!-- <span v-if="user.balance != 0">
                     {{ user.balance | money }}
@@ -191,6 +197,7 @@ export default {
                       _dni: '',
                       _password: '',
                       _parent_dni: '',
+                      _points: 0,
                     }))
                     .reverse()
 
@@ -254,6 +261,7 @@ export default {
       if(!user._name)     user._name     = user.name
       if(!user._lastName) user._lastName = user.lastName
       if(!user._dni)      user._dni      = user.dni
+      if(!user._points)   user._points   = user.points
 
       if(!user._parent_dni) user._parent_dni = user.parent.dni
     },
@@ -268,13 +276,15 @@ export default {
           _dni:      user._dni,
           _password: user._password,
 
-          _parent_dni: user._parent_dni
+          _parent_dni: user._parent_dni,
+          _points:     user._points,
         }
       })
 
       user.name     = user._name
       user.lastName = user._lastName
       user.dni      = user._dni
+      user.points   = user._points
 
       user.parent.dni = user._parent_dni
 
