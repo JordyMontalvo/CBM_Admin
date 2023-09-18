@@ -79,7 +79,6 @@
                   <span v-else>Registrado</span>
                 </td>
                 <td>{{ user.token }}</td>
-                <!-- <td>{{ user.points }}</td> -->
                 <td>
                   <p v-if="!user.edit">{{ user.points }}</p>
 
