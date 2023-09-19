@@ -111,7 +111,13 @@
                       @click="uncheck(affiliation)"></i>
                   </label>
 
+                </td>
 
+                <td v-if="affiliation.status == 'approved' && !affiliation.closed">
+                  <i
+                    class="fa-solid fa-xmark"
+                    style="color: #ccc; cursor: pointer; margin-right: 8px;"
+                    @click="revert(affiliation)"></i>
                 </td>
               </tr>
             </tbody>
@@ -304,6 +310,15 @@ export default {
       affiliation.delivered = false
 
       const { data } = await api.affiliations.POST({ action: 'uncheck', id: affiliation.id })
+    },
+
+    async revert(affiliation) {
+      if(!confirm("Desea revertir la afiliación?")) return
+
+      console.log('revert ...')
+
+      const { data } = await api.affiliations.POST({ action: 'revert', id: affiliation.id })
+      location.reload()
     },
   }
 };

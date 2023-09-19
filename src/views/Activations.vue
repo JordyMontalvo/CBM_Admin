@@ -311,11 +311,10 @@ export default {
       location.reload()
     },
 
-    async change(activation) {
-      const { data } = await api.activations.POST({ action: 'change', id: activation.id,
-                                                                      points: activation.points })
-
-    },
+    // async change(activation) {
+    //   const { data } = await api.activations.POST({ action: 'change', id: activation.id,
+    //                                                                   points: activation.points })
+    // },
   }
 };
 </script>
