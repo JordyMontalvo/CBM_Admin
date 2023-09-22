@@ -128,8 +128,30 @@
                   <input class="input" placeholder="Categoría" style="max-width: 220px;"
                          v-model="new_product.type">
                 </td>
-                <td>[]</td>
-                <td>[]</td>
+                <td>
+                  BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                                   v-model.number="new_product.price[0]"> <br>
+                  ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                                   v-model.number="new_product.price[1]"> <br>
+                  PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                   v-model.number="new_product.price[2]"> <br>
+                  ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
+                                   v-model.number="new_product.price[3]">
+                </td>
+                <td>
+                  En Afiliación <input type="checkbox" v-model="new_product.aff_price_check">
+
+                  <div v-if="new_product.aff_price_check">
+                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="new_product.aff_price[0]"> <br>
+                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="new_product.aff_price[1]"> <br>
+                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="new_product.aff_price[2]"> <br>
+                    ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="new_product.aff_price[3]">
+                  </div>
+                </td>
                 <td>
                   <button class="button is-primary" @click="add">Aprobar</button>
                 </td>
@@ -155,7 +177,10 @@ export default {
     return{
       loading: false,
       products: [],
-      new_product: {},
+      new_product: {
+        price: [],
+        aff_price: [],
+      },
     }
   },
   filters: {
@@ -245,12 +270,18 @@ export default {
     },
 
     async add() { /*; console.log('save ...')*/
-      return
+
+      const { name, type, price, aff_price_check, aff_price } = this.new_product
+      console.log({ name, type, price, aff_price_check, aff_price })
+
       await api.products.POST({
         action: 'add',
         data: {
-          name: this.new_product.name,
-          type: this.new_product.type,
+          name,
+          type,
+          price,
+          aff_price_check,
+          aff_price,
         }
       })
 
