@@ -40,8 +40,41 @@
                   <input class="input" placeholder="Categoría" style="max-width: 220px;"
                          v-model="product._type" v-if="product.edit">
                 </td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.aff_price }}</td>
+                <td>
+                  <span v-if="!product.edit">{{ product.price }}</span>
+
+                  <div v-if="product.edit">
+                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="product._price[0]"> <br>
+                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="product._price[1]"> <br>
+                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="product._price[2]"> <br>
+                    ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="product._price[3]">
+                  </div>
+                </td>
+                <td>
+                  <span v-if="!product.edit">{{ product.aff_price }}</span>
+
+                  <div v-if="product.edit">
+
+                    En Afiliación <input type="checkbox" v-model="product.aff_price_check">
+
+                    <div v-if="product.aff_price_check">
+                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._aff_price[0]"> <br>
+                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._aff_price[1]"> <br>
+                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._aff_price[2]"> <br>
+                      ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._aff_price[3]">
+                    </div>
+
+                  </div>
+
+                </td>
                 <td>
                   <i
                     class="fa-regular fa-pen-to-square"
@@ -89,16 +122,16 @@
                 <th>0</th>
                 <td>
                   <input class="input" placeholder="Nombre" style="max-width: 220px;"
-                         v-model="new_product._name">
+                         v-model="new_product.name">
                 </td>
                 <td>
                   <input class="input" placeholder="Categoría" style="max-width: 220px;"
-                         v-model="new_product._type">
+                         v-model="new_product.type">
                 </td>
                 <td>[]</td>
                 <td>[]</td>
                 <td>
-                  <button class="button is-primary">Aprobar</button>
+                  <button class="button is-primary" @click="add">Aprobar</button>
                 </td>
               </tr>
             </tbody>
@@ -158,14 +191,29 @@ export default {
                       edit: false,
                       _name: '',
                       _type: '',
+                      _price:     [0, 0, 0, 0],
+                      _aff_price: [0, 0, 0, 0],
+                      aff_price_check: p.aff_price ? true : false,
                     }))
     },
 
-    edit(product) { ; console.log('edit: ', product)
+    edit(product) { /*; console.log('edit: ', product)*/
       product.edit = true
 
-      if(!product._name) product._name = product.name
-      if(!product._type) product._type = product.type
+      if(!product._name)  product._name = product.name
+      if(!product._type)  product._type = product.type
+
+      if(!product._price[0]) product._price[0] = product.price[0]
+      if(!product._price[1]) product._price[1] = product.price[1]
+      if(!product._price[2]) product._price[2] = product.price[2]
+      if(!product._price[3]) product._price[3] = product.price[3]
+
+      if(product.aff_price_check) {
+        if(!product._aff_price[0]) product._aff_price[0] = product.aff_price[0]
+        if(!product._aff_price[1]) product._aff_price[1] = product.aff_price[1]
+        if(!product._aff_price[2]) product._aff_price[2] = product.aff_price[2]
+        if(!product._aff_price[3]) product._aff_price[3] = product.aff_price[3]
+      }
     },
     async save(product) {
 
@@ -175,17 +223,39 @@ export default {
         data: {
           _name: product._name,
           _type: product._type,
+          _price: product._price,
+          aff_price_check: product.aff_price_check,
+          _aff_price:      product._aff_price
         }
       })
 
       product.name = product._name
       product.type = product._type
+      product.price = product._price
+
+      if(product.aff_price_check)
+        product.aff_price = product._aff_price
+      else
+        product.aff_price = null
 
       product.edit = false
     },
     cancel(product) {
       product.edit = false
     },
+
+    async add() { /*; console.log('save ...')*/
+      return
+      await api.products.POST({
+        action: 'add',
+        data: {
+          name: this.new_product.name,
+          type: this.new_product.type,
+        }
+      })
+
+      location.reload()
+    }
   }
 };
 </script>
