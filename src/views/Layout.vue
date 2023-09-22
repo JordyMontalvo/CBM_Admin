@@ -42,6 +42,9 @@
               <a class="navbar-item" href="/activations/pending">Pendientes</a>
             </div>
           </div>
+
+          <a class="navbar-item" href="/products">Productos</a>
+
           <!-- <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">Promociones</a>
             <div class="navbar-dropdown">

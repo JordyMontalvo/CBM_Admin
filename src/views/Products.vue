@@ -65,6 +65,47 @@
         </div>
       </div> <br>
 
+      <div class="notification" style="margin-bottom: 0;">
+        <div class="container">
+          <strong>Nuevo producto</strong>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <!-- <th>id</th> -->
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precios Compra</th>
+                <th>Precios Afiliación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>0</th>
+                <td>
+                  <input class="input" placeholder="Nombre" style="max-width: 220px;"
+                         v-model="new_product._name">
+                </td>
+                <td>
+                  <input class="input" placeholder="Categoría" style="max-width: 220px;"
+                         v-model="new_product._type">
+                </td>
+                <td>[]</td>
+                <td>[]</td>
+                <td>
+                  <button class="button is-primary">Aprobar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div> <br>
+
     </section>
 
   </Layout>
@@ -81,6 +122,7 @@ export default {
     return{
       loading: false,
       products: [],
+      new_product: {},
     }
   },
   filters: {
