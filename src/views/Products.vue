@@ -22,6 +22,7 @@
                 <th>Categoría</th>
                 <th>Precios Compra</th>
                 <th>Precios Afiliación</th>
+                <th>Valor a Comisionar</th>
               </tr>
             </thead>
             <tbody>
@@ -70,6 +71,23 @@
                                        v-model.number="product._aff_price[2]"> <br>
                       ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._aff_price[3]">
+                    </div>
+
+                  </div>
+
+                </td>
+                <td>
+
+                  <span v-if="!product.edit">{{ product.val }}</span>
+
+
+                  <div v-if="product.edit">
+
+                    A comisionar <input type="checkbox" v-model="product.val_check">
+
+                    <div v-if="product.val_check">
+                      <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._val">
                     </div>
 
                   </div>
@@ -219,6 +237,8 @@ export default {
                       _price:     [0, 0, 0, 0],
                       _aff_price: [0, 0, 0, 0],
                       aff_price_check: p.aff_price ? true : false,
+                      _val: 0,
+                      val_check: p.val ? true : false,
                     }))
     },
 
@@ -239,6 +259,10 @@ export default {
         if(!product._aff_price[2]) product._aff_price[2] = product.aff_price[2]
         if(!product._aff_price[3]) product._aff_price[3] = product.aff_price[3]
       }
+
+      if(product.val_check) {
+        if(!product._val) product._val = product.val
+      }
     },
     async save(product) {
 
@@ -246,11 +270,13 @@ export default {
         action: 'edit',
         id: product.id,
         data: {
-          _name: product._name,
-          _type: product._type,
-          _price: product._price,
+          _name:           product._name,
+          _type:           product._type,
+          _price:          product._price,
           aff_price_check: product.aff_price_check,
-          _aff_price:      product._aff_price
+          _aff_price:      product._aff_price,
+          val_check:       product.val_check,
+          _val:            product._val,
         }
       })
 
@@ -262,6 +288,11 @@ export default {
         product.aff_price = product._aff_price
       else
         product.aff_price = null
+
+      if(product.val_check)
+        product.val = product._val
+      else
+        product.val = null
 
       product.edit = false
     },
