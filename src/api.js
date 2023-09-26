@@ -4,13 +4,14 @@ axios.defaults.baseURL = process.env.VUE_APP_SERVER + '/api'
 
 
 class API {
-  constructor({ users, affiliations, Collects, OfficeCollects, activations, products, promos, promo, pay, wallet, Tree, offices, stock }) {
+  constructor({ users, affiliations, Collects, OfficeCollects, activations, products, closeds, promos, promo, pay, wallet, Tree, offices, stock }) {
     this.users        = users
     this.affiliations = affiliations
     this.Collects     = Collects
     this.OfficeCollects = OfficeCollects
     this.activations  = activations
     this.products     = products
+    this.closeds      = closeds
     this.promos       = promos
     this.promo        = promo
     this.pay          = pay
@@ -75,6 +76,15 @@ class Products {
   }
 }
 
+class Closeds {
+  GET() {
+    return axios.get (`/admin/closeds`)
+  }
+  POST({ action, id, data }) {
+    return axios.post(`/admin/closeds`, { action, id, data })
+  }
+}
+
 class Promos {
   GET() {
     return axios.get (`/admin/promos`)
@@ -136,6 +146,7 @@ export default new API({
   OfficeCollects: new OfficeCollects(),
   activations:  new Activations(),
   products:     new Products(),
+  closeds:      new Closeds(),
   promos:       new Promos(),
   promo:        new Promo(),
   pay:          new Pay(),

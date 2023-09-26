@@ -46,7 +46,6 @@
           <button class="button is-link" @click="save">Enviar Pago</button>
         </div>
 
-
       </div>
 
     </section>
