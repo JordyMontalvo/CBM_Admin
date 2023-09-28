@@ -13,7 +13,8 @@
       <br>
       <div class="container">
         <button class="button is-link" @click="closed">Iniciar Cierre</button>
-
+        <br>
+        <br>
         <table class="table">
           <thead>
             <tr>
@@ -26,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(node, i) in tree" v-if="node.rank != 'none'">
+            <tr v-for="(node, i) in tree.filter(e => e.rank != 'none')">
               <th>{{ i + 1 }}</th>
               <td>
                 {{ node.name }}
@@ -47,7 +48,15 @@
           </tbody>
         </table>
 
-        <button class="button" @click="save">Guardar</button>
+        Activos simple: {{ tree.filter(e => e._activated).length }} <br>
+        Activos full:   {{ tree.filter(e => e.activated).length }} <br><br>
+
+        Afiliaciones: {{ affiliations.length }} <br>
+        Compras: {{ activations.length }} <br>
+        <br>
+
+        <button v-if="!saving" class="button" @click="save">Guardar</button>
+        <button v-if=" saving" class="button">Guardando ...</button>
 
       </div>
       <br>
@@ -96,8 +105,13 @@
               </tr>
             </tbody>
           </table>
-        </div>
 
+          Afiliaciones: {{ closed.affiliations.length }} <br>
+          Activaciones: {{ closed.activations.length }} <br>
+
+        </div>
+        <br>
+        <br>
       </div>
 
     </section>
@@ -116,7 +130,12 @@ export default {
     return{
       loading: true,
       tree: [],
+      affiliations: [],
+      activations: [],
       closeds: [],
+
+      saving: false,
+
     }
   },
   created() {
@@ -130,6 +149,8 @@ export default {
       return new Date(val).toLocaleDateString()
     },
   },
+  // computed: {
+  // },
   methods: {
     async GET() {
 
@@ -147,13 +168,25 @@ export default {
     async closed() {
       const { data } = await api.closeds.POST({ action: 'new' }); console.log({ data })
 
-      this.tree = data.tree
+      this.tree         = data.tree
+      this.affiliations = data.affiliations
+      this.activations  = data.activations
     },
 
     async save() {
       confirm('Esta por guardar el cierre, este proceso no se puede revertir')
+      console.log(this.activations)
+      // return
 
-      const { data } = await api.closeds.POST({ action: 'save', data: {tree: this.tree } }); console.log({ data })
+      this.saving = true
+
+      const { data } = await api.closeds.POST({ action: 'save', data: {
+        tree: this.tree,
+        affiliations: this.affiliations,
+        activations: this.activations,
+      } })
+
+      this.saving = false
 
       location.reload()
     },
