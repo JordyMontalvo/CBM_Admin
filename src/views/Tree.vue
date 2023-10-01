@@ -113,7 +113,8 @@ export default {
       if(!this.to || !this.from) return
       if(this.to == this.from) return
 
-      await confirm(`se moverá ${this.to} debajo de ${this.from}, esta operación on puede revertirse`)
+      // await
+      if(!confirm(`se moverá ${this.to} debajo de ${this.from}, esta operación on puede revertirse`)) return
 
       const { to, from } = this
       const { data } = await api.Tree.POST({ to, from }); console.log({ data })

@@ -174,7 +174,7 @@ export default {
     },
 
     async save() {
-      confirm('Esta por guardar el cierre, este proceso no se puede revertir')
+      if(!confirm('Esta por guardar el cierre, este proceso no se puede revertir')) return
       console.log(this.activations)
       // return
 
