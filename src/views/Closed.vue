@@ -171,6 +171,16 @@ export default {
       this.tree         = data.tree
       this.affiliations = data.affiliations
       this.activations  = data.activations
+
+      for (let node of this.tree) {
+        if(node.rank != 'none') {
+          if(node._pays.length) {
+            console.log(node.name)
+            console.log(node._pays)
+            console.log('')
+          }
+        }
+      }
     },
 
     async save() {
