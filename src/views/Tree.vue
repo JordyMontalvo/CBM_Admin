@@ -94,6 +94,7 @@ export default {
     },
     reset(child) {
       this.node = this.Node
+      this.N = 5
     },
 
     select(child) {
