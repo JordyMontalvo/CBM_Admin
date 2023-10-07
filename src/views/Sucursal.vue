@@ -56,10 +56,11 @@ export default {
         password: false,
       },
       alert:   null,
+      accounts: null,
     }
   },
   computed: {
-    accounts() { return this.$store.state.accounts },
+    // accounts() { return this.$store.state.accounts },
   },
   filters: {
     alert(msg) {
@@ -67,6 +68,12 @@ export default {
       if (msg == 'invalid password') return 'Contraseña incorrecta'
       if (msg == 'invalid account') return 'Cuenta incorrecta'
     },
+  },
+  async created() {
+    // // GET data
+    const { data } = await api.offices.GET(); console.log({ data })
+
+    this.accounts = data.offices
   },
   methods: {
     async submit() {
