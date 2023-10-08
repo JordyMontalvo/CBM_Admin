@@ -41,8 +41,8 @@
                 <td>{{ activation.date | date }}</td>
                 <td>
                   {{ activation.name }} {{ activation.lastName }} <br>
-                  <a>{{ activation.username }}</a> <br>
-                  {{ activation.phone }}
+                  <a>cédula: {{ activation.dni }}</a> <br>
+                  tel: {{ activation.phone }}
                 </td>
                 <td>{{ activation.office }}</td>
                 <td>

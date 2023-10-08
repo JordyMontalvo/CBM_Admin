@@ -28,18 +28,18 @@
               <a class="navbar-item" href="/affiliations/pending">Pendientes</a>
             </div>
           </div>
-          <div class="navbar-item has-dropdown is-hoverable" v-if="account.type == 'admin'">
-            <a class="navbar-link">Retiro</a>
-            <div class="navbar-dropdown">
-              <a class="navbar-item" href="/collects/all">Todos</a>
-              <a class="navbar-item" href="/collects/pending">Pendientes</a>
-            </div>
-          </div>
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">Activación</a>
             <div class="navbar-dropdown">
               <a class="navbar-item" href="/activations/all">Todas</a>
               <a class="navbar-item" href="/activations/pending">Pendientes</a>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown is-hoverable" v-if="account.type == 'admin'">
+            <a class="navbar-link">Retiro</a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="/collects/all">Todos</a>
+              <a class="navbar-item" href="/collects/pending">Pendientes</a>
             </div>
           </div>
 
