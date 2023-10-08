@@ -46,7 +46,8 @@
                   <div v-else>
                     <small>Banco:</small> {{ collect.bank }} <br>
                     <small>Número de cuenta:</small> {{ collect.account }} <br>
-                    <small>Código interbancario:</small> {{ collect.ibk }}
+                    <!-- <small>Código interbancario:</small> {{ collect.ibk }} -->
+                    <small>Tipo de cuenta:</small> {{ collect.account_type }}
                   </div>
                 </td>
                 <td>
