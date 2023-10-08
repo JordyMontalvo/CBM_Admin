@@ -306,6 +306,7 @@ export default {
       const { data } = await api.affiliations.POST({ action: 'check', id: affiliation.id })
     },
     async uncheck(affiliation){
+      if(affiliation.delivered) return
       // console.log('uncheck', { affiliation })
       affiliation.delivered = false
 

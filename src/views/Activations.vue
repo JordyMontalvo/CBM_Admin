@@ -296,6 +296,7 @@ export default {
       const { data } = await api.activations.POST({ action: 'check', id: activation.id })
     },
     async uncheck(activation){
+      if(affiliation.delivered) return
       // console.log('uncheck', { activation })
       activation.delivered = false
 
