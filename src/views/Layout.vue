@@ -82,8 +82,8 @@
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">Compras</a>
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="/operations/plan">Plan</a>
-              <a class="navbar-item" href="/operations/products">Productos</a>
+              <a class="navbar-item" href="/operations/plan">Afiliación</a>
+              <a class="navbar-item" href="/operations/products">Reconsumo</a>
             </div>
           </div>
 

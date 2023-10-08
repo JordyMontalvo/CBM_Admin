@@ -7,9 +7,9 @@
 
       <div class="container">
         <div class="field">
-          <label class="label">DNI</label>
+          <label class="label">CI</label>
           <div class="control has-icons-left">
-            <input class="input" type="text" placeholder="Número de DNI" v-model="dni">
+            <input class="input" type="text" placeholder="Número de CI" v-model="dni">
             <span class="icon is-small is-left">
               <i class="fas fa-user"></i>
             </span>
@@ -21,7 +21,7 @@
           <div class="control has-icons-left has-icons-right">
             <input class="input" type="text"
               oninput="this.value=this.value.replace(/(?![0-9])./gmi,'')"
-              placeholder="Monto en S/" v-model="amount">
+              placeholder="Monto en $" v-model="amount">
             <span class="icon is-small is-left">
               <i class="fa-solid fa-money-bill"></i>
             </span>
