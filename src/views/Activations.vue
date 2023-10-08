@@ -37,7 +37,7 @@
             </thead>
             <tbody>
               <tr v-for="(activation, i) in activations" v-show="activation.visible">
-                <th>{{ i + 1 }}</th>
+                <th>{{ activations.length - i }}</th>
                 <td>{{ activation.date | date }}</td>
                 <td>
                   {{ activation.name }} {{ activation.lastName }} <br>

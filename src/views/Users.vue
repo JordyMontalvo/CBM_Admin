@@ -37,7 +37,7 @@
             </thead>
             <tbody>
               <tr v-for="(user, i) in users" v-show="user.visible">
-                <th>{{ i + 1 }}</th>
+                <th>{{ users.length - i }}</th>
                 <td>{{ user.date | date }}</td>
                 <td style="position: relative;">
                   <span v-if="!user.edit">{{ user.name }} {{ user.lastName }}</span>

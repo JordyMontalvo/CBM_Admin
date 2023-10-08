@@ -30,7 +30,7 @@
             </thead>
             <tbody>
               <tr v-for="(affiliation, i) in affiliations" v-show="affiliation.visible">
-                <th>{{ i + 1 }}</th>
+                <th>{{ affiliations.length - i }}</th>
                 <td>{{ affiliation.date | date }}</td>
                 <td>
                   {{ affiliation.name }} {{ affiliation.lastName }} <br>
