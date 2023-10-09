@@ -24,6 +24,7 @@
                 <th>Plan</th>
                 <th>Total</th>
                 <th>Productos</th>
+                <th>Medio de Pago</th>
                 <th>Voucher</th>
                 <th>Estado</th>
               </tr>
@@ -73,6 +74,15 @@
                     <p v-for="product in affiliation.products" v-if="product.total > 0">
                       {{ product.total }} {{ product.name }}
                     </p>
+                </td>
+                <td style="min-width: 200px;">
+                  <span v-if="affiliation.pay_method == 'cash'">Efectivo</span>
+                  <div v-if="affiliation.pay_method == 'bank'">
+                    <span>Banco</span> <br>
+                    <small>Nombre: {{ affiliation.bank }}</small> <br>
+                    <small>Fecha: {{ affiliation.voucher_date }}</small> <br>
+                    <small>Núm: {{ affiliation.voucher_number }}</small>
+                  </div>
                 </td>
                 <td>
                   <a :href="affiliation.voucher" target="_blank">
@@ -154,7 +164,7 @@ export default {
     }
   },
   computed: {
-    accounts() { return this.$store.state.accounts },
+    // accounts() { return this.$store.state.accounts },
     account()  { return this.$store.state.account  },
   },
   filters: {
@@ -188,6 +198,10 @@ export default {
     async GET(filter) {
 
       this.loading = true
+
+      const data2 = await api.offices.GET(); console.log({ data2 })
+
+      this.accounts = data2.data.offices
 
       // GET data
       const { data } = await api.affiliations.GET({ filter, account: this.account.id }); console.log({ data })
