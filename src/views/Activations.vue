@@ -7,7 +7,7 @@
 
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
-          <strong>{{ title }}</strong>
+          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">descargar</a>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
@@ -198,7 +198,7 @@ export default {
     this.GET(this.$route.params.filter)
   },
   methods: {
-    async GET(filter) {
+    async GET(filter) { ; console.log('GET ', filter)
 
       this.loading = true
 
@@ -217,7 +217,7 @@ export default {
 
       this.activations.forEach((activation) => {
         const office = this.accounts.find(x => x.id == activation.office)
-        activation.office = office.name
+        if(office) activation.office = office.name
       })
 
       if(filter == 'all')     this.title = 'Todas las Activaciones'
@@ -326,6 +326,16 @@ export default {
     //   const { data } = await api.activations.POST({ action: 'change', id: activation.id,
     //                                                                   points: activation.points })
     // },
+
+    download() {
+      let filename='Activaciones.xlsx'
+      let data_xls = this.activations
+
+      var ws = XLSX.utils.json_to_sheet(data_xls)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Activaciones")
+      XLSX.writeFile(wb,filename)
+    },
   }
 };
 </script>

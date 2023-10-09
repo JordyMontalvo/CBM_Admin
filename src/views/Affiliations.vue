@@ -337,18 +337,13 @@ export default {
     },
 
     download() {
-      let filename='reports.xlsx';
-      // let data_xls = [
-      //   { foo: "bar 1" },
-      //   { foo: "bar 2" },
-      //   { foo: "bar 3" },
-      // ]
+      let filename='Afiliaciones.xlsx'
       let data_xls = this.affiliations
 
-      var ws = XLSX.utils.json_to_sheet(data_xls);
-      var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "People");
-      XLSX.writeFile(wb,filename);
+      var ws = XLSX.utils.json_to_sheet(data_xls)
+      var wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Afiliaciones")
+      XLSX.writeFile(wb,filename)
     },
   }
 };
