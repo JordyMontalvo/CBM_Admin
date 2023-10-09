@@ -29,6 +29,7 @@
                 <th>Products</th>
                 <th>Precio Total</th>
                 <th>Puntos</th>
+                <th>Medio de Pago</th>
                 <th>Voucher</th>
                 <th>Saldo</th>
                 <th>Estado</th>
@@ -69,6 +70,15 @@
                 <td>
                   {{ activation.points }}
                   <!-- <input v-model="activation.points" @change="change(activation)" style="width: 50px;"> -->
+                </td>
+                <td style="min-width: 200px;">
+                  <span v-if="activation.pay_method == 'cash'">Efectivo</span>
+                  <div v-if="activation.pay_method == 'bank'">
+                    <span>Banco</span> <br>
+                    <small>Nombre: {{ activation.bank }}</small> <br>
+                    <small>Fecha: {{ activation.voucher_date }}</small> <br>
+                    <small>Núm: {{ activation.voucher_number }}</small>
+                  </div>
                 </td>
                 <td>
                   <a :href="activation.voucher" target="_blank">
