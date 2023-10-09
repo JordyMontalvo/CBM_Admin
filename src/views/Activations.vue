@@ -7,7 +7,7 @@
 
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
-          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">descargar</a>
+          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">Descargar</a>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
@@ -329,7 +329,60 @@ export default {
 
     download() {
       let filename='Activaciones.xlsx'
-      let data_xls = this.activations
+      let data_xls = []
+
+      this.activations.forEach(a => {
+
+        let disponible = 0, no_disponible = 0
+
+        if (a.amounts) {
+          no_disponible = a.amounts[0]
+          disponible    = a.amounts[1]
+        }
+
+        let cash = disponible + no_disponible
+
+
+        let pay = 0
+
+        if (a.amounts) {
+          pay = a.amounts[2]
+        } else {
+          pay = a.price
+        }
+
+        let efectivo = 0, banco = 0
+
+        if (!a.pay_method) efectivo = pay
+        if (a.pay_method == 'cash') efectivo = pay
+        if (a.pay_method == 'bank') banco    = pay
+
+        data_xls.push({
+          'USUARIO (NO. DE CÉDULA)': a.dni,
+          'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
+          'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
+
+          // 'PLAN': a.plan.name,
+          'VALOR DE LA COMPRA': a.price,
+
+          'KASH': cash,
+          'SALDO DISPONIBLE DE CASH': disponible,
+          'SALDO NO DISPONIBLE DE CASH': no_disponible,
+
+          'EFECTIVO': efectivo,
+          'BANCO': banco,
+          'NOMBRE BANCO': a.bank,
+          'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
+          'NUMERO DE VOUCHER ': a.voucher_number,
+          'VOUCHER': a.voucher,
+
+          'TOTAL APORTE': cash + pay,
+
+          'ESTATUS': a.status,
+          'OFICINA': a.office,
+          'ENTRAGA DE PRODUCTOS': a.delivered,
+        })
+      })
 
       var ws = XLSX.utils.json_to_sheet(data_xls)
       var wb = XLSX.utils.book_new()
