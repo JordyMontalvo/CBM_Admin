@@ -7,7 +7,7 @@
 
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
-          <strong>{{ title }}</strong>
+          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">descargar</a>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
@@ -334,6 +334,21 @@ export default {
 
       const { data } = await api.affiliations.POST({ action: 'revert', id: affiliation.id })
       location.reload()
+    },
+
+    download() {
+      let filename='reports.xlsx';
+      // let data_xls = [
+      //   { foo: "bar 1" },
+      //   { foo: "bar 2" },
+      //   { foo: "bar 3" },
+      // ]
+      let data_xls = this.affiliations
+
+      var ws = XLSX.utils.json_to_sheet(data_xls);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "People");
+      XLSX.writeFile(wb,filename);
     },
   }
 };
