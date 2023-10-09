@@ -357,31 +357,42 @@ export default {
         if (a.pay_method == 'cash') efectivo = pay
         if (a.pay_method == 'bank') banco    = pay
 
-        data_xls.push({
-          'USUARIO (NO. DE CÉDULA)': a.dni,
-          'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
-          'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
 
-          // 'PLAN': a.plan.name,
-          'VALOR DE LA COMPRA': a.price,
+        for (let p of a.products) {
+          if(p.total) {
+            data_xls.push({
+              'ID': a.id,
 
-          'KASH': cash,
-          'SALDO DISPONIBLE DE CASH': disponible,
-          'SALDO NO DISPONIBLE DE CASH': no_disponible,
+              'USUARIO (NO. DE CÉDULA)': a.dni,
+              'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
+              'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
 
-          'EFECTIVO': efectivo,
-          'BANCO': banco,
-          'NOMBRE BANCO': a.bank,
-          'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
-          'NUMERO DE VOUCHER ': a.voucher_number,
-          'VOUCHER': a.voucher,
+              // 'PLAN': a.plan.name,
+              'VALOR DE LA COMPRA': a.price,
 
-          'TOTAL APORTE': cash + pay,
+              'KASH': cash,
+              'SALDO DISPONIBLE DE CASH': disponible,
+              'SALDO NO DISPONIBLE DE CASH': no_disponible,
 
-          'ESTATUS': a.status,
-          'OFICINA': a.office,
-          'ENTRAGA DE PRODUCTOS': a.delivered,
-        })
+              'EFECTIVO': efectivo,
+              'BANCO': banco,
+              'NOMBRE BANCO': a.bank,
+              'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
+              'NUMERO DE VOUCHER ': a.voucher_number,
+              'VOUCHER': a.voucher,
+
+              'TOTAL APORTE': cash + pay,
+
+              'PRODUCTO': p.name,
+              'PRECIO': p.price,
+              // 'POINTS': p.points,
+
+              'ESTATUS': a.status,
+              'OFICINA': a.office,
+              'ENTRAGA DE PRODUCTOS': a.delivered,
+            })
+          }
+        }
       })
 
       var ws = XLSX.utils.json_to_sheet(data_xls)
