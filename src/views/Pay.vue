@@ -48,6 +48,27 @@
 
       </div>
 
+      <br>
+      <br>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Monto</th>
+            <th>Voucher</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="pay of pays">
+            <td>{{ new Date(pay.date).toLocaleString() }}</td>
+            <td>{{ pay.user.name }}</td>
+            <td>{{ pay.value }}</td>
+            <td>{{ pay.desc }}</td>
+          </tr>
+        </tbody>
+      </table>
+
     </section>
 
   </Layout>
@@ -71,12 +92,18 @@ export default {
 
       success: false,
       error: false,
+
+      pays: null,
     }
   },
-  created() {
+  async created() {
     const account = JSON.parse(localStorage.getItem('session'))
 
     this.$store.commit('SET_ACCOUNT', account)
+
+    const { data } = await api.pay.GET(); console.log({ data })
+
+    this.pays = data.pays
   },
   methods: {
 

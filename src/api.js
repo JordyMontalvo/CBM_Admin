@@ -101,6 +101,9 @@ class Promo {
 }
 
 class Pay {
+  GET() {
+    return axios.get (`/admin/pay`)
+  }
   POST({ dni, amount, desc }) {
     return axios.post(`/admin/pay`, { dni, amount, desc })
   }
