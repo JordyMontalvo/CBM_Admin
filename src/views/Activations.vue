@@ -300,6 +300,7 @@ export default {
     },
 
     async check(activation){
+      if(!confirm('Seguro que desea marcar entregado? esto no se puede revertir')) return
       // console.log('check', { activation })
       activation.delivered = true
 

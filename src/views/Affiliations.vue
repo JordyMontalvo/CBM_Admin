@@ -316,6 +316,7 @@ export default {
     },
 
     async check(affiliation){
+      if(!confirm('Seguro que desea marcar entregado? esto no se puede revertir')) return
       // console.log('check', { affiliation })
       affiliation.delivered = true
 
