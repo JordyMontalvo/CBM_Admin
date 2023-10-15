@@ -383,7 +383,7 @@ export default {
 
             'USUARIO (NO. DE CÉDULA)': a.dni,
             'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
-            'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
+            'FECHA DE AFILIACIÓN': new Date(a.date).toLocaleDateString(),
 
             'PLAN': a.plan.name,
             'VALOR DEL PLAN': a.plan.amount,
@@ -393,9 +393,10 @@ export default {
             'SALDO NO DISPONIBLE DE CASH': no_disponible,
 
             'EFECTIVO': efectivo,
+            'FECHA EFECTIVO': new Date(a.date).toLocaleDateString(),
             'BANCO': banco,
             'NOMBRE BANCO': a.bank,
-            'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
+            'FECHA VOUCHER ': a.voucher_date ? new Date(a.voucher_date).toLocaleDateString() : '',
             'NUMERO DE VOUCHER ': a.voucher_number,
             'VOUCHER': a.voucher,
 
@@ -417,7 +418,7 @@ export default {
 
                 'USUARIO (NO. DE CÉDULA)': a.dni,
                 'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
-                'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
+                'FECHA DE AFILIACIÓN': new Date(a.date).toLocaleDateString(),
 
                 'PLAN': a.plan.name,
                 'VALOR DEL PLAN': a.plan.amount,
@@ -427,9 +428,10 @@ export default {
                 'SALDO NO DISPONIBLE DE CASH': no_disponible,
 
                 'EFECTIVO': efectivo,
+                'FECHA EFECTIVO': new Date(a.date).toLocaleDateString(),
                 'BANCO': banco,
                 'NOMBRE BANCO': a.bank,
-                'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
+                'FECHA VOUCHER ': a.voucher_date ? new Date(a.voucher_date).toLocaleDateString() : '',
                 'NUMERO DE VOUCHER ': a.voucher_number,
                 'VOUCHER': a.voucher,
 

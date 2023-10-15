@@ -378,7 +378,7 @@ export default {
               'EFECTIVO': efectivo,
               'BANCO': banco,
               'NOMBRE BANCO': a.bank,
-              'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
+              'FECHA VOUCHER ': a.voucher_date ? new Date(a.voucher_date).toLocaleDateString() : '',
               'NUMERO DE VOUCHER ': a.voucher_number,
               'VOUCHER': a.voucher,
 

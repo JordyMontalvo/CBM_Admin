@@ -119,14 +119,12 @@
             <tr>
               <th>Fecha</th>
               <th>Productos</th>
-              <th>Monto</th>
-              <th>Voucher</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="recharge of selected_office.recharges">
+            <tr v-for="(recharge, i) of selected_office.recharges" @click="open(i)">
               <td>{{ recharge.date | date }}</td>
-              <td>
+              <td v-show="recharge.show">
                 <div v-for="product in recharge.products" v-if="product.total">
                   {{ product.total }} {{ product.name }}
                 </div>
@@ -182,11 +180,8 @@ export default {
     // error
     // if(data.error && data.msg == 'invalid filter') this.$router.push('collects/all')
 
-    // success
-    this.offices = data.offices
 
-
-    this.offices = this.offices.map(office => {
+    data.offices = data.offices.map(office => {
 
       office.new_products = []
 
@@ -198,9 +193,14 @@ export default {
         })
       })
 
+      office.recharges.forEach(r => {
+        r.show = false
+      })
+
       return office
     })
 
+    this.offices = data.offices
 
     this.selected_office = this.offices[0]
   },
@@ -234,6 +234,11 @@ export default {
       const office = this.selected_office
 
       const { data } = await api.offices.POST({ id: office.id, office }); console.log({ data })
+    },
+
+    open(i) {
+      console.log(i)
+      this.selected_office.recharges[i].show = !this.selected_office.recharges[i].show
     },
   },
 };

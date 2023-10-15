@@ -245,24 +245,43 @@ export default {
     edit(product) { /*; console.log('edit: ', product)*/
       product.edit = true
 
-      if(!product._name)  product._name = product.name
-      if(!product._type)  product._type = product.type
+      product._name = product.name
+      product._type = product.type
 
-      if(!product._price[0]) product._price[0] = product.price[0]
-      if(!product._price[1]) product._price[1] = product.price[1]
-      if(!product._price[2]) product._price[2] = product.price[2]
-      if(!product._price[3]) product._price[3] = product.price[3]
+      product._price[0] = product.price[0]
+      product._price[1] = product.price[1]
+      product._price[2] = product.price[2]
+      product._price[3] = product.price[3]
 
       if(product.aff_price_check) {
-        if(!product._aff_price[0]) product._aff_price[0] = product.aff_price[0]
-        if(!product._aff_price[1]) product._aff_price[1] = product.aff_price[1]
-        if(!product._aff_price[2]) product._aff_price[2] = product.aff_price[2]
-        if(!product._aff_price[3]) product._aff_price[3] = product.aff_price[3]
+        product._aff_price[0] = product.aff_price[0]
+        product._aff_price[1] = product.aff_price[1]
+        product._aff_price[2] = product.aff_price[2]
+        product._aff_price[3] = product.aff_price[3]
       }
 
       if(product.val_check) {
-        if(!product._val) product._val = product.val
+        product._val = product.val
       }
+
+      // if(!product._name)  product._name = product.name
+      // if(!product._type)  product._type = product.type
+
+      // if(!product._price[0]) product._price[0] = product.price[0]
+      // if(!product._price[1]) product._price[1] = product.price[1]
+      // if(!product._price[2]) product._price[2] = product.price[2]
+      // if(!product._price[3]) product._price[3] = product.price[3]
+
+      // if(product.aff_price_check) {
+      //   if(!product._aff_price[0]) product._aff_price[0] = product.aff_price[0]
+      //   if(!product._aff_price[1]) product._aff_price[1] = product.aff_price[1]
+      //   if(!product._aff_price[2]) product._aff_price[2] = product.aff_price[2]
+      //   if(!product._aff_price[3]) product._aff_price[3] = product.aff_price[3]
+      // }
+
+      // if(product.val_check) {
+      //   if(!product._val) product._val = product.val
+      // }
     },
     async save(product) {
 
