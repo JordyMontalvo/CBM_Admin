@@ -442,38 +442,11 @@ export default {
 
                 'ESTATUS': a.status,
                 'OFICINA': a.office,
-                'ENTRAGA DE PRODUCTOS': a.delivered,
+                'ENTRAGA DE PRODUCTOS': a.delivered ? 'Entregado' : 'Pendiente',
               })
             }
           }
         }
-        // data_xls.push({
-        //   'ID': a.id,
-
-        //   'USUARIO (NO. DE CÉDULA)': a.dni,
-        //   'NOMBRES COMPLETOS': a.name + ' ' + a.lastName,
-        //   'FECHA DE ACTIVACIÓN': new Date(a.date).toLocaleDateString(),
-
-        //   'PLAN': a.plan.name,
-        //   'VALOR DEL PLAN': a.plan.amount,
-
-        //   'KASH': cash,
-        //   'SALDO DISPONIBLE DE CASH': disponible,
-        //   'SALDO NO DISPONIBLE DE CASH': no_disponible,
-
-        //   'EFECTIVO': efectivo,
-        //   'BANCO': banco,
-        //   'NOMBRE BANCO': a.bank,
-        //   'FECHA VOUCHER ': new Date(a.voucher_date).toLocaleDateString(),
-        //   'NUMERO DE VOUCHER ': a.voucher_number,
-        //   'VOUCHER': a.voucher,
-
-        //   'TOTAL APORTE': cash + pay,
-
-        //   'ESTATUS': a.status,
-        //   'OFICINA': a.office,
-        //   'ENTRAGA DE PRODUCTOS': a.delivered,
-        // })
       })
 
       var ws = XLSX.utils.json_to_sheet(data_xls)

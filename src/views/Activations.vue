@@ -390,7 +390,7 @@ export default {
 
               'ESTATUS': a.status,
               'OFICINA': a.office,
-              'ENTRAGA DE PRODUCTOS': a.delivered,
+              'ENTRAGA DE PRODUCTOS': a.delivered ? 'Entregado' : 'Pendiente',
             })
           }
         }
