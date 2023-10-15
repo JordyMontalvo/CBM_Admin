@@ -7,7 +7,7 @@
 
       <div class="notification" style="margin-bottom: 0;">
         <div class="container">
-          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">Descargar</a>
+          <strong>{{ title }}</strong>&nbsp;&nbsp;&nbsp;<a @click="download">Descargar Reporte</a>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input">
         </div>
       </div>
