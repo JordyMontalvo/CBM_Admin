@@ -44,7 +44,7 @@
           </div>
 
           <a class="navbar-item" href="/products">Productos</a>
-          <a class="navbar-item" href="/kadex">kadex</a>
+          <a class="navbar-item" href="/kadex">Inventario</a>
 
           <!-- <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">Promociones</a>
