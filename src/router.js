@@ -18,6 +18,7 @@ import Operations   from './views/Operations.vue'
 import Pay          from './views/Pay.vue'
 import Wallet       from './views/Wallet.vue'
 import Products     from './views/Products.vue'
+import Kadex        from './views/Kadex.vue'
 import Closed       from './views/Closed.vue'
 
 // import Reports      from './views/Reports.vue'
@@ -113,6 +114,11 @@ const routes = [
   {
     path: '/products',
     component: Products,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/kadex',
+    component: Kadex,
     meta: { requiresAuth: true }
   },
   {
