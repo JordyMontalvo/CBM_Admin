@@ -8,7 +8,7 @@ export default new Vuex.Store({
     accounts: [{
       type:      'admin',
       email:     'CBM',
-      password:  'CBM2023',
+      password:  'admincbm2024',
       id:        'admin',
       name:      'Administrador',
     },
