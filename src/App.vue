@@ -4,6 +4,29 @@
   </div>
 </template>
 
+<script>
+
+export default {
+  created() {
+    console.log('App ...')
+
+    const path = this.$router.history.current.path ; console.log({ path })
+
+    if(path != '/login' && path != '/logout') {
+      console.log('validate security token ...')
+
+      const token = localStorage.getItem('token')
+
+      if(token != 'otdxDIds3wtui3enxb') {
+        console.log('invalid security token ...')
+
+        this.$router.push('/logout')
+      }
+    }
+  },
+};
+</script>
+
 <style lang="stylus">
 
   .load

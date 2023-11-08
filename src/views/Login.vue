@@ -83,6 +83,8 @@ export default {
       // login
       localStorage.setItem('session', JSON.stringify(account))
 
+      // token
+      localStorage.setItem('token', 'otdxDIds3wtui3enxb')
 
       // routing
       this.$router.push('/affiliations/all')
