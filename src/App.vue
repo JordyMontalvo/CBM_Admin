@@ -12,7 +12,7 @@ export default {
 
     const path = this.$router.history.current.path ; console.log({ path })
 
-    if(path != '/login' && path != '/logout') {
+    if(path != '/login' && path != '/sucursal' && path != '/logout') {
       console.log('validate security token ...')
 
       const token = localStorage.getItem('token')
