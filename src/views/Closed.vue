@@ -27,7 +27,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(node, i) in tree.filter(e => e.rank != 'none' && e.rank != null)">
+            <tr v-for="(node, i) in tree.filter(e => (e.rank != 'none' && e.rank != null) || e.activated || e._activated )">
               <th>{{ i + 1 }}</th>
               <td>
                 {{ node.name }}
