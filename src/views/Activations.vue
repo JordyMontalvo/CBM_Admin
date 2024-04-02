@@ -64,11 +64,11 @@
 
                 </td>
                 <td>
-                  $ {{ activation.price }} <br>
+                  $ {{ activation.price.toFixed(2) }} <br>
                   <a :href=" `${INVOICE_ROOT}?id=${activation.id}` " target="_blank" style="color: gray;" v-if="activation.status == 'approved'">boleta</a>
                 </td>
                 <td>
-                  {{ activation.points }}
+                  {{ activation.points.toFixed(2) }}
                   <!-- <input v-model="activation.points" @change="change(activation)" style="width: 50px;"> -->
                 </td>
                 <td style="min-width: 200px;">
