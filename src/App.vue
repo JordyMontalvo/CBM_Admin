@@ -17,7 +17,7 @@ export default {
 
       const token = localStorage.getItem('token')
 
-      if(token != 'otdxDIds3wtui3enxb') {
+      if(token != 'xTzntsznsih1jrD9nj') {
         console.log('invalid security token ...')
 
         this.$router.push('/logout')
