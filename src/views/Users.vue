@@ -147,7 +147,7 @@ export default {
     },
     virtualBalance() {
 
-      const ret = this.users.reduce((a, b) => a + b.virtualBalance ? b.virtualBalance : 0, 0)
+      const ret = this.users.reduce((a, b) => a + b.virtualbalance, 0)
 
       return ret
     },
