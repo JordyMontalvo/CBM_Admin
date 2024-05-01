@@ -220,6 +220,10 @@ export default {
         if(office) activation.office = office.name
       })
 
+      this.activations.sort(function(a,b){
+        return new Date(b.date) - new Date(a.date)
+      })
+
       if(filter == 'all')     this.title = 'Todas las Activaciones'
       if(filter == 'pending') this.title = 'Activaciones Pendientes'
 
