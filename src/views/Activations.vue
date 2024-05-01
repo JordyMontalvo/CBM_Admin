@@ -220,7 +220,7 @@ export default {
         if(office) activation.office = office.name
       })
 
-      this.activations.sort(function(a,b){
+      this.activations.sort(function(a,b) {
         return new Date(b.date) - new Date(a.date)
       })
 

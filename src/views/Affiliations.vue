@@ -223,6 +223,10 @@ export default {
         affiliation.office = office ? office.name : ''
       })
 
+      this.affiliations.sort(function(a,b) {
+        return new Date(b.date) - new Date(a.date)
+      })
+
       if(filter == 'all')     this.title = 'Todas las Afiliaciones'
       if(filter == 'pending') this.title = 'Afiliaciones Pendientes'
 
