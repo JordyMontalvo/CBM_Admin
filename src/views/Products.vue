@@ -22,7 +22,9 @@
                 <th>Categoría</th>
                 <th>Precios Compra</th>
                 <th>Precios Afiliación</th>
+                <th>Precios Descuento</th>
                 <th>Valor a Comisionar</th>
+                <th>Valor Descuento</th>
               </tr>
             </thead>
             <tbody>
@@ -41,7 +43,7 @@
                   <input class="input" placeholder="Categoría" style="max-width: 220px;"
                          v-model="product._type" v-if="product.edit">
                 </td>
-                <td>
+                <td style="min-width: 220px;">
                   <span v-if="!product.edit">{{ product.price }}</span>
 
                   <div v-if="product.edit">
@@ -55,7 +57,7 @@
                                      v-model.number="product._price[3]">
                   </div>
                 </td>
-                <td>
+                <td style="min-width: 220px;">
                   <span v-if="!product.edit">{{ product.aff_price }}</span>
 
                   <div v-if="product.edit">
@@ -76,6 +78,27 @@
                   </div>
 
                 </td>
+                <td style="min-width: 220px;">
+                  <span v-if="!product.edit">{{ product.desc_price }}</span>
+
+                  <div v-if="product.edit">
+
+                    Descuento <input type="checkbox" v-model="product.desc_price_check">
+
+                    <div v-if="product.desc_price_check">
+                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._desc_price[0]"> <br>
+                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._desc_price[1]"> <br>
+                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._desc_price[2]"> <br>
+                      ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._desc_price[3]">
+                    </div>
+
+                  </div>
+
+                </td>
                 <td>
 
                   <span v-if="!product.edit">{{ product.val }}</span>
@@ -88,6 +111,23 @@
                     <div v-if="product.val_check">
                       <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._val">
+                    </div>
+
+                  </div>
+
+                </td>
+                <td>
+
+                  <span v-if="!product.edit">{{ product.val_desc }}</span>
+
+
+                  <div v-if="product.edit">
+
+                    Descuento <input type="checkbox" v-model="product.val_desc_check">
+
+                    <div v-if="product.val_desc_check">
+                      <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._val_desc">
                     </div>
 
                   </div>
@@ -235,10 +275,18 @@ export default {
                       _name: '',
                       _type: '',
                       _price:     [0, 0, 0, 0],
+
                       _aff_price: [0, 0, 0, 0],
                       aff_price_check: p.aff_price ? true : false,
+
+                      _desc_price: [0, 0, 0, 0],
+                      desc_price_check: p.desc_price ? true : false,
+
                       _val: 0,
                       val_check: p.val ? true : false,
+
+                      _val_desc: 0,
+                      val_desc_check: p.val_desc ? true : false,
                     }))
     },
 
@@ -260,8 +308,19 @@ export default {
         product._aff_price[3] = product.aff_price[3]
       }
 
+      if(product.desc_price_check) {
+        product._desc_price[0] = product.desc_price[0]
+        product._desc_price[1] = product.desc_price[1]
+        product._desc_price[2] = product.desc_price[2]
+        product._desc_price[3] = product.desc_price[3]
+      }
+
       if(product.val_check) {
         product._val = product.val
+      }
+
+      if(product.val_desc_check) {
+        product._val_desc = product.val_desc
       }
 
       // if(!product._name)  product._name = product.name
@@ -292,10 +351,18 @@ export default {
           _name:           product._name,
           _type:           product._type,
           _price:          product._price,
+
           aff_price_check: product.aff_price_check,
           _aff_price:      product._aff_price,
+
+          desc_price_check: product.desc_price_check,
+          _desc_price:      product._desc_price,
+
           val_check:       product.val_check,
           _val:            product._val,
+
+          val_desc_check:       product.val_desc_check,
+          _val_desc:            product._val_desc,
         }
       })
 
@@ -308,10 +375,20 @@ export default {
       else
         product.aff_price = null
 
+      if(product.desc_price_check)
+        product.desc_price = product._desc_price
+      else
+        product.desc_price = null
+
       if(product.val_check)
         product.val = product._val
       else
         product.val = null
+
+      if(product.val_desc_check)
+        product.val_desc = product._val_desc
+      else
+        product.val_desc = null
 
       product.edit = false
     },
@@ -322,7 +399,7 @@ export default {
     async add() { /*; console.log('save ...')*/
 
       const { name, type, price, aff_price_check, aff_price } = this.new_product
-      console.log({ name, type, price, aff_price_check, aff_price })
+      // console.log({ name, type, price, aff_price_check, aff_price })
 
       await api.products.POST({
         action: 'add',
