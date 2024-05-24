@@ -46,7 +46,7 @@
                 </td>
                 <td style="min-width: 180px;">
 
-                  $ {{ Number(affiliation.price).toFixed(2) }}
+                  $ {{ affiliation.price }}
 
                   <small v-if="affiliation.remaining != null"> <br>
                     <span v-if="affiliation.amounts">
