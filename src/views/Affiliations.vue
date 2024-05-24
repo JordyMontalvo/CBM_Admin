@@ -50,10 +50,10 @@
 
                   <small v-if="affiliation.remaining != null"> <br>
                     <span v-if="affiliation.amounts">
-                    saldo:    ${{ affiliation.amounts[0].toFixed(2) }} <br>
+                    saldo:    ${{ affiliation.amounts[0] }} <br>
                     </span>
-                    ganancia: ${{ affiliation.plan.pay.toFixed(2) }} <br>
-                    cobrar:   ${{ affiliation.remaining.toFixed(2) }}
+                    ganancia: ${{ affiliation.plan.pay }} <br>
+                    cobrar:   ${{ affiliation.remaining }}
                   </small>
 
                   <div v-if="affiliation.amounts && affiliation.remaining == null">
