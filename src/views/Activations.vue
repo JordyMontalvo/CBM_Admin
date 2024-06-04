@@ -88,8 +88,8 @@
                 <td>
                   <div v-if="activation.amounts">
                     <small>no disponible: S/{{ activation.amounts[0] }}</small> <br>
-                    <small>disponible: S/{{ activation.amounts[1] }}</small> <br>
-                    <small>cobrar: S/{{ activation.amounts[2] }}</small> <br>
+                    <small>disponible: S/{{ Number(activation.amounts[1]).toFixed(2) }}</small> <br>
+                    <small>cobrar: S/{{ Number(activation.amounts[2]).toFixed(2) }}</small> <br>
                   </div>
                 </td>
                 <td>
