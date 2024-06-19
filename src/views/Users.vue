@@ -89,10 +89,10 @@
                   <!-- <span v-if="user.balance != 0">
                     {{ user.balance | money }}
                   </span> -->
-                  USD {{ user.balance }}
+                  {{ user.balance | money }}
                 </td>
                 <td>
-                  USD {{ user.virtualbalance }} <br>
+                  {{ user.virtualbalance | money }} <br>
                   <a v-if="user.virtualbalance > 0" @click="migrate(user)">migrar saldo</a>
                 </td>
                 <td>
@@ -141,13 +141,13 @@ export default {
   computed: {
     balance() {
 
-      const ret = this.users.reduce((a, b) => a + b.balance, 0)
+      const ret = this.users.reduce((a, b) => a + Number(b.balance), 0)
 
       return ret
     },
     virtualBalance() {
 
-      const ret = this.users.reduce((a, b) => a + b.virtualbalance, 0)
+      const ret = this.users.reduce((a, b) => a + Number(b.virtualbalance), 0)
 
       return ret
     },
