@@ -158,6 +158,7 @@ export default {
       // return new Date(val).toLocaleString()
     },
     money(val) {
+      if(val == null) return val
       return `USD ${val.toFixed(2)}`
     },
   },
