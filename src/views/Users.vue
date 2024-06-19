@@ -10,7 +10,7 @@
           <strong>{{ title }}</strong>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input"> <br><br>
 
-          <small>Total disponible: USD {{ balance }} &nbsp;&nbsp; / &nbsp;&nbsp; Total no disponible: USD {{ virtualBalance }}</small>
+          <small>Total disponible: USD {{ Number(balance).toFixed(2) }} &nbsp;&nbsp; / &nbsp;&nbsp; Total no disponible: USD {{ virtualBalance }}</small>
 
         </div>
       </div>
