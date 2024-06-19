@@ -89,10 +89,10 @@
                   <!-- <span v-if="user.balance != 0">
                     {{ user.balance | money }}
                   </span> -->
-                  {{ user.balance | money }}
+                  {{ user.balance }}
                 </td>
                 <td>
-                  {{ user.virtualbalance | money }} <br>
+                  {{ user.virtualbalance }} <br>
                   <a v-if="user.virtualbalance > 0" @click="migrate(user)">migrar saldo</a>
                 </td>
                 <td>
