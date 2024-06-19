@@ -158,7 +158,10 @@ export default {
       // return new Date(val).toLocaleString()
     },
     money(val) {
-      return `USD ${val.toFixed(2)}`
+      if(val)
+        return `USD ${val.toFixed(2)}`
+
+      return val
     },
   },
   beforeRouteUpdate(to, from, next) {
