@@ -43,21 +43,23 @@
                   <input class="input" placeholder="Categoría" style="max-width: 220px;"
                          v-model="product._type" v-if="product.edit">
                 </td>
-                <td style="min-width: 220px;">
+                <td style="min-width: 250px;">
                   <span v-if="!product.edit">{{ product.price }}</span>
 
                   <div v-if="product.edit">
-                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                    PILOTO:   <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="product._price[0]"> <br>
-                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="product._price[1]"> <br>
-                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="product._price[2]"> <br>
+                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="product._price[3]"> <br>
                     ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
-                                     v-model.number="product._price[3]">
+                                     v-model.number="product._price[4]">
                   </div>
                 </td>
-                <td style="min-width: 220px;">
+                <td style="min-width: 250px;">
                   <span v-if="!product.edit">{{ product.aff_price }}</span>
 
                   <div v-if="product.edit">
@@ -65,14 +67,16 @@
                     En Afiliación <input type="checkbox" v-model="product.aff_price_check">
 
                     <div v-if="product.aff_price_check">
-                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                      PILOTO:   <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._aff_price[0]"> <br>
-                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._aff_price[1]"> <br>
-                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._aff_price[2]"> <br>
+                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._aff_price[3]"> <br>
                       ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
-                                       v-model.number="product._aff_price[3]">
+                                       v-model.number="product._aff_price[4]">
                     </div>
 
                   </div>
@@ -86,14 +90,16 @@
                     Descuento <input type="checkbox" v-model="product.desc_price_check">
 
                     <div v-if="product.desc_price_check">
-                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                      PILOTO:   <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._desc_price[0]"> <br>
-                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                      BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._desc_price[1]"> <br>
-                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                      ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
                                        v-model.number="product._desc_price[2]"> <br>
+                      PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                       v-model.number="product._desc_price[3]"> <br>
                       ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
-                                       v-model.number="product._desc_price[3]">
+                                       v-model.number="product._desc_price[4]">
                     </div>
 
                   </div>
@@ -187,27 +193,31 @@
                          v-model="new_product.type">
                 </td>
                 <td>
-                  BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                  PILOTO:   <input class="input" type="number" style="max-width: 80px;"
                                    v-model.number="new_product.price[0]"> <br>
-                  ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                  BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
                                    v-model.number="new_product.price[1]"> <br>
-                  PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                  ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
                                    v-model.number="new_product.price[2]"> <br>
+                  PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                   v-model.number="new_product.price[3]"> <br>
                   ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
-                                   v-model.number="new_product.price[3]">
+                                   v-model.number="new_product.price[4]">
                 </td>
                 <td>
                   En Afiliación <input type="checkbox" v-model="new_product.aff_price_check">
 
                   <div v-if="new_product.aff_price_check">
-                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
+                    PILOTO:   <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="new_product.aff_price[0]"> <br>
-                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
+                    BÁSICO:   <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="new_product.aff_price[1]"> <br>
-                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                    ESTÁNDAR: <input class="input" type="number" style="max-width: 80px;"
                                      v-model.number="new_product.aff_price[2]"> <br>
+                    PREMIUM:  <input class="input" type="number" style="max-width: 80px;"
+                                     v-model.number="new_product.aff_price[3]"> <br>
                     ESTRELLA: <input class="input" type="number" style="max-width: 80px;"
-                                     v-model.number="new_product.aff_price[3]">
+                                     v-model.number="new_product.aff_price[4]">
                   </div>
                 </td>
                 <td>
@@ -274,12 +284,12 @@ export default {
                       edit: false,
                       _name: '',
                       _type: '',
-                      _price:     [0, 0, 0, 0],
+                      _price:     [0, 0, 0, 0, 0],
 
-                      _aff_price: [0, 0, 0, 0],
+                      _aff_price: [0, 0, 0, 0, 0],
                       aff_price_check: p.aff_price ? true : false,
 
-                      _desc_price: [0, 0, 0, 0],
+                      _desc_price: [0, 0, 0, 0, 0],
                       desc_price_check: p.desc_price ? true : false,
 
                       _val: 0,
@@ -300,12 +310,14 @@ export default {
       product._price[1] = product.price[1]
       product._price[2] = product.price[2]
       product._price[3] = product.price[3]
+      product._price[4] = product.price[4]
 
       if(product.aff_price_check) {
         product._aff_price[0] = product.aff_price[0]
         product._aff_price[1] = product.aff_price[1]
         product._aff_price[2] = product.aff_price[2]
         product._aff_price[3] = product.aff_price[3]
+        product._aff_price[4] = product.aff_price[4]
       }
 
       if(product.desc_price_check) {
@@ -313,6 +325,7 @@ export default {
         product._desc_price[1] = product.desc_price[1]
         product._desc_price[2] = product.desc_price[2]
         product._desc_price[3] = product.desc_price[3]
+        product._desc_price[4] = product.desc_price[4]
       }
 
       if(product.val_check) {
