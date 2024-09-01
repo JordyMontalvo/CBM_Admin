@@ -40,8 +40,12 @@
                 </td>
                 <td>{{ affiliation.office }}</td>
                 <td>
-                  {{ affiliation.plan.name }} <br>
-                  ${{ affiliation.plan.amount }} <br>
+                  <span v-if="affiliation.plan && affiliation.plan.name">
+                    {{ affiliation.plan.name }}
+                  </span> <br>
+                  <span v-if="affiliation.plan && affiliation.plan.amount">
+                    ${{ affiliation.plan.amount }}
+                  </span> <br>
                   <a :href=" `${INVOICE_ROOT}?id=${affiliation.id}` " target="_blank" style="color: gray;" v-if="affiliation.status == 'approved'">boleta</a>
                 </td>
                 <td style="min-width: 180px;">
