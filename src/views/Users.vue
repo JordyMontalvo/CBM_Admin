@@ -69,7 +69,7 @@
                       @click="cancel(user)"></i>
                   </div> <br>
 
-                  <p v-if="user.rank">rango: {{ user.rank }}</p>
+                  <p v-if="user.rank">rango: {{ user.rank | _rank }}</p>
                   tel: {{ user.phone }} <br>
 
                 </td>
@@ -160,6 +160,20 @@ export default {
     money(val) {
       if(val == null) return val
       return `USD ${val.toFixed(2)}`
+    },
+    _rank(val) {
+      if(val == 'none')              return 'Ninguno'
+      if(val == 'active')            return 'ACTIVO'
+      if(val == 'star')              return 'MASTER'
+      if(val == 'master')            return 'PLATA'
+      if(val == 'silver')            return 'PLATINO'
+      if(val == 'gold')              return 'ORO'
+      if(val == 'sapphire')          return 'ZAFIRO'
+      if(val == 'RUBI')              return 'DIAMANTE RUBI'
+      if(val == 'DIAMANTE')          return 'DIAMANTE ESTRELLA'
+      if(val == 'DOBLE DIAMANTE')    return 'DIAMANTE DOS ESTRELLAS'
+      if(val == 'TRIPLE DIAMANTE')   return 'DIAMANTE TRES ESTRELLAS'
+      if(val == 'DIAMANTE ESTRELLA') return 'DIAMANTE CBM'
     },
   },
   beforeRouteUpdate(to, from, next) {
