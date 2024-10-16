@@ -39,7 +39,7 @@
                 {{ node._total }}
               </td>
               <td>
-                {{ node.rank }}
+                {{ node.rank | _rank }}
               </td>
               <td>
                 {{ node.residual_bonus }}
@@ -97,7 +97,7 @@
                   {{ user.total }}
                 </td>
                 <td>
-                  {{ user.rank }}
+                  {{ user.rank | _rank }}
                 </td>
                 <td>
                   {{ user.residual_bonus }}
@@ -147,6 +147,20 @@ export default {
   filters: {
     date(val) {
       return new Date(val).toLocaleDateString()
+    },
+    _rank(val) {
+      if(val == 'none')              return 'Ninguno'
+      if(val == 'active')            return 'ACTIVO'
+      if(val == 'star')              return 'MASTER'
+      if(val == 'master')            return 'PLATA'
+      if(val == 'silver')            return 'PLATINO'
+      if(val == 'gold')              return 'ORO'
+      if(val == 'sapphire')          return 'ZAFIRO'
+      if(val == 'RUBI')              return 'DIAMANTE RUBI'
+      if(val == 'DIAMANTE')          return 'DIAMANTE ESTRELLA'
+      if(val == 'DOBLE DIAMANTE')    return 'DIAMANTE DOS ESTRELLAS'
+      if(val == 'TRIPLE DIAMANTE')   return 'DIAMANTE TRES ESTRELLAS'
+      if(val == 'DIAMANTE ESTRELLA') return 'DIAMANTE CBM'
     },
   },
   // computed: {
