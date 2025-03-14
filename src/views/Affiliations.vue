@@ -31,7 +31,7 @@
             </thead>
             <tbody>
               <tr v-for="(affiliation, i) in affiliations" v-show="affiliation.visible">
-                <th>{{ affiliations.length - i }}</th>
+                <th>{{ i + 1 }}</th>
                 <td>{{ affiliation.date | date }}</td>
                 <td>
                   {{ affiliation.name }} {{ affiliation.lastName }} <br>
@@ -139,6 +139,11 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination" v-if="!loading">
+          <button @click="previousPage" :disabled="currentPage === 1">Anterior</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
+        </div>
       </div>
 
     </section>
@@ -156,19 +161,20 @@ console.log({ INVOICE_ROOT })
 export default {
   components: { Layout },
   data() {
-    return{
-      affiliations: [],
-
-      loading: true,
-      sending: false,
-
-      title: null,
-
-      search: null,
-
-      INVOICE_ROOT,
-    }
-  },
+  return {
+    affiliations: [],
+    loading: true,
+    sending: false,
+    title: null,
+    search: null,
+    INVOICE_ROOT,
+    // Añadir estas propiedades para la paginación
+    currentPage: 1,
+    itemsPerPage: 20,
+    totalItems: 0,
+    totalPages: 0,
+  }
+},
   computed: {
     // accounts() { return this.$store.state.accounts },
     account()  { return this.$store.state.account  },
@@ -202,39 +208,60 @@ export default {
   },
   methods: {
     async GET(filter) {
+    this.loading = true;
 
-      this.loading = true
+    const data2 = await api.offices.GET(); console.log({ data2 });
+    this.accounts = data2.data.offices;
 
-      const data2 = await api.offices.GET(); console.log({ data2 })
+    // GET data con parámetros de paginación
+    const { data } = await api.affiliations.GET({ 
+      filter, 
+      account: this.account.id,
+      page: this.currentPage,
+      limit: this.itemsPerPage
+    }); 
+    console.log({ data });
 
-      this.accounts = data2.data.offices
+    this.loading = false;
 
-      // GET data
-      const { data } = await api.affiliations.GET({ filter, account: this.account.id }); console.log({ data })
+    // error
+    if(data.error && data.msg == 'invalid filter') this.$router.push('affiliations/all');
 
-      this.loading = false
+    // success
+    this.affiliations = data.affiliations
+                         .map(i => ({ ...i, sending: false, visible: true }));
+                         
+    // Actualizar información de paginación
+    this.totalItems = data.total;
+    this.totalPages = data.totalPages;
 
-      // error
-      if(data.error && data.msg == 'invalid filter') this.$router.push('affiliations/all')
+    this.affiliations.forEach((affiliation) => {
+      const office = this.accounts.find(x => x.id == affiliation.office);
+      affiliation.office = office ? office.name : '';
+    });
 
-      // success
-      this.affiliations = data.affiliations
-                           .map(i => ({ ...i, sending: false, visible: true }))
-                           .reverse()
+    if(filter == 'all')     this.title = 'Todas las Afiliaciones';
+    if(filter == 'pending') this.title = 'Afiliaciones Pendientes';
+  },
+  
+  // Métodos para la paginación
+  async changePage(page) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      await this.GET(this.$route.params.filter);
+      // Scroll al inicio de la tabla
+      window.scrollTo(0, 0);
+    }
+  },
+  
+  async nextPage() {
+    await this.changePage(this.currentPage + 1);
+  },
+  
+  async previousPage() {
+    await this.changePage(this.currentPage - 1);
+  },
 
-      this.affiliations.forEach((affiliation) => {
-        const office = this.accounts.find(x => x.id == affiliation.office)
-        affiliation.office = office ? office.name : ''
-      })
-
-      this.affiliations.sort(function(a,b) {
-        return new Date(b.date) - new Date(a.date)
-      })
-
-      if(filter == 'all')     this.title = 'Todas las Afiliaciones'
-      if(filter == 'pending') this.title = 'Afiliaciones Pendientes'
-
-    },
     async approve(affiliation) {
 
       if(!confirm("Desea aprovar la afiliación?")) return

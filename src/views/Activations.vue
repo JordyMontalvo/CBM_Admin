@@ -38,7 +38,7 @@
             </thead>
             <tbody>
               <tr v-for="(activation, i) in activations" v-show="activation.visible">
-                <th>{{ activations.length - i }}</th>
+                <th>{{ i + 1 }}</th>
                 <td>{{ activation.date | date }}</td>
                 <td>
                   {{ activation.name }} {{ activation.lastName }} <br>
@@ -143,6 +143,11 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination" v-if="!loading">
+          <button @click="previousPage" :disabled="currentPage === 1">Anterior</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
+      </div>
       </div>
 
     </section>
@@ -160,18 +165,18 @@ console.log({ INVOICE_ROOT })
 export default {
   components: { Layout },
   data() {
-    return{
-      activations: [],
-
-      loading: true,
-
-      title: null,
-
-      search: null,
-      
-      INVOICE_ROOT,
-    }
-  },
+  return {
+    activations: [],
+    loading: true,
+    title: null,
+    search: null,
+    INVOICE_ROOT,
+    currentPage: 1,
+    itemsPerPage: 20,
+    totalItems: 0,
+    totalPages: 0,
+  };
+},
   computed: {
     accounts() { return this.$store.state.accounts },
     account()  { return this.$store.state.account  },
@@ -198,36 +203,47 @@ export default {
     this.GET(this.$route.params.filter)
   },
   methods: {
-    async GET(filter) { ; console.log('GET ', filter)
+    async GET(filter) {
+      console.log('Sending request with page:', this.currentPage, 'Type:', typeof this.currentPage);
+  const { data } = await api.activations.GET({
+    filter,
+    account: this.account.id,
+    page: this.currentPage,
+    limit: this.itemsPerPage,
+  });
 
-      this.loading = true
+    this.loading = false;
 
-      // GET data
-      const { data } = await api.activations.GET({ filter, account: this.account.id }); console.log({ data })
+    if (data.error && data.msg == 'invalid filter') {
+      this.$router.push('activations/all');
+      return;
+    }
 
-      this.loading = false
+    this.totalItems = data.total;
+    this.totalPages = data.totalPages;
+    this.activations = data.activations.map(i => ({ ...i, sending: false, visible: true })).reverse();
 
-      // error
-      if(data.error && data.msg == 'invalid filter') this.$router.push('activations/all')
+    this.activations.forEach((activation) => {
+      const office = this.accounts.find(x => x.id == activation.office);
+      if (office) activation.office = office.name;
+    });
 
-      // success
-      this.activations = data.activations
-                         .map(i => ({ ...i, sending: false, visible: true }))
-                         .reverse()
+    this.activations.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-      this.activations.forEach((activation) => {
-        const office = this.accounts.find(x => x.id == activation.office)
-        if(office) activation.office = office.name
-      })
+    this.title = filter === 'all' ? 'Todas las Activaciones' : 'Activaciones Pendientes';
+  },
+  async changePage(page) {
+  console.log('Changing to page:', page, 'Type:', typeof page);
+  this.currentPage = page;
+  await this.GET(this.$route.params.filter);
+},
+  async nextPage() {
+    await this.changePage(this.currentPage + 1);
+  },
+  async previousPage() {
+    await this.changePage(this.currentPage - 1);
+  },
 
-      this.activations.sort(function(a,b) {
-        return new Date(b.date) - new Date(a.date)
-      })
-
-      if(filter == 'all')     this.title = 'Todas las Activaciones'
-      if(filter == 'pending') this.title = 'Activaciones Pendientes'
-
-    },
     async approve(activation) {
 
       if(!confirm("Desea confirmar la activación?")) return
@@ -327,6 +343,22 @@ export default {
       location.reload()
     },
 
+    async changePage(page) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      await this.GET(this.$route.params.filter);
+    }
+  },
+
+  async nextPage() {
+    await this.changePage(this.currentPage + 1);
+  },
+
+  async previousPage() {
+    await this.changePage(this.currentPage - 1);
+  },
+
+
     // async change(activation) {
     //   const { data } = await api.activations.POST({ action: 'change', id: activation.id,
     //                                                                   points: activation.points })
@@ -399,11 +431,13 @@ export default {
           }
         }
       })
+      
 
       var ws = XLSX.utils.json_to_sheet(data_xls)
       var wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, "Activaciones")
       XLSX.writeFile(wb,filename)
+    
     },
   }
 };
