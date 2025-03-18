@@ -37,7 +37,7 @@
             </thead>
             <tbody>
               <tr v-for="(user, i) in users" v-show="user.visible">
-                <th>{{ users.length - i }}</th>
+                <th>{{ i + 1 }}</th>
                 <td>{{ user.date | date }}</td>
                 <td style="position: relative;">
                   <span v-if="!user.edit">{{ user.name }} {{ user.lastName }}</span>
@@ -111,6 +111,11 @@
             </tbody>
           </table>
         </div>
+        <div class="pagination" v-if="!loading">
+          <button @click="previousPage" :disabled="currentPage === 1">Anterior</button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
+      </div>
       </div>
 
     </section>
@@ -136,6 +141,11 @@ export default {
       check:  null,
 
       show: false,
+
+      currentPage: 1,
+      itemsPerPage: 20,
+      totalItems: 0,
+      totalPages: 0,
     }
   },
   computed: {
@@ -192,9 +202,17 @@ export default {
       this.loading = true
 
       // GET data
-      const { data } = await api.users.GET({ filter }); console.log({ data })
+      const { data } = await api.users.GET({ 
+        filter,
+        page: this.currentPage,
+        limit: this.itemsPerPage,
+        
+      }); 
+        console.log({ data })
 
       this.loading = false
+
+      
 
       // error
       if(data.error && data.msg == 'invalid filter') this.$router.push('activations/all')
@@ -215,10 +233,24 @@ export default {
                     }))
                     .reverse()
 
+      this.totalItems = data.totalItems
+      this.totalPages = data.totalPages
+
       if(filter == 'all')        this.title = 'Todos los usuarios'
       if(filter == 'affiliated') this.title = 'Usuarios Afiliados'
       if(filter == 'activated')  this.title = 'Usuarios Activados'
     },
+    async changePage(page) {
+  console.log('Changing to page:', page, 'Type:', typeof page);
+  this.currentPage = page;
+  await this.GET(this.$route.params.filter);
+},
+  async nextPage() {
+    await this.changePage(this.currentPage + 1);
+  },
+  async previousPage() {
+    await this.changePage(this.currentPage - 1);
+  },
     input() {
       if(!this.search) return
 

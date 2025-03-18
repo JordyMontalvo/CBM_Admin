@@ -24,13 +24,15 @@ class API {
 }
 
 class Users {
-  GET({ filter }) {
-    return axios.get (`/admin/users?filter=${filter}`)
+  GET({ filter, page = 1, limit = 10 }) {
+    return axios.get(`/admin/users?filter=${filter}&page=${page}&limit=${limit}`);
   }
+
   POST({ action, id, data }) {
-    return axios.post(`/admin/users`, { action, id, data })
+    return axios.post(`/admin/users`, { action, id, data });
   }
 }
+
 
 class Affiliations {
   GET({ filter, account, page = 1, limit = 20 }) {

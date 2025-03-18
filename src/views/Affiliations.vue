@@ -229,8 +229,7 @@ export default {
 
     // success
     this.affiliations = data.affiliations
-                         .map(i => ({ ...i, sending: false, visible: true }));
-                         
+      .map(i => ({ ...i, sending: false, visible: true })); 
     // Actualizar información de paginación
     this.totalItems = data.total;
     this.totalPages = data.totalPages;
