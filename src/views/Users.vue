@@ -146,6 +146,7 @@ export default {
       itemsPerPage: 20,
       totalItems: 0,
       totalPages: 0,
+      searchTimeout: null,
     }
   },
   computed: {
@@ -198,7 +199,6 @@ export default {
   },
   methods: {
     async GET(filter) {
-
       this.loading = true
 
       // GET data
@@ -206,9 +206,9 @@ export default {
         filter,
         page: this.currentPage,
         limit: this.itemsPerPage,
-        
+        search: this.search || undefined
       }); 
-        console.log({ data })
+      console.log({ data })
 
       this.loading = false
 
@@ -251,28 +251,17 @@ export default {
   async previousPage() {
     await this.changePage(this.currentPage - 1);
   },
-    input() {
-      if(!this.search) return
-
-      const words = this.search.match(/\b(\w+)\b/g)
-      console.log({ words })
-
-      for(let word of words) {
-        for(let user of this.users) {
-          if(
-            user.name.toLowerCase().includes(word.toLowerCase()) ||
-            user.lastName.toLowerCase().includes(word.toLowerCase()) ||
-            user.country.toLowerCase().includes(word.toLowerCase()) ||
-            user.dni.toLowerCase().includes(word.toLowerCase())) {
-
-            user.visible = true
-          }
-          else {
-            user.visible = false
-          }
-        }
+    async input() {
+      // Clear any existing timeout
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
 
+      // Set a new timeout
+      this.searchTimeout = setTimeout(async () => {
+        this.currentPage = 1;
+        await this.GET(this.$route.params.filter);
+      }, 300); // Wait 300ms after last keystroke before searching
     },
     input2() {
 
