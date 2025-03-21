@@ -24,8 +24,9 @@ class API {
 }
 
 class Users {
-  GET({ filter, page = 1, limit = 10 }) {
-    return axios.get(`/admin/users?filter=${filter}&page=${page}&limit=${limit}`);
+  GET({ filter, page = 1, limit = 10, search }) {
+    const searchParam = search ? `&search=${search}` : '';
+    return axios.get(`/admin/users?filter=${filter}&page=${page}&limit=${limit}${searchParam}`);
   }
 
   POST({ action, id, data }) {
