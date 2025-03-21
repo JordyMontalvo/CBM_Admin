@@ -94,6 +94,11 @@
                   <a :href="affiliation.voucher" target="_blank">
                     <img :src="affiliation.voucher" style="max-height: 80px; max-width: 80px">
                   </a>
+                  <span v-if="!affiliation.editing">
+                    <button @click="editVoucher(affiliation)">Editar</button>
+                  </span>
+                  <input v-if="affiliation.editing" v-model="affiliation.newVoucher" placeholder="Nueva URL del voucher" />
+                  <button v-if="affiliation.editing" @click="saveVoucher(affiliation)">Guardar</button>
                 </td>
                 <td>
 
@@ -229,7 +234,7 @@ export default {
 
     // success
     this.affiliations = data.affiliations
-      .map(i => ({ ...i, sending: false, visible: true })); 
+      .map(i => ({ ...i, sending: false, visible: true, editing: false, newVoucher: '' })); 
     // Actualizar información de paginación
     this.totalItems = data.total;
     this.totalPages = data.totalPages;
@@ -487,6 +492,29 @@ export default {
       var wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, ws, "Afiliaciones")
       XLSX.writeFile(wb,filename)
+    },
+
+    editVoucher(affiliation) {
+      console.log('Editando voucher para:', affiliation);
+      affiliation.editing = true;
+      affiliation.newVoucher = affiliation.voucher; // Prellenar el input con la URL actual
+    },
+
+    async saveVoucher(affiliation) {
+      if (!affiliation.newVoucher) return; // Validar que haya una nueva URL
+
+      const data = await api.affiliations.POST({
+        action: 'updateVoucher',
+        id: affiliation.id,
+        voucher: affiliation.newVoucher
+      });
+
+      if (!data.error) {
+        affiliation.voucher = affiliation.newVoucher; // Actualizar la URL en la vista
+        affiliation.editing = false; // Cerrar el input
+      } else {
+        alert('Error al actualizar el voucher');
+      }
     },
   }
 };
