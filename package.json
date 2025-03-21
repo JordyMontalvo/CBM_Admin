@@ -26,5 +26,11 @@
     "stylus-loader": "^3.0.2",
     "vue-template-compiler": "^2.6.10",
     "watchpack-chokidar2": "^2.0.1"
-  }
+  },
+  "overrides": {
+    "fsevents": "1.2.13"
+  },
+  "os": [
+    "!darwin"
+  ]
 }
