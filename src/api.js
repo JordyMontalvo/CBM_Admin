@@ -66,8 +66,8 @@ class Activations {
   GET({ filter, account, page = 1, limit = 20 }) {
     return axios.get(`/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}`)
   }
-  POST({ action, id, points }) {
-    return axios.post(`/admin/activations`, { action, id, points })
+  POST({ action, id, points, voucher }) {
+    return axios.post(`/admin/activations`, { action, id, points, voucher })
   }
 }
 

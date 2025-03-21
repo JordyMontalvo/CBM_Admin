@@ -84,6 +84,11 @@
                   <a :href="activation.voucher" target="_blank">
                     <img :src="activation.voucher" style="max-height: 80px; max-width: 80px">
                   </a>
+                  <span v-if="!activation.editing">
+                    <button @click="editVoucher(activation)">Editar</button>
+                  </span>
+                  <input v-if="activation.editing" v-model="activation.newVoucher" placeholder="Nueva URL del voucher" />
+                  <button v-if="activation.editing" @click="saveVoucher(activation)">Guardar</button>
                 </td>
                 <td>
                   <div v-if="activation.amounts">
@@ -221,7 +226,8 @@ export default {
 
     this.totalItems = data.total;
     this.totalPages = data.totalPages;
-    this.activations = data.activations.map(i => ({ ...i, sending: false, visible: true })).reverse();
+    this.activations = data.activations
+      .map(i => ({ ...i, sending: false, visible: true, editing: false, newVoucher: '' }));
 
     this.activations.forEach((activation) => {
       const office = this.accounts.find(x => x.id == activation.office);
@@ -438,6 +444,29 @@ export default {
       XLSX.utils.book_append_sheet(wb, ws, "Activaciones")
       XLSX.writeFile(wb,filename)
     
+    },
+
+    editVoucher(activation) {
+      console.log('Editando voucher para:', activation);
+      activation.editing = true;
+      activation.newVoucher = activation.voucher; // Prellenar el input con la URL actual
+    },
+
+    async saveVoucher(activation) {
+      if (!activation.newVoucher) return; // Validar que haya una nueva URL
+
+      const { data } = await api.activations.POST({
+        action: 'updateVoucher',
+        id: activation.id,
+        voucher: activation.newVoucher
+      });
+
+      if (!data.error) {
+        activation.voucher = activation.newVoucher; // Actualizar la URL en la vista
+        activation.editing = false; // Cerrar el input
+      } else {
+        alert('Error al actualizar el voucher');
+      }
     },
   }
 };
