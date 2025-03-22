@@ -10,7 +10,9 @@
           <strong>{{ title }}</strong>
           <input class="input" placeholder="Buscar por nombre" v-model="search" @input="input"> <br><br>
 
-          <small>Total disponible: USD {{ Number(balance).toFixed(2) }} &nbsp;&nbsp; / &nbsp;&nbsp; Total no disponible: USD {{ virtualBalance }}</small>
+          <small>Total disponible: USD {{ Number(totalBalance).toFixed(2) }} 
+          &nbsp;&nbsp; / &nbsp;&nbsp; Total no disponible: USD {{ totalVirtualBalance }}
+        </small>
 
         </div>
       </div>
@@ -28,7 +30,7 @@
                 <th>Puntos</th>
                 <th>
                   Saldo disponible
-                  <input type="checkbox" v-model="check" @change="input2">
+                  <input type="checkbox" v-model="check" @change="fetchUsers">
                 </th>
                 <th>No Disponible</th>
                 <th>Patrocinador</th>
@@ -138,7 +140,7 @@ export default {
       title: null,
 
       search: null,
-      check:  null,
+      check:  false,
 
       show: false,
 
@@ -147,13 +149,14 @@ export default {
       totalItems: 0,
       totalPages: 0,
       searchTimeout: null,
+      totalBalance: 0,
+      totalVirtualBalance: 0,
     }
   },
   computed: {
+
     balance() {
-
-      const ret = this.users.reduce((a, b) => a + Number(b.balance), 0)
-
+      const ret = this.users.reduce((total, user) => total + user.balance, 0);
       return ret
     },
     virtualBalance() {
@@ -198,6 +201,10 @@ export default {
     this.GET(this.$route.params.filter)
   },
   methods: {
+
+    async fetchUsers() {
+      await this.GET(this.$route.params.filter); // Llama a GET para obtener usuarios
+    },
     async GET(filter) {
       this.loading = true
 
@@ -206,14 +213,14 @@ export default {
         filter,
         page: this.currentPage,
         limit: this.itemsPerPage,
-        search: this.search || undefined
+        search: this.search || undefined,
+        totalBalance: this.totalBalance,
+        totalVirtualBalance: this.totalVirtualBalance,
+        showAvailable: this.check
       }); 
       console.log({ data })
 
       this.loading = false
-
-      
-
       // error
       if(data.error && data.msg == 'invalid filter') this.$router.push('activations/all')
 
@@ -235,11 +242,17 @@ export default {
 
       this.totalItems = data.totalItems
       this.totalPages = data.totalPages
+      this.totalBalance = data.totalBalance;
+      this.totalVirtualBalance = data.totalVirtualBalance;
+      this.showAvailable = data.showAvailable;
 
       if(filter == 'all')        this.title = 'Todos los usuarios'
       if(filter == 'affiliated') this.title = 'Usuarios Afiliados'
       if(filter == 'activated')  this.title = 'Usuarios Activados'
     },
+    created() {
+    this.fetchUsers(); // Llama a fetchUsers al crear el componente
+  },
     async changePage(page) {
   console.log('Changing to page:', page, 'Type:', typeof page);
   this.currentPage = page;
@@ -264,21 +277,18 @@ export default {
       }, 300); // Wait 300ms after last keystroke before searching
     },
     input2() {
+  const check = this.check;
+  console.log({ check });
 
-      const check = this.check
-      console.log({ check })
-
-      for(let user of this.users) {
-        if( !check || (check && user.balance > 0) ) {
-
-          user.visible = true
-        }
-        else {
-          user.visible = false
-        }
-      }
-    },
-
+  // Filtrar usuarios en función del estado del checkbox
+  for (let user of this.users) {
+    if (!check || (check && user.balance > 0)) {
+      user.visible = true; // Mostrar usuario
+    } else {
+      user.visible = false; // Ocultar usuario
+    }
+  }
+},
     async migrate(user) {
       console.log('migrate ..')
       console.log({ user })
