@@ -30,7 +30,7 @@
                 <th>Puntos</th>
                 <th>
                   Saldo disponible
-                  <input type="checkbox" v-model="check" @change="fetchUsers">
+                  <input type="checkbox" v-model="check" @change="fetchUsers" />
                 </th>
                 <th>No Disponible</th>
                 <th>Patrocinador</th>
@@ -203,13 +203,9 @@ export default {
     this.GET(this.$route.params.filter)
   },
   methods: {
-
     async fetchUsers() {
-  const response = await api.get('/admin/users', { params: { page: this.currentPage, limit: this.itemsPerPage } });
-  this.users = response.data.users;
-  this.totalUsers = response.data.total; // Asegúrate de que esto se actualice correctamente
-  console.log("Total Users:", this.totalUsers); // Verifica el valor
-},
+       await this.GET(this.$route.params.filter); // Llama a GET para obtener usuarios
+     },
     async GET(filter) {
       this.loading = true
 
