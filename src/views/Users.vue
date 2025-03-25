@@ -38,8 +38,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(user, i) in users" v-show="user.visible">
-                <th>{{ i + 1 }}</th>
+              <tr v-for="(user, i) in sortedUsers" :key="user.id">
+                <th>{{  totalItems- (currentPage - 1) * itemsPerPage - i  }}</th>
                 <td>{{ user.date | date }}</td>
                 <td style="position: relative;">
                   <span v-if="!user.edit">{{ user.name }} {{ user.lastName }}</span>
@@ -154,7 +154,9 @@ export default {
     }
   },
   computed: {
-
+    sortedUsers() {
+      return this.users.sort((a, b) => new Date(b.date) - new Date(a.date)); // Asegúrate de que las fechas estén en un formato correcto
+    },
     balance() {
       const ret = this.users.reduce((total, user) => total + user.balance, 0);
       return ret
@@ -203,8 +205,11 @@ export default {
   methods: {
 
     async fetchUsers() {
-      await this.GET(this.$route.params.filter); // Llama a GET para obtener usuarios
-    },
+  const response = await api.get('/admin/users', { params: { page: this.currentPage, limit: this.itemsPerPage } });
+  this.users = response.data.users;
+  this.totalUsers = response.data.total; // Asegúrate de que esto se actualice correctamente
+  console.log("Total Users:", this.totalUsers); // Verifica el valor
+},
     async GET(filter) {
       this.loading = true
 
@@ -240,7 +245,7 @@ export default {
                     }))
                     .reverse()
 
-      this.totalItems = data.totalItems
+      this.totalItems = data.total
       this.totalPages = data.totalPages
       this.totalBalance = data.totalBalance;
       this.totalVirtualBalance = data.totalVirtualBalance;
