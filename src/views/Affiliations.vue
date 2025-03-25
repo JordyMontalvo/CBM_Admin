@@ -31,7 +31,7 @@
             </thead>
             <tbody>
               <tr v-for="(affiliation, i) in affiliations" v-show="affiliation.visible">
-                <th>{{ i + 1 }}</th>
+                <th>{{ totalItems - (currentPage - 1) * itemsPerPage - i  }}</th>
                 <td>{{ affiliation.date | date }}</td>
                 <td>
                   {{ affiliation.name }} {{ affiliation.lastName }} <br>
@@ -254,7 +254,6 @@ export default {
       this.currentPage = page;
       await this.GET(this.$route.params.filter);
       // Scroll al inicio de la tabla
-      window.scrollTo(0, 0);
     }
   },
   

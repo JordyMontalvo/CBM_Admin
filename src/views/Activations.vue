@@ -38,7 +38,7 @@
             </thead>
             <tbody>
               <tr v-for="(activation, i) in activations" v-show="activation.visible">
-                <th>{{ i + 1 }}</th>
+                <th>{{  totalItems - (currentPage - 1) * itemsPerPage - i  }}</th>
                 <td>{{ activation.date | date }}</td>
                 <td>
                   {{ activation.name }} {{ activation.lastName }} <br>
@@ -196,9 +196,6 @@ export default {
       return new Date(val).toLocaleDateString()
       // return new Date(val).toLocaleString()
     },
-  },
-  beforeRouteUpdate(to, from, next) {
-    this.GET(to.params.filter); next()
   },
   created() {
     const account = JSON.parse(localStorage.getItem('session'))
