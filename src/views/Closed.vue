@@ -5,6 +5,46 @@
       <p>Cargando datos, por favor espera...</p>
     </div>
 
+    <div class="container" v-else>
+      <button class="button is-link" @click="closed2">Iniciar Cierre</button>
+      <br /><br />
+
+      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Puntos Personales</th>
+            <th>Puntos Grupales</th>
+            <th>Rango</th>
+            <th>Bono Residual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(node, i) in filteredTree" :key="node.id">
+            <th>{{ i + 1 }}</th>
+            <td>{{ node.name }}</td>
+            <td>{{ node.points }}</td>
+            <td>{{ node._total }}</td>
+            <td>{{ node.rank | _rank }}</td>
+            <td>{{ node.residual_bonus }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="summary">
+        Activos simple: {{ tree.filter((e) => e._activated).length }} <br />
+        Activos full: {{ tree.filter((e) => e.activated).length }} <br /><br />
+        Afiliaciones: {{ affiliations.length }} <br />
+        Compras: {{ activations.length }} <br />
+      </div>
+
+      <button v-if="!saving" class="button" @click="save">Guardar</button>
+      <button v-if="saving" class="button">Guardando ...</button>
+    </div>
+
     <section v-if="!loading">
       <div class="notification" style="margin-bottom: 0">
         <div class="container">
@@ -19,7 +59,6 @@
       </div>
       <br />
       <div class="container">
-        <button class="button is-link" @click="closed">Iniciar Cierre</button>
         <br />
         <br />
         <table class="table" v-if="selectedClosure">
@@ -47,8 +86,10 @@
         <div v-else>
           <p>No hay datos para la fecha seleccionada.</p>
         </div>
+        <br />
       </div>
     </section>
+
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
   </Layout>
 </template>
@@ -68,18 +109,17 @@ export default {
       affiliations: [],
       activations: [],
       closeds: [],
-      selectedDate: "", // Fecha seleccionada
-      selectedClosure: null, // Cierre seleccionado
-      closureDates: [], // Lista de fechas de cierres
+      closureDates: [],
+      errorMessage: "",
       saving: false,
-      errorMessage: "", // Mensaje de error
+      selectedDate: "",
+      selectedClosure: null,
     };
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
     this.$store.commit("SET_ACCOUNT", account);
     this.GET();
-    this.updateTable = debounce(this.updateTable, 300); // 300 ms de retraso
   },
   filters: {
     date(val) {
@@ -103,30 +143,38 @@ export default {
   methods: {
     async GET() {
       this.loading = true;
-      this.errorMessage = ""; // Reiniciar el mensaje de error
+      this.errorMessage = "";
       try {
         const { data } = await api.closeds.GET();
         this.closeds = data.closeds.reverse();
         this.closureDates = [
           ...new Set(this.closeds.map((closed) => closed.date)),
-        ]; // Obtener fechas únicas
+        ];
       } catch (error) {
         console.error("Error al obtener los cierres:", error);
         this.errorMessage =
-          "Hubo un problema al cargar los datos. Inténtalo de nuevo más tarde."; // Mensaje de error
+          "Hubo un problema al cargar los datos. Inténtalo de nuevo más tarde.";
       } finally {
         this.loading = false;
       }
     },
-    updateTable() {
-      // Filtrar el cierre seleccionado por la fecha
-      this.selectedClosure = this.closeds.find(
-        (closed) => closed.date === this.selectedDate
-      );
-    },
-    async closed() {
+    async closed2() {
       const { data } = await api.closeds.POST({ action: "new" });
-      this.GET(); // Recargar los datos después de iniciar un nuevo cierre
+      console.log({ data });
+
+      this.tree = data.tree;
+      this.affiliations = data.affiliations;
+      this.activations = data.activations;
+
+      for (let node of this.tree) {
+        if (node.rank != "none") {
+          if (node._pays.length) {
+            console.log(node.name);
+            console.log(node._pays);
+            console.log("");
+          }
+        }
+      }
     },
     async save() {
       if (
@@ -153,6 +201,11 @@ export default {
 
       location.reload();
     },
+    updateTable() {
+      this.selectedClosure = this.closeds.find(
+        (closed) => closed.date === this.selectedDate
+      );
+    },
   },
 };
 </script>
@@ -163,16 +216,16 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100vh; /* Ocupa toda la altura de la vista */
 }
 
 .spinner {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #3498db;
+  border: 8px solid #f3f3f3; /* Color de fondo */
+  border-top: 8px solid #3498db; /* Color del spinner */
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
+  width: 50px; /* Tamaño del spinner */
+  height: 50px; /* Tamaño del spinner */
+  animation: spin 1s linear infinite; /* Animación del spinner */
 }
 
 @keyframes spin {
@@ -185,7 +238,7 @@ export default {
 }
 
 .error-message {
-  color: red;
+  color: red; /* Estilo para el mensaje de error */
   margin-top: 10px;
 }
 </style>
