@@ -2,48 +2,57 @@
   <Layout>
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
-      <p>Cargando datos, por favor espera...</p>
+      <p>Cargando datos, por favor espera...</p> <!-- Mensaje de carga estilizado -->
     </div>
 
-    <div class="container" v-else>
-      <button class="button is-link" @click="closed2">Iniciar Cierre</button>
-      <br /><br />
+    <div class="container">
+        <button class="button is-link" @click="closed2">Iniciar Cierre</button>
+        <br>
+        <br>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Puntos Personales</th>
+              <th>Puntos Grupales</th>
+              <th>Rango</th>
+              <th>Bono Residual</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(node, i) in tree.filter(e => (e.rank != 'none' && e.rank != null) || e.activated || e._activated )">
+              <th>{{ i + 1 }}</th>
+              <td>
+                {{ node.name }}
+              </td>
+              <td>
+                {{ node.points }}
+              </td>
+              <td>
+                {{ node._total }}
+              </td>
+              <td>
+                {{ node.rank | _rank }}
+              </td>
+              <td>
+                {{ node.residual_bonus }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+        Activos simple: {{ tree.filter(e => e._activated).length }} <br>
+        Activos full:   {{ tree.filter(e => e.activated).length }} <br><br>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>Puntos Personales</th>
-            <th>Puntos Grupales</th>
-            <th>Rango</th>
-            <th>Bono Residual</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(node, i) in filteredTree" :key="node.id">
-            <th>{{ i + 1 }}</th>
-            <td>{{ node.name }}</td>
-            <td>{{ node.points }}</td>
-            <td>{{ node._total }}</td>
-            <td>{{ node.rank | _rank }}</td>
-            <td>{{ node.residual_bonus }}</td>
-          </tr>
-        </tbody>
-      </table>
+        Afiliaciones: {{ affiliations.length }} <br>
+        Compras: {{ activations.length }} <br>
+        <br>
 
-      <div class="summary">
-        Activos simple: {{ tree.filter((e) => e._activated).length }} <br />
-        Activos full: {{ tree.filter((e) => e.activated).length }} <br /><br />
-        Afiliaciones: {{ affiliations.length }} <br />
-        Compras: {{ activations.length }} <br />
+        <button v-if="!saving" class="button" @click="save">Guardar</button>
+        <button v-if=" saving" class="button">Guardando ...</button>
+
       </div>
-
-      <button v-if="!saving" class="button" @click="save">Guardar</button>
-      <button v-if="saving" class="button">Guardando ...</button>
-    </div>
 
     <section v-if="!loading">
       <div class="notification" style="margin-bottom: 0">
@@ -111,6 +120,7 @@ export default {
       closeds: [],
       closureDates: [],
       errorMessage: "",
+
       saving: false,
       selectedDate: "",
       selectedClosure: null,
@@ -118,6 +128,7 @@ export default {
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
+
     this.$store.commit("SET_ACCOUNT", account);
     this.GET();
   },
@@ -158,24 +169,50 @@ export default {
         this.loading = false;
       }
     },
-    async closed2() {
-      const { data } = await api.closeds.POST({ action: "new" });
-      console.log({ data });
 
-      this.tree = data.tree;
-      this.affiliations = data.affiliations;
-      this.activations = data.activations;
+    async closed() {
+      this.loading = true;
+      this.errorMessage = "";
+      try {
+        const { data } = await api.closeds.POST({ action: "new" });
+        console.log(data);
+
+        if (data && data.date) {
+          this.closeds.push(data);
+          this.closureDates.push(data.date);
+          this.closureDates = [...new Set(this.closureDates)];
+          this.selectedDate = data.date;
+          this.updateTable();
+        } else {
+          this.errorMessage = "No se recibió la fecha del nuevo cierre.";
+        }
+      } catch (error) {
+        console.error("Error al iniciar el cierre:", error);
+        this.errorMessage =
+          "Hubo un problema al iniciar el cierre. Inténtalo de nuevo más tarde.";
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    async closed2() {
+      const { data } = await api.closeds.POST({ action: 'new' }); console.log({ data })
+
+      this.tree         = data.tree
+      this.affiliations = data.affiliations
+      this.activations  = data.activations
 
       for (let node of this.tree) {
-        if (node.rank != "none") {
-          if (node._pays.length) {
-            console.log(node.name);
-            console.log(node._pays);
-            console.log("");
+        if(node.rank != 'none') {
+          if(node._pays.length) {
+            console.log(node.name)
+            console.log(node._pays)
+            console.log('')
           }
         }
       }
     },
+
     async save() {
       if (
         !confirm(
@@ -201,6 +238,7 @@ export default {
 
       location.reload();
     },
+
     updateTable() {
       this.selectedClosure = this.closeds.find(
         (closed) => closed.date === this.selectedDate
@@ -229,12 +267,8 @@ export default {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error-message {
