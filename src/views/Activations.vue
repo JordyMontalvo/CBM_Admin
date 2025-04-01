@@ -406,7 +406,7 @@ export default {
     },
     input() {
       this.currentPage = 1; // Reinicia a la primera página
-      this.GET(this.$route.params.filter); // Wait 300ms after last keystroke before searching
+      this.GET(this.$route.params.filter); // Llama a GET con el filtro actual
     },
 
     async check(activation) {
