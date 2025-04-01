@@ -258,17 +258,17 @@ export default {
       title: null,
       search: null,
       INVOICE_ROOT,
-      // Añadir estas propiedades para la paginación
       currentPage: 1,
       itemsPerPage: 20,
       totalItems: 0,
       totalPages: 0,
       pageInput: 1,
       showScrollToTop: false,
+      searchTimeout: null,
+      accounts: []
     };
   },
   computed: {
-    // accounts() { return this.$store.state.accounts },
     account() {
       return this.$store.state.account;
     },
@@ -287,7 +287,6 @@ export default {
     },
     date(val) {
       return new Date(val).toLocaleDateString();
-      // return new Date(val).toLocaleString()
     },
   },
   beforeRouteUpdate(to, from, next) {
@@ -315,22 +314,20 @@ export default {
       console.log({ data2 });
       this.accounts = data2.data.offices;
 
-      // GET data con parámetros de paginación
       const { data } = await api.affiliations.GET({
         filter,
         account: this.account.id,
         page: this.currentPage,
         limit: this.itemsPerPage,
+        search: this.search || undefined
       });
       console.log({ data });
 
       this.loading = false;
 
-      // error
       if (data.error && data.msg == "invalid filter")
         this.$router.push("affiliations/all");
 
-      // success
       this.affiliations = data.affiliations.map((i) => ({
         ...i,
         sending: false,
@@ -338,7 +335,7 @@ export default {
         editing: false,
         newVoucher: "",
       }));
-      // Actualizar información de paginación
+
       this.totalItems = data.total;
       this.totalPages = data.totalPages;
 
@@ -351,12 +348,10 @@ export default {
       if (filter == "pending") this.title = "Afiliaciones Pendientes";
     },
 
-    // Métodos para la paginación
     async changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         await this.GET(this.$route.params.filter);
-        // Scroll al inicio de la tabla
       }
     },
 
@@ -383,7 +378,6 @@ export default {
       affiliation.sending = false;
       this.sending = false;
 
-      // error
       if (data.error && data.msg == "already approved")
         return (affiliation.status = "approved");
       if (data.error && data.msg == "already rejected")
@@ -391,13 +385,6 @@ export default {
       if (data.error && data.msg == "token unavailable")
         return alert("No hay tokens disponibles");
 
-      // data = await api.affiliations.POST({ action: 'approve2', id: affiliation.id })
-      // console.log({ data })
-
-      // data = await api.affiliations.POST({ action: 'approve3', id: affiliation.id })
-      // console.log({ data })
-
-      // success
       affiliation.status = "approved";
     },
     async reject(affiliation) {
@@ -415,48 +402,22 @@ export default {
       affiliation.sending = false;
       this.sending = false;
 
-      // error
       if (data.error && data.msg == "already approved")
         return (affiliation.status = "approved");
       if (data.error && data.msg == "already rejected")
         return (affiliation.status = "rejected");
 
-      // success
       affiliation.status = "rejected";
     },
     input() {
-      console.log("input ...");
-      // for(let affiliation of this.affiliations) {
-
-      //   const date = this.$options.filters.date(affiliation.date)
-      //   console.log({ date })
-
-      //   if (date.includes(this.search)) {
-      //     affiliation.visible = true
-      //   }
-      //   else {
-      //     affiliation.visible = false
-      //   }
-      // }
-      if (!this.search) return;
-
-      const words = this.search.match(/\b(\w+)\b/g);
-      console.log({ words });
-
-      for (let word of words) {
-        for (let affiliation of this.affiliations) {
-          if (
-            affiliation.name.toLowerCase().includes(word.toLowerCase()) ||
-            affiliation.lastName.toLowerCase().includes(word.toLowerCase()) ||
-            // user.country.toLowerCase().includes(word.toLowerCase()) ||
-            affiliation.dni.toLowerCase().includes(word.toLowerCase())
-          ) {
-            affiliation.visible = true;
-          } else {
-            affiliation.visible = false;
-          }
-        }
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
+
+      this.searchTimeout = setTimeout(async () => {
+        this.currentPage = 1;
+        await this.GET(this.$route.params.filter);
+      }, 300);
     },
 
     async check(affiliation) {
@@ -464,7 +425,6 @@ export default {
         !confirm("Seguro que desea marcar entregado? esto no se puede revertir")
       )
         return;
-      // console.log('check', { affiliation })
       affiliation.delivered = true;
 
       const { data } = await api.affiliations.POST({
@@ -474,7 +434,6 @@ export default {
     },
     async uncheck(affiliation) {
       if (affiliation.delivered) return;
-      // console.log('uncheck', { affiliation })
       affiliation.delivered = false;
 
       const { data } = await api.affiliations.POST({
@@ -617,11 +576,11 @@ export default {
     editVoucher(affiliation) {
       console.log("Editando voucher para:", affiliation);
       affiliation.editing = true;
-      affiliation.newVoucher = affiliation.voucher; // Prellenar el input con la URL actual
+      affiliation.newVoucher = affiliation.voucher;
     },
 
     async saveVoucher(affiliation) {
-      if (!affiliation.newVoucher) return; // Validar que haya una nueva URL
+      if (!affiliation.newVoucher) return;
 
       const data = await api.affiliations.POST({
         action: "updateVoucher",
@@ -630,8 +589,8 @@ export default {
       });
 
       if (!data.error) {
-        affiliation.voucher = affiliation.newVoucher; // Actualizar la URL en la vista
-        affiliation.editing = false; // Cerrar el input
+        affiliation.voucher = affiliation.newVoucher;
+        affiliation.editing = false;
       } else {
         alert("Error al actualizar el voucher");
       }
