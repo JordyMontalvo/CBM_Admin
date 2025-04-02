@@ -405,8 +405,14 @@ export default {
       activation.status = "rejected";
     },
     input() {
-      this.currentPage = 1; // Reinicia a la primera página
-      this.GET(this.$route.params.filter); // Llama a GET con el filtro actual
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
+      }
+
+      this.searchTimeout = setTimeout(async () => {
+        this.currentPage = 1;
+        await this.GET(this.$route.params.filter);
+      }, 1500);
     },
 
     async check(activation) {

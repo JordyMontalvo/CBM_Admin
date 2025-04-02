@@ -88,11 +88,7 @@ class OfficeCollects {
 class Activations {
   GET({ filter, account, page = 1, limit = 20, search }) {
     const searchParam = search ? `&search=${search}` : '';
-    return axios.get(
-      `/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${
-        search ? `&search=${search}` : ""
-      }`
-    );
+    return axios.get(`/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`);
   }
   POST({ action, id, points, voucher }) {
     return axios.post(`/admin/activations`, { action, id, points, voucher });

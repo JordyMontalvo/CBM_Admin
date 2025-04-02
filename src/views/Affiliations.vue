@@ -417,7 +417,7 @@ export default {
       this.searchTimeout = setTimeout(async () => {
         this.currentPage = 1;
         await this.GET(this.$route.params.filter);
-      }, 300);
+      }, 1500);
     },
 
     async check(affiliation) {

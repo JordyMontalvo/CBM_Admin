@@ -253,7 +253,7 @@ export default {
 
     this.GET(this.$route.params.filter);
 
-    this.debouncedInput = debounce(this.input, 1000);
+    this.debouncedInput = debounce(this.input, 1500);
   },
   methods: {
     async fetchUsers() {
