@@ -250,11 +250,17 @@ export default {
 
 <style>
 .loading-container {
+  position: fixed; /* Fija el contenedor de carga */
+  top: 0;
+  left: 0;
+  width: 100%; /* Ocupa todo el ancho */
+  height: 100%; /* Ocupa toda la altura */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh; /* Ocupa toda la altura de la vista */
+  background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco con opacidad */
+  z-index: 999; /* Asegúrate de que esté por encima de otros elementos */
 }
 
 .spinner {
