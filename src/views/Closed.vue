@@ -2,57 +2,64 @@
   <Layout>
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
-      <p>Cargando datos, por favor espera...</p> <!-- Mensaje de carga estilizado -->
+      <p>Cargando datos, por favor espera...</p>
+      <!-- Mensaje de carga estilizado -->
     </div>
 
     <div class="container">
-        <button class="button is-link" @click="closed2">Iniciar Cierre</button>
-        <br>
-        <br>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Nombre</th>
-              <th>Puntos Personales</th>
-              <th>Puntos Grupales</th>
-              <th>Rango</th>
-              <th>Bono Residual</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(node, i) in tree.filter(e => (e.rank != 'none' && e.rank != null) || e.activated || e._activated )">
-              <th>{{ i + 1 }}</th>
-              <td>
-                {{ node.name }}
-              </td>
-              <td>
-                {{ node.points }}
-              </td>
-              <td>
-                {{ node._total }}
-              </td>
-              <td>
-                {{ node.rank | _rank }}
-              </td>
-              <td>
-                {{ node.residual_bonus }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <button class="button is-link" @click="closed2">Iniciar Cierre</button>
+      <br />
+      <br />
+      <table class="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Puntos Personales</th>
+            <th>Puntos Grupales</th>
+            <th>Rango</th>
+            <th>Bono Residual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(node, i) in tree.filter(
+              (e) =>
+                (e.rank != 'none' && e.rank != null) ||
+                e.activated ||
+                e._activated
+            )"
+          >
+            <th>{{ i + 1 }}</th>
+            <td>
+              {{ node.name }}
+            </td>
+            <td>
+              {{ node.points }}
+            </td>
+            <td>
+              {{ node._total }}
+            </td>
+            <td>
+              {{ node.rank | _rank }}
+            </td>
+            <td>
+              {{ node.residual_bonus }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-        Activos simple: {{ tree.filter(e => e._activated).length }} <br>
-        Activos full:   {{ tree.filter(e => e.activated).length }} <br><br>
+      Activos simple: {{ tree.filter((e) => e._activated).length }} <br />
+      Activos full: {{ tree.filter((e) => e.activated).length }} <br /><br />
 
-        Afiliaciones: {{ affiliations.length }} <br>
-        Compras: {{ activations.length }} <br>
-        <br>
+      Afiliaciones: {{ affiliations.length }} <br />
+      Compras: {{ activations.length }} <br />
+      <br />
 
-        <button v-if="!saving" class="button" @click="save">Guardar</button>
-        <button v-if=" saving" class="button">Guardando ...</button>
-
-      </div>
+      <button v-if="!saving" class="button" @click="save">Guardar</button>
+      <button v-if="saving" class="button">Guardando ...</button>
+    </div>
 
     <section v-if="!loading">
       <div class="notification" style="margin-bottom: 0">
@@ -60,7 +67,11 @@
           <strong>Selecciona una fecha de cierre</strong>
           <select v-model="selectedDate" @change="updateTable">
             <option value="" disabled>Selecciona una fecha</option>
-            <option v-for="date in closureDates" :key="date" :value="date">
+            <option
+              v-for="date in closureDates.slice().reverse()"
+              :key="date"
+              :value="date"
+            >
               {{ date | date }}
             </option>
           </select>
@@ -124,6 +135,9 @@ export default {
       saving: false,
       selectedDate: "",
       selectedClosure: null,
+      page: 1,
+      limit: 10,
+      hasMore: true,
     };
   },
   created() {
@@ -194,20 +208,21 @@ export default {
         this.loading = false;
       }
     },
-    
-    async closed2() {
-      const { data } = await api.closeds.POST({ action: 'new' }); console.log({ data })
 
-      this.tree         = data.tree
-      this.affiliations = data.affiliations
-      this.activations  = data.activations
+    async closed2() {
+      const { data } = await api.closeds.POST({ action: "new" });
+      console.log({ data });
+
+      this.tree = data.tree;
+      this.affiliations = data.affiliations;
+      this.activations = data.activations;
 
       for (let node of this.tree) {
-        if(node.rank != 'none') {
-          if(node._pays.length) {
-            console.log(node.name)
-            console.log(node._pays)
-            console.log('')
+        if (node.rank != "none") {
+          if (node._pays.length) {
+            console.log(node.name);
+            console.log(node._pays);
+            console.log("");
           }
         }
       }
@@ -244,6 +259,41 @@ export default {
         (closed) => closed.date === this.selectedDate
       );
     },
+
+    async fetchCloseds() {
+      if (this.loading || !this.hasMore) return;
+
+      this.loading = true;
+      try {
+        const response = await fetch(
+          `/api/admin/closeds?page=${this.page}&limit=${this.limit}`
+        );
+        const data = await response.json();
+
+        if (data.closeds.length > 0) {
+          this.closeds.push(...data.closeds);
+          this.page++;
+        } else {
+          this.hasMore = false; // No hay más datos para cargar
+        }
+      } catch (error) {
+        console.error("Error fetching closeds:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    handleScroll(event) {
+      const bottom =
+        event.target.scrollHeight ===
+        event.target.scrollTop + event.target.clientHeight;
+      if (bottom) {
+        this.fetchCloseds();
+      }
+    },
+  },
+  mounted() {
+    this.fetchCloseds(); // Cargar los primeros datos al montar el componente
   },
 };
 </script>
@@ -273,12 +323,21 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
   color: red; /* Estilo para el mensaje de error */
   margin-top: 10px;
+}
+
+.list-container {
+  height: 400px; /* Ajusta según sea necesario */
+  overflow-y: auto;
 }
 </style>
