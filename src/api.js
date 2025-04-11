@@ -57,8 +57,10 @@ class Users {
 
 class Affiliations {
   GET({ filter, account, page = 1, limit = 20, search }) {
-    const searchParam = search ? `&search=${search}` : '';
-    return axios.get(`/admin/affiliations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`);
+    const searchParam = search ? `&search=${search}` : "";
+    return axios.get(
+      `/admin/affiliations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`
+    );
   }
   POST({ action, id, points, voucher }) {
     return axios.post(`/admin/affiliations`, { action, id, points, voucher });
@@ -87,8 +89,10 @@ class OfficeCollects {
 
 class Activations {
   GET({ filter, account, page = 1, limit = 20, search }) {
-    const searchParam = search ? `&search=${search}` : '';
-    return axios.get(`/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`);
+    const searchParam = search ? `&search=${search}` : "";
+    return axios.get(
+      `/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`
+    );
   }
   POST({ action, id, points, voucher }) {
     return axios.post(`/admin/activations`, { action, id, points, voucher });
@@ -114,9 +118,17 @@ class Kadex {
 }
 
 class Closeds {
-  GET() {
-    return axios.get(`/admin/closeds`);
+  GET({ page = 1, limit = 20, startDate, endDate } = {}) {
+    // Construir la URL con parámetros de consulta
+    const params = new URLSearchParams();
+    params.append("page", page);
+    params.append("limit", limit);
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+
+    return axios.get(`/admin/closeds?${params.toString()}`);
   }
+
   POST({ action, id, data }) {
     return axios.post(`/admin/closeds`, { action, id, data });
   }
