@@ -118,17 +118,9 @@ class Kadex {
 }
 
 class Closeds {
-  GET({ page = 1, limit = 20, startDate, endDate } = {}) {
-    // Construir la URL con parámetros de consulta
-    const params = new URLSearchParams();
-    params.append("page", page);
-    params.append("limit", limit);
-    if (startDate) params.append("startDate", startDate);
-    if (endDate) params.append("endDate", endDate);
-
-    return axios.get(`/admin/closeds?${params.toString()}`);
+  GET() {
+    return axios.get(`/admin/closeds`);
   }
-
   POST({ action, id, data }) {
     return axios.post(`/admin/closeds`, { action, id, data });
   }
