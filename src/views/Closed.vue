@@ -29,22 +29,17 @@
                 e.activated ||
                 e._activated
             )"
+            :key="node.id"
           >
             <th>{{ i + 1 }}</th>
+            <td>{{ node.name }}</td>
+            <td>{{ node.points ? node.points.toFixed(2) : "0.00" }}</td>
+            <td>{{ node._total ? node._total.toFixed(2) : "0.00" }}</td>
+            <td>{{ node.rank | _rank }}</td>
             <td>
-              {{ node.name }}
-            </td>
-            <td>
-              {{ node.points }}
-            </td>
-            <td>
-              {{ node._total }}
-            </td>
-            <td>
-              {{ node.rank | _rank }}
-            </td>
-            <td>
-              {{ node.residual_bonus }}
+              {{
+                node.residual_bonus ? node.residual_bonus.toFixed(2) : "0.00"
+              }}
             </td>
           </tr>
         </tbody>
@@ -96,10 +91,14 @@
             <tr v-for="(user, i) in selectedClosure.users" :key="user.id">
               <th>{{ i + 1 }}</th>
               <td>{{ user.name }}</td>
-              <td>{{ user.points }}</td>
-              <td>{{ user._total }}</td>
+              <td>{{ user.points ? user.points.toFixed(2) : "0.00" }}</td>
+              <td>{{ user._total ? user._total.toFixed(2) : "0.00" }}</td>
               <td>{{ user.rank | _rank }}</td>
-              <td>{{ user.residual_bonus }}</td>
+              <td>
+                {{
+                  user.residual_bonus ? user.residual_bonus.toFixed(2) : "0.00"
+                }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -270,14 +269,15 @@ export default {
         );
         const data = await response.json();
 
-        if (data.closeds.length > 0) {
-          this.closeds.push(...data.closeds);
+        if (data.success) {
+          this.tree.push(...data.closeds);
           this.page++;
         } else {
-          this.hasMore = false; // No hay más datos para cargar
+          this.errorMessage = "No se pudieron cargar los datos.";
         }
       } catch (error) {
         console.error("Error fetching closeds:", error);
+        this.errorMessage = "Error al cargar los datos.";
       } finally {
         this.loading = false;
       }

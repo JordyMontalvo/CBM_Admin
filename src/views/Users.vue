@@ -43,7 +43,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(user, i) in sortedUsers" :key="user.id">
+              <tr
+                v-for="(user, i) in sortedUsers"
+                :key="user.id"
+                v-show="user.visible"
+              >
                 <th>{{ totalItems - (currentPage - 1) * itemsPerPage - i }}</th>
                 <td>{{ user.date | date }}</td>
                 <td style="position: relative">
@@ -161,16 +165,39 @@
             </tbody>
           </table>
         </div>
-        <div class="pagination" v-if="!loading">
-          <button @click="previousPage" :disabled="currentPage === 1">
+     <div class="pagination" v-if="!loading">
+          <button
+            @click="previousPage"
+            :disabled="currentPage === 1"
+            class="pagination-button"
+          >
             Anterior
           </button>
-          <span>Página {{ currentPage }} de {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="currentPage === totalPages">
+          <span class="pagination-info">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+          <input
+            type="number"
+            v-model="pageInput"
+            @keyup.enter="goToPage"
+            min="1"
+            :max="totalPages"
+            class="pagination-input"
+          />
+          <button @click="goToPage" class="pagination-button">Ir</button>
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="pagination-button"
+          >
             Siguiente
           </button>
         </div>
       </div>
+
+      <button class="scroll-to-top" v-if="showScrollToTop" @click="scrollToTop">
+        <i class="fa-solid fa-arrow-up"></i>
+      </button>
     </section>
   </Layout>
 </template>
@@ -202,6 +229,7 @@ export default {
       searchTimeout: null,
       totalBalance: 0,
       totalVirtualBalance: 0,
+      showScrollToTop: false,
     };
   },
   computed: {
@@ -221,11 +249,10 @@ export default {
   filters: {
     date(val) {
       return new Date(val).toLocaleDateString();
-      // return new Date(val).toLocaleString()
     },
     money(val) {
-      if (val == null) return val;
-      return `USD ${val.toFixed(2)}`;
+      if (val == null || isNaN(val)) return "0.00";
+      return `USD ${Number(val).toFixed(2)}`;
     },
     _rank(val) {
       if (val == "none") return "Ninguno";
@@ -254,6 +281,10 @@ export default {
     this.GET(this.$route.params.filter);
 
     this.debouncedInput = debounce(this.input, 1500);
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeDestroy() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
     async fetchUsers() {
@@ -306,15 +337,23 @@ export default {
       if (filter == "activated") this.title = "Usuarios Activados";
     },
     async changePage(page) {
-      console.log("Changing to page:", page, "Type:", typeof page);
-      this.currentPage = page;
-      await this.GET(this.$route.params.filter);
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        await this.GET(this.$route.params.filter);
+      }
     },
+
     async nextPage() {
       await this.changePage(this.currentPage + 1);
     },
+
     async previousPage() {
       await this.changePage(this.currentPage - 1);
+    },
+    async goToPage() {
+      const page = Math.max(1, Math.min(this.pageInput, this.totalPages));
+      this.currentPage = page;
+      await this.GET(this.$route.params.filter);
     },
     async input() {
       this.GET(this.$route.params.filter);
@@ -371,6 +410,44 @@ export default {
     cancel(user) {
       user.edit = false;
     },
+    handleScroll() {
+      this.showScrollToTop = window.scrollY >= document.body.offsetHeight / 2;
+    },
+    scrollToTop() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
   },
 };
 </script>
+
+<style>
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: inline-block;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.scroll-to-top:hover {
+  background-color: #0056b3;
+}
+.scroll-to-top i {
+  font-size: 20px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+.pagination button {
+  margin: 0 5px;
+}
+</style>
