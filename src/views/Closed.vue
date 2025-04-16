@@ -33,14 +33,10 @@
           >
             <th>{{ i + 1 }}</th>
             <td>{{ node.name }}</td>
-            <td>{{ node.points ? node.points.toFixed(2) : "0.00" }}</td>
-            <td>{{ node._total ? node._total.toFixed(2) : "0.00" }}</td>
-            <td>{{ node.rank | _rank }}</td>
-            <td>
-              {{
-                node.residual_bonus ? node.residual_bonus.toFixed(2) : "0.00"
-              }}
-            </td>
+            <td>{{ node.points }}</td>
+            <td>{{ node._total }}</td>
+            <td>{{ node.rank }}</td>
+            <td>{{ node.residual_bonus }}</td>
           </tr>
         </tbody>
       </table>
