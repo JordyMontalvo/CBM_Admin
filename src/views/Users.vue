@@ -55,6 +55,38 @@
                     >{{ user.name }} {{ user.lastName }}</span
                   >
 
+                  <span v-if="user.edit">
+                    <select v-model="user._rank">
+                      <option value="none">{{ translateRank("none") }}</option>
+                      <option value="active">
+                        {{ translateRank("active") }}
+                      </option>
+                      <option value="star">{{ translateRank("star") }}</option>
+                      <option value="master">
+                        {{ translateRank("master") }}
+                      </option>
+                      <option value="silver">
+                        {{ translateRank("silver") }}
+                      </option>
+                      <option value="gold">{{ translateRank("gold") }}</option>
+                      <option value="sapphire">
+                        {{ translateRank("sapphire") }}
+                      </option>
+                      <option value="RUBI">{{ translateRank("RUBI") }}</option>
+                      <option value="DIAMANTE">
+                        {{ translateRank("DIAMANTE") }}
+                      </option>
+                      <option value="DOBLE DIAMANTE">
+                        {{ translateRank("DOBLE DIAMANTE") }}
+                      </option>
+                      <option value="TRIPLE DIAMANTE">
+                        {{ translateRank("TRIPLE DIAMANTE") }}
+                      </option>
+                      <option value="DIAMANTE ESTRELLA">
+                        {{ translateRank("DIAMANTE ESTRELLA") }}
+                      </option>
+                    </select>
+                  </span>
                   <input
                     class="input"
                     v-model="user._name"
@@ -165,7 +197,7 @@
             </tbody>
           </table>
         </div>
-     <div class="pagination" v-if="!loading">
+        <div class="pagination" v-if="!loading">
           <button
             @click="previousPage"
             :disabled="currentPage === 1"
@@ -323,6 +355,7 @@ export default {
           _password: "",
           _parent_dni: "",
           _points: 0,
+          _rank: "",
         }))
         .reverse();
 
@@ -381,6 +414,7 @@ export default {
       if (!user._points) user._points = user.points;
 
       if (!user._parent_dni) user._parent_dni = user.parent.dni;
+      if (!user._rank) user._rank = user.rank;
     },
     async save(user) {
       // post new name
@@ -395,6 +429,7 @@ export default {
 
           _parent_dni: user._parent_dni,
           _points: user._points,
+          _rank: user._rank,
         },
       });
 
@@ -404,7 +439,7 @@ export default {
       user.points = user._points;
 
       user.parent.dni = user._parent_dni;
-
+      user.rank = user._rank;
       user.edit = false;
     },
     cancel(user) {
@@ -415,6 +450,36 @@ export default {
     },
     scrollToTop() {
       window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    translateRank(val) {
+      switch (val) {
+        case "none":
+          return "Ninguno";
+        case "active":
+          return "ACTIVO";
+        case "star":
+          return "MASTER";
+        case "master":
+          return "PLATA";
+        case "silver":
+          return "PLATINO";
+        case "gold":
+          return "ORO";
+        case "sapphire":
+          return "ZAFIRO";
+        case "RUBI":
+          return "DIAMANTE RUBI";
+        case "DIAMANTE":
+          return "DIAMANTE ESTRELLA";
+        case "DOBLE DIAMANTE":
+          return "DIAMANTE DOS ESTRELLAS";
+        case "TRIPLE DIAMANTE":
+          return "DIAMANTE TRES ESTRELLAS";
+        case "DIAMANTE ESTRELLA":
+          return "DIAMANTE CBM";
+        default:
+          return val; // Devuelve el valor original si no coincide
+      }
     },
   },
 };
