@@ -109,8 +109,33 @@ class Products {
 }
 
 class Kadex {
-  GET() {
-    return axios.get(`/admin/kadex`);
+  GET({
+    pageProducts,
+    limitProducts,
+    pageRecharges,
+    limitRecharges,
+    pageAffiliations,
+    limitAffiliations,
+    pageActivations,
+    limitActivations,
+    page,
+    limit,
+  } = {}) {
+    // Construir query string dinámicamente
+    const params = [];
+    if (pageProducts) params.push(`pageProducts=${pageProducts}`);
+    if (limitProducts) params.push(`limitProducts=${limitProducts}`);
+    if (pageRecharges) params.push(`pageRecharges=${pageRecharges}`);
+    if (limitRecharges) params.push(`limitRecharges=${limitRecharges}`);
+    if (pageAffiliations) params.push(`pageAffiliations=${pageAffiliations}`);
+    if (limitAffiliations)
+      params.push(`limitAffiliations=${limitAffiliations}`);
+    if (pageActivations) params.push(`pageActivations=${pageActivations}`);
+    if (limitActivations) params.push(`limitActivations=${limitActivations}`);
+    if (page) params.push(`page=${page}`);
+    if (limit) params.push(`limit=${limit}`);
+    const query = params.length ? `?${params.join("&")}` : "";
+    return axios.get(`/admin/kadex${query}`);
   }
   POST({ action, id, data }) {
     return axios.post(`/admin/kadex`, { action, id, data });
@@ -159,8 +184,9 @@ class Wallet {
 }
 
 class Tree {
-  GET() {
-    return axios.get(`/admin/tree`);
+  GET({ id } = {}) {
+    const idParam = id ? `?id=${id}` : "";
+    return axios.get(`/admin/tree${idParam}`);
   }
   POST({ to, from }) {
     return axios.post(`/admin/tree`, { to, from });
