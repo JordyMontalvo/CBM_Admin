@@ -16,9 +16,9 @@
 
           <small
             >Total disponible: USD
-            {{ Number(totalBalance || 0).toFixed(2) }} &nbsp;&nbsp; /
-            &nbsp;&nbsp; Total no disponible: USD
-            {{ Number(totalVirtualBalance || 0).toFixed(2) }}
+            {{ Number(balance || 0).toFixed(2) }} &nbsp;&nbsp; / &nbsp;&nbsp;
+            Total no disponible: USD
+            {{ Number(virtualBalance || 0).toFixed(2) }}
           </small>
         </div>
       </div>
