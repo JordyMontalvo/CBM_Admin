@@ -158,7 +158,9 @@
 
                   <input
                     class="input"
-                    v-model="user._points"
+                    v-model.number="user._points"
+                    type="number"
+                    step="any"
                     placeholder="Puntos"
                     style="max-width: 120px"
                     v-if="user.edit"
@@ -418,6 +420,7 @@ export default {
       if (!user._rank) user._rank = user.rank;
     },
     async save(user) {
+      user._points = Number(user._points); // asegura que sea número (float si aplica)
       // post new name
       const { data } = await api.users.POST({
         action: "name",
@@ -427,9 +430,8 @@ export default {
           _lastName: user._lastName,
           _dni: user._dni,
           _password: user._password,
-
           _parent_dni: user._parent_dni,
-          _points: user._points,
+          _points: user._points, // ya es número
           _rank: user._rank,
         },
       });
@@ -437,7 +439,7 @@ export default {
       user.name = user._name;
       user.lastName = user._lastName;
       user.dni = user._dni;
-      user.points = user._points;
+      user.points = user._points; // ya es número
 
       user.parent.dni = user._parent_dni;
       user.rank = user._rank;
