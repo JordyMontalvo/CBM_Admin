@@ -154,7 +154,7 @@
                 </td>
                 <td>{{ user.token }}</td>
                 <td>
-                  <p v-if="!user.edit">{{ user.points }}</p>
+                  <p v-if="!user.edit">{{ Number(user.points).toFixed(2) }}</p>
 
                   <input
                     class="input"
@@ -164,6 +164,7 @@
                     placeholder="Puntos"
                     style="max-width: 120px"
                     v-if="user.edit"
+                    @blur="user._points = Number(user._points).toFixed(2)"
                   />
                 </td>
                 <td>
