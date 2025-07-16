@@ -1,5 +1,6 @@
 <template>
   <Layout>
+    <button class="heroku-restart-btn" @click="reiniciarHeroku">Reiniciar App Heroku</button>
     <i class="load" v-if="loading"></i>
 
     <section v-if="!loading">
@@ -485,6 +486,19 @@ export default {
           return val; // Devuelve el valor original si no coincide
       }
     },
+    async reiniciarHeroku() {
+      try {
+        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/reiniciar-heroku`, { method: 'POST' });
+        const data = await response.json();
+        if (data.success) {
+          alert('¡App de Heroku reiniciada correctamente!');
+        } else {
+          alert('Error al reiniciar Heroku: ' + data.error);
+        }
+      } catch (e) {
+        alert('Error de conexión con el backend de reinicio de Heroku');
+      }
+    },
   },
 };
 </script>
@@ -518,5 +532,19 @@ export default {
 }
 .pagination button {
   margin: 0 5px;
+}
+.heroku-restart-btn {
+  background: #8000b0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin: 20px 0 10px 0;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.heroku-restart-btn:hover {
+  background: #a040c0;
 }
 </style>
