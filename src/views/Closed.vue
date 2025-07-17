@@ -7,7 +7,13 @@
     </div>
 
     <div class="container">
-      <button class="button is-link" @click="closed2">Iniciar Cierre</button>
+      <!-- Configuración de límite por página para admin -->
+      <div v-if="isAdmin" style="margin-top: 1em;">
+        <label for="limit">Cierres por página:</label>
+        <input id="limit" type="number" v-model.number="limit" min="1" @change="getClosureDates(1)" style="width: 60px; margin-left: 0.5em;">
+      </div>
+
+      <!-- Resto del contenido existente -->
       <br />
       <br />
       <table class="table">
@@ -67,6 +73,12 @@
             </option>
           </select>
         </div>
+      </div>
+
+      <!-- Configuración de límite por página para admin -->
+      <div v-if="isAdmin" style="margin-top: 1em;">
+        <label for="limit">Cierres por página:</label>
+        <input id="limit" type="number" v-model.number="limit" min="1" @change="getClosureDates(1)" style="width: 60px; margin-left: 0.5em;">
       </div>
       <br />
       <div class="container">
@@ -130,14 +142,20 @@ export default {
       saving: false,
       selectedDate: "",
       selectedClosure: null,
-      closeds: [], // <-- Añado closeds aquí
-      // Elimino page, limit, hasMore, closeds
+      closeds: [],
+      totalCloseds: 0, // total de cierres
+      totalPages: 1,   // total de páginas
+      currentPage: 1,  // página actual
+      limit: 20,       // cierres por página
+      isAdmin: false, // Flag para admin, puedes ajustarlo según tu lógica
     };
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
     this.$store.commit("SET_ACCOUNT", account);
     this.getClosureDates();
+    // Ejemplo: Detectar si el usuario es admin (ajusta según tu lógica de roles)
+    this.isAdmin = account && account.role === 'admin';
   },
   filters: {
     date(val) {
@@ -210,13 +228,16 @@ export default {
       );
     },
 
-    async getClosureDates() {
+    async getClosureDates(page = 1) {
       this.loading = true;
       this.errorMessage = "";
       try {
-        const { data } = await api.closeds.GET();
+        const { data } = await api.closeds.GET({ page, limit: this.limit });
         this.closeds = data.closeds || [];
         this.closureDates = this.closeds.map(c => c.date);
+        this.totalCloseds = data.total || 0;
+        this.totalPages = data.totalPages || 1;
+        this.currentPage = data.currentPage || 1;
       } catch (error) {
         this.errorMessage = "No se pudieron cargar los cierres.";
       } finally {
@@ -243,6 +264,17 @@ export default {
         this.selectedClosure = null;
       } finally {
         this.loading = false;
+      }
+    },
+    // Métodos para paginación
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.getClosureDates(this.currentPage + 1);
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.getClosureDates(this.currentPage - 1);
       }
     },
   },
