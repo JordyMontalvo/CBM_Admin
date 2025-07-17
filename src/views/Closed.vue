@@ -56,7 +56,7 @@
       <div class="notification" style="margin-bottom: 0">
         <div class="container">
           <strong>Selecciona una fecha de cierre</strong>
-          <select v-model="selectedDate" @change="updateTable">
+          <select v-model="selectedDate" @change="onDateChange">
             <option value="" disabled>Selecciona una fecha</option>
             <option
               v-for="date in closureDates.slice().reverse()"
@@ -121,25 +121,22 @@ export default {
     const session = JSON.parse(localStorage.getItem("session"));
     return {
       loading: true,
+      // tree, affiliations, activations solo se usan para el cierre seleccionado
       tree: [],
       affiliations: [],
       activations: [],
-      closeds: [],
       closureDates: [],
       errorMessage: "",
       saving: false,
       selectedDate: "",
       selectedClosure: null,
-      page: 1,
-      limit: 20,
-      hasMore: true,
-      // filter y account eliminados
+      // Elimino page, limit, hasMore, closeds
     };
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
     this.$store.commit("SET_ACCOUNT", account);
-    this.GET();
+    this.getClosureDates();
   },
   filters: {
     date(val) {
@@ -161,50 +158,6 @@ export default {
     },
   },
   methods: {
-    async GET() {
-      this.loading = true;
-      this.errorMessage = "";
-      try {
-        // Solo pasar page y limit
-        const { data } = await api.closeds.GET(this.page, this.limit);
-        this.closeds = data.closeds.reverse();
-        this.closureDates = [
-          ...new Set(this.closeds.map((closed) => closed.date)),
-        ];
-      } catch (error) {
-        console.error("Error al obtener los cierres:", error);
-        this.errorMessage =
-          "Hubo un problema al cargar los datos. Inténtalo de nuevo más tarde.";
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async closed() {
-      this.loading = true;
-      this.errorMessage = "";
-      try {
-        const { data } = await api.closeds.POST({ action: "new" });
-        console.log(data);
-
-        if (data && data.date) {
-          this.closeds.push(data);
-          this.closureDates.push(data.date);
-          this.closureDates = [...new Set(this.closureDates)];
-          this.selectedDate = data.date;
-          this.updateTable();
-        } else {
-          this.errorMessage = "No se recibió la fecha del nuevo cierre.";
-        }
-      } catch (error) {
-        console.error("Error al iniciar el cierre:", error);
-        this.errorMessage =
-          "Hubo un problema al iniciar el cierre. Inténtalo de nuevo más tarde.";
-      } finally {
-        this.loading = false;
-      }
-    },
-
     async closed2() {
       const { data } = await api.closeds.POST({ action: "new" });
       console.log({ data });
@@ -256,40 +209,40 @@ export default {
       );
     },
 
-    async fetchCloseds() {
-      if (this.loading || !this.hasMore) return;
-
+    async getClosureDates() {
       this.loading = true;
+      this.errorMessage = "";
       try {
-        // Solo pasar page y limit
-        const response = await api.closeds.GET(this.page, this.limit);
-        const data = response.data;
-
-        if (data.success) {
-          this.tree.push(...data.closeds);
-          this.page++;
-        } else {
-          this.errorMessage = "No se pudieron cargar los datos.";
-        }
+        const { data } = await api.closeds.GET_DATES();
+        this.closureDates = data.dates;
       } catch (error) {
-        console.error("Error fetching closeds:", error);
-        this.errorMessage = "Error al cargar los datos.";
+        console.error("Error al obtener las fechas de cierres:", error);
+        this.errorMessage = "Hubo un problema al cargar las fechas. Inténtalo de nuevo más tarde.";
       } finally {
         this.loading = false;
       }
     },
-
-    handleScroll(event) {
-      const bottom =
-        event.target.scrollHeight ===
-        event.target.scrollTop + event.target.clientHeight;
-      if (bottom) {
-        this.fetchCloseds();
+    async onDateChange() {
+      if (!this.selectedDate) {
+        this.selectedClosure = null;
+        return;
+      }
+      this.loading = true;
+      this.errorMessage = "";
+      try {
+        const { data } = await api.closeds.GET_BY_DATE(this.selectedDate);
+        this.selectedClosure = data.cierre;
+      } catch (error) {
+        console.error("Error al obtener el cierre por fecha:", error);
+        this.errorMessage = "Hubo un problema al cargar el cierre. Inténtalo de nuevo más tarde.";
+        this.selectedClosure = null;
+      } finally {
+        this.loading = false;
       }
     },
   },
   mounted() {
-    this.fetchCloseds(); // Cargar los primeros datos al montar el componente
+    // this.fetchCloseds(); // Cargar los primeros datos al montar el componente
   },
 };
 </script>
