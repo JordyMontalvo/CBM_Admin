@@ -8,10 +8,9 @@
 
     <div class="container">
       <!-- Configuración de límite por página para admin -->
-      <div v-if="isAdmin" style="margin-top: 1em;">
-        <label for="limit">Cierres por página:</label>
-        <input id="limit" type="number" v-model.number="limit" min="1" @change="getClosureDates(1)" style="width: 60px; margin-left: 0.5em;">
-      </div>
+
+      <!-- Botón para iniciar cierre (solo admin) -->
+
 
       <!-- Resto del contenido existente -->
       <br />
@@ -53,7 +52,9 @@
       Afiliaciones: {{ affiliations.length }} <br />
       Compras: {{ activations.length }} <br />
       <br />
-
+      <div style="margin-top: 1em;">
+        <button class="button is-primary" @click="closed2">Iniciar cierre</button>
+      </div>
       <button v-if="!saving" class="button" @click="save">Guardar</button>
       <button v-if="saving" class="button">Guardando ...</button>
     </div>
@@ -154,8 +155,8 @@ export default {
     const account = JSON.parse(localStorage.getItem("session"));
     this.$store.commit("SET_ACCOUNT", account);
     this.getClosureDates();
-    // Ejemplo: Detectar si el usuario es admin (ajusta según tu lógica de roles)
-    this.isAdmin = account && account.role === 'admin';
+    // Detectar si el usuario es admin (sin importar mayúsculas/minúsculas)
+    this.isAdmin = account && account.role && account.role.toLowerCase() === 'admin';
   },
   filters: {
     date(val) {
