@@ -133,14 +133,12 @@ export default {
       page: 1,
       limit: 20,
       hasMore: true,
-      filter: "all", // Valor por defecto
-      account: session && session.account ? session.account : "admin", // Valor seguro
+      // filter y account eliminados
     };
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
     this.$store.commit("SET_ACCOUNT", account);
-    this.account = account && account.account ? account.account : "admin";
     this.GET();
   },
   filters: {
@@ -167,7 +165,8 @@ export default {
       this.loading = true;
       this.errorMessage = "";
       try {
-        const { data } = await api.closeds.GET();
+        // Solo pasar page y limit
+        const { data } = await api.closeds.GET(this.page, this.limit);
         this.closeds = data.closeds.reverse();
         this.closureDates = [
           ...new Set(this.closeds.map((closed) => closed.date)),
@@ -262,8 +261,8 @@ export default {
 
       this.loading = true;
       try {
-        // Usar la función de api.js y pasar los parámetros correctos
-        const response = await api.closeds.GET(this.filter, this.account, this.page, this.limit);
+        // Solo pasar page y limit
+        const response = await api.closeds.GET(this.page, this.limit);
         const data = response.data;
 
         if (data.success) {

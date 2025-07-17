@@ -143,9 +143,9 @@ class Kadex {
 }
 
 class Closeds {
-  GET(filter, account, page = 1, limit = 25) {
+  GET(page = 1, limit = 25) {
     return axios.get(
-      `/admin/closeds?filter=${filter}&account=${account}&page=${page}&limit=${limit}`
+      `/admin/closeds?page=${page}&limit=${limit}`
     );
   }
   POST({ action, id, data }) {
