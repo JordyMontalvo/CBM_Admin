@@ -143,16 +143,10 @@ class Kadex {
 }
 
 class Closeds {
-  GET(page = 1, limit = 25) {
+  GET() {
     return axios.get(
-      `/admin/closeds?page=${page}&limit=${limit}`
+      `/admin/closeds`
     );
-  }
-  GET_DATES() {
-    return axios.get(`/admin/closeds?onlyDates=true`);
-  }
-  GET_BY_DATE(date) {
-    return axios.get(`/admin/closeds?date=${date}`);
   }
   POST({ action, id, data }) {
     return axios.post(`/admin/closeds`, { action, id, data });

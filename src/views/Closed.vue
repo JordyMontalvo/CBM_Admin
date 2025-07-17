@@ -130,6 +130,7 @@ export default {
       saving: false,
       selectedDate: "",
       selectedClosure: null,
+      closeds: [], // <-- Añado closeds aquí
       // Elimino page, limit, hasMore, closeds
     };
   },
@@ -213,11 +214,11 @@ export default {
       this.loading = true;
       this.errorMessage = "";
       try {
-        const { data } = await api.closeds.GET_DATES();
-        this.closureDates = data.dates;
+        const { data } = await api.closeds.GET();
+        this.closeds = data.closeds || [];
+        this.closureDates = this.closeds.map(c => c.date);
       } catch (error) {
-        console.error("Error al obtener las fechas de cierres:", error);
-        this.errorMessage = "Hubo un problema al cargar las fechas. Inténtalo de nuevo más tarde.";
+        this.errorMessage = "No se pudieron cargar los cierres.";
       } finally {
         this.loading = false;
       }
@@ -230,10 +231,14 @@ export default {
       this.loading = true;
       this.errorMessage = "";
       try {
-        const { data } = await api.closeds.GET_BY_DATE(this.selectedDate);
-        this.selectedClosure = data.cierre;
+        // Busca el cierre por fecha en el array ya cargado
+        this.selectedClosure = this.closeds.find(
+          closed => closed.date === this.selectedDate
+        );
+        if (!this.selectedClosure) {
+          this.errorMessage = "No hay datos para la fecha seleccionada.";
+        }
       } catch (error) {
-        console.error("Error al obtener el cierre por fecha:", error);
         this.errorMessage = "Hubo un problema al cargar el cierre. Inténtalo de nuevo más tarde.";
         this.selectedClosure = null;
       } finally {
