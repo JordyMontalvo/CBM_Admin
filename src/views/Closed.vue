@@ -118,6 +118,7 @@ import { debounce } from "lodash";
 export default {
   components: { Layout },
   data() {
+    const session = JSON.parse(localStorage.getItem("session"));
     return {
       loading: true,
       tree: [],
@@ -126,19 +127,20 @@ export default {
       closeds: [],
       closureDates: [],
       errorMessage: "",
-
       saving: false,
       selectedDate: "",
       selectedClosure: null,
       page: 1,
       limit: 20,
       hasMore: true,
+      filter: "all", // Valor por defecto
+      account: session && session.account ? session.account : "admin", // Valor seguro
     };
   },
   created() {
     const account = JSON.parse(localStorage.getItem("session"));
-
     this.$store.commit("SET_ACCOUNT", account);
+    this.account = account && account.account ? account.account : "admin";
     this.GET();
   },
   filters: {
@@ -260,10 +262,9 @@ export default {
 
       this.loading = true;
       try {
-        const response = await fetch(
-          `/api/admin/closeds?page=${this.page}&limit=${this.limit}`
-        );
-        const data = await response.json();
+        // Usar la función de api.js y pasar los parámetros correctos
+        const response = await api.closeds.GET(this.filter, this.account, this.page, this.limit);
+        const data = response.data;
 
         if (data.success) {
           this.tree.push(...data.closeds);
