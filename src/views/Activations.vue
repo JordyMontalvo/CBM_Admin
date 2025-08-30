@@ -8,15 +8,44 @@
           <strong>{{ title }}</strong
           >&nbsp;&nbsp;&nbsp;<a @click="download">Descargar Reporte</a>
           <div style="margin-top: 10px;">
-            <input
-              class="input"
-              placeholder="Buscar por nombre, cédula o teléfono"
-              v-model="search"
-              @input="input"
-              style="width: 300px;"
-            />
-            <small style="color: #666; margin-left: 10px;">
-              💡 Con {{ totalItems }} registros, use la búsqueda para encontrar resultados específicos
+            <div class="date-filter-container">
+              <input
+                class="input"
+                placeholder="Buscar por nombre, cédula o teléfono"
+                v-model="search"
+                @input="input"
+                style="width: 250px;"
+              />
+              <input
+                type="date"
+                class="date-input"
+                v-model="startDate"
+                @change="applyDateFilter"
+                style="width: 150px;"
+                title="Fecha de inicio"
+              />
+              <span style="color: #666;">hasta</span>
+              <input
+                type="date"
+                class="date-input"
+                v-model="endDate"
+                @change="applyDateFilter"
+                style="width: 150px;"
+                title="Fecha de fin"
+              />
+              <button 
+                @click="clearDateFilter" 
+                class="clear-filter-btn"
+                title="Limpiar filtros de fecha"
+              >
+                <i class="fa-solid fa-times"></i>
+              </button>
+            </div>
+            <small style="color: #666; margin-top: 5px; display: block;">
+              💡 Con {{ totalItems }} registros, use la búsqueda o filtros de fecha para encontrar resultados específicos
+              <span v-if="startDate || endDate" style="color: #007bff; font-weight: bold;">
+                📅 Filtros de fecha activos
+              </span>
             </small>
           </div>
         </div>
@@ -287,6 +316,8 @@ export default {
       loading: true,
       title: null,
       search: null,
+      startDate: null,
+      endDate: null,
       INVOICE_ROOT,
       currentPage: 1,
       itemsPerPage: 100,
@@ -345,6 +376,8 @@ export default {
           page: this.currentPage,
           limit: this.itemsPerPage,
           search: this.search || undefined,
+          startDate: this.startDate || undefined,
+          endDate: this.endDate || undefined,
         });
         
         if (data.error) {
@@ -500,6 +533,20 @@ export default {
       }, 1500);
     },
 
+    async applyDateFilter() {
+      this.currentPage = 1;
+      this.pageInput = 1;
+      await this.GET(this.$route.params.filter);
+    },
+
+    clearDateFilter() {
+      this.startDate = null;
+      this.endDate = null;
+      this.currentPage = 1;
+      this.pageInput = 1;
+      this.GET(this.$route.params.filter);
+    },
+
     async check(activation) {
       if (
         !confirm("Seguro que desea marcar entregado? esto no se puede revertir")
@@ -544,7 +591,19 @@ export default {
     // },
 
     download() {
-      let filename = "Activaciones.xlsx";
+      // Crear nombre de archivo con fechas si están filtradas
+      let filename = "Activaciones";
+      if (this.startDate || this.endDate) {
+        if (this.startDate && this.endDate) {
+          filename += `_${this.startDate}_a_${this.endDate}`;
+        } else if (this.startDate) {
+          filename += `_desde_${this.startDate}`;
+        } else if (this.endDate) {
+          filename += `_hasta_${this.endDate}`;
+        }
+      }
+      filename += ".xlsx";
+      
       let data_xls = [];
 
       this.activations.forEach((a) => {
@@ -735,5 +794,40 @@ export default {
   border-radius: 5px;
   margin: 0 5px;
   text-align: center;
+}
+
+.date-filter-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.date-input {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.date-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.clear-filter-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.clear-filter-btn:hover {
+  background-color: #5a6268;
 }
 </style>
