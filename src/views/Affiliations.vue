@@ -367,6 +367,19 @@ export default {
     },
 
     async changePage(page) {
+      // Validar que la página sea un número válido
+      if (!Number.isInteger(page) || page < 1) {
+        console.error('Página inválida:', page);
+        return;
+      }
+      
+      // Validar que la página no sea demasiado alta
+      const MAX_SAFE_PAGE = 1000;
+      if (page > MAX_SAFE_PAGE) {
+        alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
+        return;
+      }
+      
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         this.pageInput = page; // Actualizar también el input
@@ -632,16 +645,32 @@ export default {
         return;
       }
       
+      // Validar que la página sea un número válido
+      if (!Number.isInteger(page) || page < 1) {
+        alert('Por favor, ingrese un número de página válido.');
+        this.pageInput = this.currentPage;
+        return;
+      }
+      
       if (page !== this.currentPage) {
         this.currentPage = page;
         try {
           await this.GET(this.$route.params.filter);
-        } catch (error) {
+          } catch (error) {
           console.error('Error al cambiar de página:', error);
-          // Si hay error, volver a la página anterior
-          this.currentPage = Math.max(1, this.currentPage - 1);
-          this.pageInput = this.currentPage;
-          alert('Error al cargar la página. Por favor, use la búsqueda para encontrar resultados específicos.');
+          
+          // Determinar el tipo de error
+          if (error.response && error.response.status === 400) {
+            // Error del cliente (página muy alta)
+            alert('Página demasiado alta. Use la búsqueda para encontrar resultados específicos.');
+            this.pageInput = this.currentPage;
+          } else {
+            // Error del servidor
+            alert('Error al cargar la página. Por favor, use la búsqueda para encontrar resultados específicos.');
+            // Si hay error, volver a la página anterior
+            this.currentPage = Math.max(1, this.currentPage - 1);
+            this.pageInput = this.currentPage;
+          }
         }
       }
     },
