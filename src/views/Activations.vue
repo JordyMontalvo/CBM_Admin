@@ -266,7 +266,7 @@ export default {
       search: null,
       INVOICE_ROOT,
       currentPage: 1,
-      itemsPerPage: 20,
+      itemsPerPage: 100,
       totalItems: 0,
       totalPages: 0,
       showScrollToTop: false,
