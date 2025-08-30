@@ -7,12 +7,18 @@
         <div class="container">
           <strong>{{ title }}</strong
           >&nbsp;&nbsp;&nbsp;<a @click="download">Descargar Reporte</a>
-          <input
-            class="input"
-            placeholder="Buscar por nombre"
-            v-model="search"
-            @input="input"
-          />
+          <div style="margin-top: 10px;">
+            <input
+              class="input"
+              placeholder="Buscar por nombre, cédula o teléfono"
+              v-model="search"
+              @input="input"
+              style="width: 300px;"
+            />
+            <small style="color: #666; margin-left: 10px;">
+              💡 Con {{ totalItems }} registros, use la búsqueda para encontrar resultados específicos
+            </small>
+          </div>
         </div>
       </div>
 
@@ -211,6 +217,14 @@
         </div>
         <div class="pagination" v-if="!loading">
           <button
+            @click="goToFirstPage"
+            :disabled="currentPage === 1"
+            class="pagination-button"
+            title="Ir a la primera página"
+          >
+            <i class="fa-solid fa-angle-double-left"></i>
+          </button>
+          <button
             @click="previousPage"
             :disabled="currentPage === 1"
             class="pagination-button"
@@ -225,16 +239,25 @@
             v-model="pageInput"
             @keyup.enter="goToPage"
             min="1"
-            :max="totalPages"
+            :max="Math.min(totalPages, 500)"
             class="pagination-input"
+            title="Máximo página 500"
           />
           <button @click="goToPage" class="pagination-button">Ir</button>
           <button
             @click="nextPage"
-            :disabled="currentPage === totalPages"
+            :disabled="currentPage === totalPages || currentPage >= 500"
             class="pagination-button"
           >
             Siguiente
+          </button>
+          <button
+            @click="goToLastPage"
+            :disabled="currentPage === totalPages || totalPages > 500"
+            class="pagination-button"
+            title="Ir a la última página (máximo 500)"
+          >
+            <i class="fa-solid fa-angle-double-right"></i>
           </button>
         </div>
         <button
@@ -362,11 +385,24 @@ export default {
       this.title =
         filter === "all" ? "Todas las Activaciones" : "Activaciones Pendientes";
         
-      } catch (error) {
-        console.error('Error en GET:', error);
-        this.loading = false;
-        throw error; // Re-lanzar el error para que lo maneje el método que lo llamó
-      }
+              } catch (error) {
+          console.error('Error en GET:', error);
+          this.loading = false;
+          
+          // Mostrar mensaje específico para páginas muy altas
+          if (error.response && error.response.status === 500) {
+            const errorMsg = error.response.data?.msg || 'Error del servidor';
+            if (errorMsg.includes('Página demasiado alta')) {
+              alert('La página solicitada es demasiado alta. Use la búsqueda para encontrar resultados específicos.');
+              // Volver a la página 1
+              this.currentPage = 1;
+              this.pageInput = 1;
+              return;
+            }
+          }
+          
+          throw error; // Re-lanzar el error para que lo maneje el método que lo llamó
+        }
     },
     async changePage(page) {
       console.log("Changing to page:", page, "Type:", typeof page);
@@ -381,6 +417,15 @@ export default {
     },
     async previousPage() {
       await this.changePage(this.currentPage - 1);
+    },
+    
+    async goToFirstPage() {
+      await this.changePage(1);
+    },
+    
+    async goToLastPage() {
+      const maxPage = Math.min(this.totalPages, 500);
+      await this.changePage(maxPage);
     },
 
     async approve(activation) {
@@ -589,7 +634,7 @@ export default {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages)); // Asegurarse de que la página esté dentro del rango
       
       // Validar que la página no sea demasiado alta
-      const MAX_SAFE_PAGE = 1000; // Página máxima segura
+      const MAX_SAFE_PAGE = 500; // Página máxima segura (con 100 por página = 50,000 registros)
       if (page > MAX_SAFE_PAGE) {
         alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
         this.pageInput = this.currentPage;
