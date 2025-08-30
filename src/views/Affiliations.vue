@@ -373,12 +373,8 @@ export default {
         return;
       }
       
-      // Validar que la página no sea demasiado alta
-      const MAX_SAFE_PAGE = 1000;
-      if (page > MAX_SAFE_PAGE) {
-        alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
-        return;
-      }
+      // Con cursor-based pagination, no hay límite de páginas
+      // Solo validar que sea un número válido
       
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
@@ -637,13 +633,8 @@ export default {
     async goToPage() {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages));
       
-      // Validar que la página no sea demasiado alta
-      const MAX_SAFE_PAGE = 1000; // Página máxima segura
-      if (page > MAX_SAFE_PAGE) {
-        alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
-        this.pageInput = this.currentPage;
-        return;
-      }
+      // Con cursor-based pagination, no hay límite de páginas
+      // Solo validar que sea un número válido
       
       // Validar que la página sea un número válido
       if (!Number.isInteger(page) || page < 1) {
