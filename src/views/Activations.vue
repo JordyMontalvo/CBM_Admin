@@ -314,13 +314,19 @@ export default {
         "Type:",
         typeof this.currentPage
       );
-      const { data } = await api.activations.GET({
-        filter,
-        account: this.account.id,
-        page: this.currentPage,
-        limit: this.itemsPerPage,
-        search: this.search || undefined,
-      });
+      
+      try {
+        const { data } = await api.activations.GET({
+          filter,
+          account: this.account.id,
+          page: this.currentPage,
+          limit: this.itemsPerPage,
+          search: this.search || undefined,
+        });
+        
+        if (data.error) {
+          throw new Error(data.msg || 'Error en la respuesta del servidor');
+        }
 
       this.loading = false;
 
@@ -355,6 +361,12 @@ export default {
 
       this.title =
         filter === "all" ? "Todas las Activaciones" : "Activaciones Pendientes";
+        
+      } catch (error) {
+        console.error('Error en GET:', error);
+        this.loading = false;
+        throw error; // Re-lanzar el error para que lo maneje el método que lo llamó
+      }
     },
     async changePage(page) {
       console.log("Changing to page:", page, "Type:", typeof page);
@@ -575,9 +587,26 @@ export default {
     },
     async goToPage() {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages)); // Asegurarse de que la página esté dentro del rango
+      
+      // Validar que la página no sea demasiado alta
+      const MAX_SAFE_PAGE = 1000; // Página máxima segura
+      if (page > MAX_SAFE_PAGE) {
+        alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
+        this.pageInput = this.currentPage;
+        return;
+      }
+      
       if (page !== this.currentPage) {
         this.currentPage = page;
-        await this.GET(this.$route.params.filter);
+        try {
+          await this.GET(this.$route.params.filter);
+        } catch (error) {
+          console.error('Error al cambiar de página:', error);
+          // Si hay error, volver a la página anterior
+          this.currentPage = Math.max(1, this.currentPage - 1);
+          this.pageInput = this.currentPage;
+          alert('Error al cargar la página. Por favor, use la búsqueda para encontrar resultados específicos.');
+        }
       }
     },
   },
