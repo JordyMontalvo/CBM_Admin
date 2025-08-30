@@ -239,23 +239,23 @@
             v-model="pageInput"
             @keyup.enter="goToPage"
             min="1"
-            :max="Math.min(totalPages, 500)"
+            :max="Math.min(totalPages, 50)"
             class="pagination-input"
-            title="Máximo página 500"
+            title="Máximo página 50"
           />
           <button @click="goToPage" class="pagination-button">Ir</button>
           <button
             @click="nextPage"
-            :disabled="currentPage === totalPages || currentPage >= 500"
+            :disabled="currentPage === totalPages || currentPage >= 50"
             class="pagination-button"
           >
             Siguiente
           </button>
           <button
             @click="goToLastPage"
-            :disabled="currentPage === totalPages || totalPages > 500"
+            :disabled="currentPage === totalPages || totalPages > 50"
             class="pagination-button"
-            title="Ir a la última página (máximo 500)"
+            title="Ir a la última página (máximo 50)"
           >
             <i class="fa-solid fa-angle-double-right"></i>
           </button>
@@ -402,6 +402,14 @@ export default {
               return;
             }
             
+            if (errorMsg.includes('consulta es demasiado grande') || errorMsg.includes('Error de ordenamiento')) {
+              alert('La consulta es demasiado grande para esta página. Use la búsqueda para encontrar resultados específicos o navegue a páginas más bajas.');
+              // Volver a la página 1
+              this.currentPage = 1;
+              this.pageInput = 1;
+              return;
+            }
+            
             // Mostrar el error del servidor
             alert(`Error del servidor: ${errorMsg}`);
             return;
@@ -432,7 +440,7 @@ export default {
     },
     
     async goToLastPage() {
-      const maxPage = Math.min(this.totalPages, 500);
+      const maxPage = Math.min(this.totalPages, 50);
       await this.changePage(maxPage);
     },
 
@@ -642,7 +650,7 @@ export default {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages)); // Asegurarse de que la página esté dentro del rango
       
       // Validar que la página no sea demasiado alta
-      const MAX_SAFE_PAGE = 500; // Página máxima segura (con 100 por página = 50,000 registros)
+      const MAX_SAFE_PAGE = 50; // Página máxima segura (con 100 por página = 5,000 registros)
       if (page > MAX_SAFE_PAGE) {
         alert(`No se puede ir a la página ${page}. La página máxima segura es ${MAX_SAFE_PAGE}. Use la búsqueda para encontrar resultados específicos.`);
         this.pageInput = this.currentPage;
