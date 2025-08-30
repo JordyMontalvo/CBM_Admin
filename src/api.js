@@ -56,7 +56,7 @@ class Users {
 }
 
 class Affiliations {
-  GET({ filter, account, page = 1, limit = 20, search }) {
+  GET({ filter, account, page = 1, limit = 100, search }) {
     const searchParam = search ? `&search=${search}` : "";
     return axios.get(
       `/admin/affiliations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`
@@ -88,7 +88,7 @@ class OfficeCollects {
 }
 
 class Activations {
-  GET({ filter, account, page = 1, limit = 20, search }) {
+  GET({ filter, account, page = 1, limit = 100, search }) {
     const searchParam = search ? `&search=${search}` : "";
     return axios.get(
       `/admin/activations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`
@@ -143,7 +143,7 @@ class Kadex {
 }
 
 class Closeds {
-  GET({ page = 1, limit = 20 } = {}) {
+  GET({ page = 1, limit = 100 } = {}) {
     return axios.get(`/admin/closeds?page=${page}&limit=${limit}`);
   }
   GET_DATES() {

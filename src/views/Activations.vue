@@ -392,6 +392,8 @@ export default {
           // Mostrar mensaje específico para páginas muy altas
           if (error.response && error.response.status === 500) {
             const errorMsg = error.response.data?.msg || 'Error del servidor';
+            console.error('Server error message:', errorMsg);
+            
             if (errorMsg.includes('Página demasiado alta')) {
               alert('La página solicitada es demasiado alta. Use la búsqueda para encontrar resultados específicos.');
               // Volver a la página 1
@@ -399,9 +401,15 @@ export default {
               this.pageInput = 1;
               return;
             }
+            
+            // Mostrar el error del servidor
+            alert(`Error del servidor: ${errorMsg}`);
+            return;
           }
           
-          throw error; // Re-lanzar el error para que lo maneje el método que lo llamó
+          // Error de red u otro tipo
+          alert('Error de conexión. Por favor, intente nuevamente.');
+          console.error('Full error object:', error);
         }
     },
     async changePage(page) {
