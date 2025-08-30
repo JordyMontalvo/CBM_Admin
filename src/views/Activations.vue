@@ -271,6 +271,7 @@ export default {
       totalPages: 0,
       showScrollToTop: false,
       pageInput: 1,
+      searchTimeout: null,
     };
   },
   computed: {
@@ -377,7 +378,7 @@ export default {
       if (data.error && data.msg == "already approved")
         return (activation.status = "approved");
       if (data.error && data.msg == "already rejected")
-        return (affiliation.status = "rejected");
+        return (activation.status = "rejected");
 
       // success
       activation.status = "approved";
@@ -429,7 +430,7 @@ export default {
       });
     },
     async uncheck(activation) {
-      if (affiliation.delivered) return;
+      if (activation.delivered) return;
       // console.log('uncheck', { activation })
       activation.delivered = false;
 
@@ -451,20 +452,7 @@ export default {
       location.reload();
     },
 
-    async changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-        await this.GET(this.$route.params.filter);
-      }
-    },
 
-    async nextPage() {
-      await this.changePage(this.currentPage + 1);
-    },
-
-    async previousPage() {
-      await this.changePage(this.currentPage - 1);
-    },
 
     // async change(activation) {
     //   const { data } = await api.activations.POST({ action: 'change', id: activation.id,
