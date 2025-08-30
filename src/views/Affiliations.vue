@@ -338,6 +338,13 @@ export default {
 
       this.totalItems = data.total;
       this.totalPages = data.totalPages;
+      
+      // Validar que la página actual esté dentro del rango
+      if (this.currentPage > this.totalPages && this.totalPages > 0) {
+        this.currentPage = this.totalPages;
+      }
+      
+      this.pageInput = this.currentPage; // Sincronizar el input con la página actual
 
       this.affiliations.forEach((affiliation) => {
         const office = this.accounts.find((x) => x.id == affiliation.office);
@@ -351,6 +358,7 @@ export default {
     async changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
+        this.pageInput = page; // Actualizar también el input
         await this.GET(this.$route.params.filter);
       }
     },
@@ -416,6 +424,7 @@ export default {
 
       this.searchTimeout = setTimeout(async () => {
         this.currentPage = 1;
+        this.pageInput = 1; // Resetear también el input
         await this.GET(this.$route.params.filter);
       }, 1500);
     },
@@ -603,8 +612,10 @@ export default {
     },
     async goToPage() {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages));
-      this.currentPage = page;
-      await this.GET(this.$route.params.filter);
+      if (page !== this.currentPage) {
+        this.currentPage = page;
+        await this.GET(this.$route.params.filter);
+      }
     },
   },
 };

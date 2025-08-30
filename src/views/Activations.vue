@@ -331,6 +331,13 @@ export default {
 
       this.totalItems = data.total;
       this.totalPages = data.totalPages;
+      
+      // Validar que la página actual esté dentro del rango
+      if (this.currentPage > this.totalPages && this.totalPages > 0) {
+        this.currentPage = this.totalPages;
+      }
+      
+      this.pageInput = this.currentPage; // Sincronizar el input con la página actual
       this.activations = data.activations.map((i) => ({
         ...i,
         sending: false,
@@ -351,8 +358,11 @@ export default {
     },
     async changePage(page) {
       console.log("Changing to page:", page, "Type:", typeof page);
-      this.currentPage = page;
-      await this.GET(this.$route.params.filter);
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.pageInput = page; // Actualizar también el input
+        await this.GET(this.$route.params.filter);
+      }
     },
     async nextPage() {
       await this.changePage(this.currentPage + 1);
@@ -412,6 +422,7 @@ export default {
 
       this.searchTimeout = setTimeout(async () => {
         this.currentPage = 1;
+        this.pageInput = 1; // Resetear también el input
         await this.GET(this.$route.params.filter);
       }, 1500);
     },
@@ -564,8 +575,10 @@ export default {
     },
     async goToPage() {
       const page = Math.max(1, Math.min(this.pageInput, this.totalPages)); // Asegurarse de que la página esté dentro del rango
-      this.currentPage = page;
-      await this.GET(this.$route.params.filter);
+      if (page !== this.currentPage) {
+        this.currentPage = page;
+        await this.GET(this.$route.params.filter);
+      }
     },
   },
 };
