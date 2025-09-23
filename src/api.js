@@ -56,10 +56,12 @@ class Users {
 }
 
 class Affiliations {
-  GET({ filter, account, page = 1, limit = 100, search }) {
+  GET({ filter, account, page = 1, limit = 100, search, startDate, endDate }) {
     const searchParam = search ? `&search=${search}` : "";
+    const startDateParam = startDate ? `&startDate=${startDate}` : "";
+    const endDateParam = endDate ? `&endDate=${endDate}` : "";
     return axios.get(
-      `/admin/affiliations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}`
+      `/admin/affiliations?filter=${filter}&account=${account}&page=${page}&limit=${limit}${searchParam}${startDateParam}${endDateParam}`
     );
   }
   POST({ action, id, points, voucher }) {
