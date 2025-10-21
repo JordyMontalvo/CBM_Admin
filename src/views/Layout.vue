@@ -89,6 +89,7 @@
           </div>
 
           <a class="navbar-item" href="/closed" v-if="account.type == 'admin'">Cierres</a>
+          <a class="navbar-item" href="/transactions" v-if="account.type == 'admin'">Transacciones</a>
 
 
           <div class="navbar-end">

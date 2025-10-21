@@ -19,6 +19,7 @@ class API {
     Tree,
     offices,
     stock,
+    transactions,
   }) {
     this.users = users;
     this.affiliations = affiliations;
@@ -35,6 +36,7 @@ class API {
     this.Tree = Tree;
     this.offices = offices;
     this.stock = stock;
+    this.transactions = transactions;
   }
 }
 
@@ -219,6 +221,18 @@ class Offices {
   }
 }
 
+class Transactions {
+  GET({ page = 1, limit = 50, search = '', type = 'all', virtual = 'all', name = '' } = {}) {
+    const searchParam = search ? `&search=${search}` : '';
+    const typeParam = type ? `&type=${type}` : '';
+    const virtualParam = virtual ? `&virtual=${virtual}` : '';
+    const nameParam = name ? `&name=${name}` : '';
+    return axios.get(
+      `/admin/transactions?page=${page}&limit=${limit}${searchParam}${typeParam}${virtualParam}${nameParam}`
+    );
+  }
+}
+
 export default new API({
   users: new Users(),
   affiliations: new Affiliations(),
@@ -235,4 +249,5 @@ export default new API({
   Tree: new Tree(),
   offices: new Offices(),
   stock: new Stock(),
+  transactions: new Transactions(),
 });
