@@ -52,8 +52,9 @@ class Users {
     ); // Incluir el nuevo parámetro en la URL
   }
 
-  POST({ action, id, data }) {
-    return axios.post(`/admin/users`, { action, id, data });
+  POST(payload) {
+    // Aceptar cualquier payload y enviarlo completo al servidor
+    return axios.post(`/admin/users`, payload);
   }
 }
 

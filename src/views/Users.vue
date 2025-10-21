@@ -149,9 +149,17 @@
                   tel: {{ user.phone }} <br />
                 </td>
                 <td>
-                  <span v-if="user.activated">Activado</span>
+                  <span v-if="user.activated === true">✓ Activado</span>
                   <span v-else-if="user.affiliated">Afiliado</span>
                   <span v-else>Registrado</span>
+                  <br />
+                  <button 
+                    @click="toggleActive(user)" 
+                    :class="user.activated === true ? 'btn-deactivate' : 'btn-activate'"
+                    style="margin-top: 5px; padding: 4px 8px; font-size: 0.85em; cursor: pointer; border: none; border-radius: 4px;"
+                  >
+                    {{ user.activated === true ? 'Desactivar' : 'Activar' }}
+                  </button>
                 </td>
                 <td>{{ user.token }}</td>
                 <td>
@@ -173,12 +181,47 @@
                     {{ user.balance | money }}
                   </span> -->
                   {{ user.balance | money }}
+                  <br />
+                  <div v-if="user.balance > 0" style="margin-top: 5px;">
+                    <input 
+                      v-model.number="user.transferAmount" 
+                      type="number" 
+                      step="0.01" 
+                      min="0" 
+                      :max="user.balance"
+                      placeholder="Monto"
+                      style="width: 80px; padding: 2px; font-size: 0.85em;"
+                    />
+                    <button 
+                      @click="transferToVirtual(user)" 
+                      style="padding: 4px 8px; font-size: 0.85em; cursor: pointer; border: none; border-radius: 4px; background-color: #ff9800; color: white; margin-left: 3px;"
+                    >
+                      → No Disp.
+                    </button>
+                  </div>
                 </td>
                 <td>
                   {{ user.virtualbalance | money }} <br />
                   <a v-if="user.virtualbalance > 0" @click="migrate(user)"
-                    >migrar saldo</a
+                    >migrar todo</a
                   >
+                  <div v-if="user.virtualbalance > 0" style="margin-top: 5px;">
+                    <input 
+                      v-model.number="user.transferAmountVirtual" 
+                      type="number" 
+                      step="0.01" 
+                      min="0" 
+                      :max="user.virtualbalance"
+                      placeholder="Monto"
+                      style="width: 80px; padding: 2px; font-size: 0.85em;"
+                    />
+                    <button 
+                      @click="transferToAvailable(user)" 
+                      style="padding: 4px 8px; font-size: 0.85em; cursor: pointer; border: none; border-radius: 4px; background-color: #4caf50; color: white; margin-left: 3px;"
+                    >
+                      → Disp.
+                    </button>
+                  </div>
                 </td>
                 <td>
                   <div v-if="user.parent">
@@ -263,6 +306,7 @@ export default {
       itemsPerPage: 20,
       totalItems: 0,
       totalPages: 0,
+      pageInput: 1,
       searchTimeout: null,
       totalBalance: 0,
       totalVirtualBalance: 0,
@@ -361,6 +405,8 @@ export default {
           _parent_dni: "",
           _points: 0,
           _rank: "",
+          transferAmount: 0,
+          transferAmountVirtual: 0,
         }))
         .reverse();
 
@@ -377,6 +423,7 @@ export default {
     async changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
+        this.pageInput = page;
         await this.GET(this.$route.params.filter);
       }
     },
@@ -389,8 +436,9 @@ export default {
       await this.changePage(this.currentPage - 1);
     },
     async goToPage() {
-      const page = Math.max(1, Math.min(this.pageInput, this.totalPages));
+      const page = Math.max(1, Math.min(parseInt(this.pageInput) || 1, this.totalPages));
       this.currentPage = page;
+      this.pageInput = page;
       await this.GET(this.$route.params.filter);
     },
     async input() {
@@ -499,6 +547,145 @@ export default {
         alert('Error de conexión con el backend de reinicio de Heroku');
       }
     },
+    async toggleActive(user) {
+      // Determinar el nuevo estado: si es null o false -> true, si es true -> false
+      const currentStatus = user.activated === true;
+      const newStatus = !currentStatus;
+      
+      console.log('=== TOGGLE ACTIVE DEBUG ===');
+      console.log('Usuario completo:', user);
+      console.log('user.activated (valor original):', user.activated, 'tipo:', typeof user.activated);
+      console.log('currentStatus:', currentStatus);
+      console.log('newStatus:', newStatus);
+      
+      const confirmMessage = newStatus 
+        ? '¿Desea activar este usuario?' 
+        : '¿Desea desactivar este usuario?';
+      
+      if (!confirm(confirmMessage)) return;
+
+      try {
+        const payload = { 
+          action: "toggle-active", 
+          id: user.id,
+          activated: newStatus
+        };
+        
+        console.log('Payload enviado al servidor:', payload);
+        console.log('activated enviado:', newStatus, 'tipo:', typeof newStatus);
+        
+        const { data } = await api.users.POST(payload);
+        
+        console.log('Respuesta del servidor:', data);
+        
+        if (data.error) {
+          alert('Error: ' + data.msg);
+          return;
+        }
+
+        // Actualizar el estado localmente con el valor del servidor
+        user.activated = data.activated;
+        alert(`✓ Usuario ${data.activated ? 'activado' : 'desactivado'} correctamente`);
+        
+        // Recargar la lista para asegurar que los datos estén sincronizados
+        await this.GET(this.$route.params.filter);
+      } catch (e) {
+        alert('Error al cambiar el estado del usuario: ' + (e.message || 'Error de conexión'));
+        console.error('Error completo:', e);
+      }
+    },
+    async transferToVirtual(user) {
+      const amount = parseFloat(user.transferAmount);
+      
+      if (!amount || amount <= 0 || isNaN(amount)) {
+        alert('Por favor ingrese un monto válido mayor a 0');
+        return;
+      }
+
+      if (amount > user.balance) {
+        alert(`El monto excede el saldo disponible. Disponible: USD ${user.balance.toFixed(2)}`);
+        return;
+      }
+
+      if (!confirm(`¿Desea transferir USD ${amount.toFixed(2)} del saldo disponible al no disponible?`)) return;
+
+      try {
+        console.log('Enviando transferencia:', { action: "transfer-balance", id: user.id, amount: amount, direction: 'toVirtual' });
+        
+        const { data } = await api.users.POST({ 
+          action: "transfer-balance", 
+          id: user.id,
+          amount: amount,
+          direction: 'toVirtual'
+        });
+        
+        console.log('Respuesta del servidor:', data);
+        
+        if (data.error) {
+          alert('Error: ' + (data.msg || 'Error desconocido'));
+          return;
+        }
+
+        // Actualizar saldos localmente
+        user.balance = parseFloat((user.balance - amount).toFixed(2));
+        user.virtualbalance = parseFloat((user.virtualbalance + amount).toFixed(2));
+        user.transferAmount = 0;
+        
+        alert('✓ Transferencia realizada correctamente');
+        
+        // Recargar la lista para asegurar datos actualizados
+        await this.GET(this.$route.params.filter);
+      } catch (e) {
+        alert('Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
+        console.error('Error completo:', e);
+      }
+    },
+    async transferToAvailable(user) {
+      const amount = parseFloat(user.transferAmountVirtual);
+      
+      if (!amount || amount <= 0 || isNaN(amount)) {
+        alert('Por favor ingrese un monto válido mayor a 0');
+        return;
+      }
+
+      if (amount > user.virtualbalance) {
+        alert(`El monto excede el saldo no disponible. Disponible: USD ${user.virtualbalance.toFixed(2)}`);
+        return;
+      }
+
+      if (!confirm(`¿Desea transferir USD ${amount.toFixed(2)} del saldo no disponible al disponible?`)) return;
+
+      try {
+        console.log('Enviando transferencia:', { action: "transfer-balance", id: user.id, amount: amount, direction: 'toAvailable' });
+        
+        const { data } = await api.users.POST({ 
+          action: "transfer-balance", 
+          id: user.id,
+          amount: amount,
+          direction: 'toAvailable'
+        });
+        
+        console.log('Respuesta del servidor:', data);
+        
+        if (data.error) {
+          alert('Error: ' + (data.msg || 'Error desconocido'));
+          return;
+        }
+
+        // Actualizar saldos localmente
+        user.virtualbalance = parseFloat((user.virtualbalance - amount).toFixed(2));
+        user.balance = parseFloat((user.balance + amount).toFixed(2));
+        user.transferAmountVirtual = 0;
+        
+        alert('✓ Transferencia realizada correctamente');
+        
+        // Recargar la lista para asegurar datos actualizados
+        await this.GET(this.$route.params.filter);
+      } catch (e) {
+        alert('Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
+        console.error('Error completo:', e);
+      }
+    },
   },
 };
 </script>
@@ -546,5 +733,23 @@ export default {
 }
 .heroku-restart-btn:hover {
   background: #a040c0;
+}
+
+.btn-activate {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-activate:hover {
+  background-color: #45a049;
+}
+
+.btn-deactivate {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-deactivate:hover {
+  background-color: #da190b;
 }
 </style>
