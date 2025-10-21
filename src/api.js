@@ -222,14 +222,18 @@ class Offices {
 }
 
 class Transactions {
-  GET({ page = 1, limit = 50, search = '', type = 'all', virtual = 'all', name = '' } = {}) {
+  GET({ page = 1, limit = 50, search = '', type = 'all', virtual = 'all', name = '', showDeleted = 'false' } = {}) {
     const searchParam = search ? `&search=${search}` : '';
     const typeParam = type ? `&type=${type}` : '';
     const virtualParam = virtual ? `&virtual=${virtual}` : '';
     const nameParam = name ? `&name=${name}` : '';
+    const showDeletedParam = showDeleted ? `&showDeleted=${showDeleted}` : '';
     return axios.get(
-      `/admin/transactions?page=${page}&limit=${limit}${searchParam}${typeParam}${virtualParam}${nameParam}`
+      `/admin/transactions?page=${page}&limit=${limit}${searchParam}${typeParam}${virtualParam}${nameParam}${showDeletedParam}`
     );
+  }
+  POST({ action, id, deletedBy, restoredBy }) {
+    return axios.post(`/admin/transactions`, { action, id, deletedBy, restoredBy });
   }
 }
 

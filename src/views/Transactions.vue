@@ -47,6 +47,12 @@
             <option value="recharge">Recarga</option>
           </select>
 
+          <select class="input" v-model="filters.showDeleted" @change="GET()" style="max-width: 150px;">
+            <option value="false">Activas</option>
+            <option value="true">Todas</option>
+            <option value="only">Solo Anuladas</option>
+          </select>
+
           <button class="button" @click="resetFilters()">Limpiar Filtros</button>
         </div>
 
@@ -55,19 +61,28 @@
           <div style="padding: 15px; background-color: #e8f5e9; border-radius: 5px; flex: 1; min-width: 150px;">
             <strong>Total Entradas</strong>
             <p style="font-size: 24px; margin: 5px 0;">${{ totalIn.toFixed(2) }}</p>
+            <small style="opacity: 0.7;">Solo transacciones activas</small>
           </div>
           <div style="padding: 15px; background-color: #ffebee; border-radius: 5px; flex: 1; min-width: 150px;">
             <strong>Total Salidas</strong>
             <p style="font-size: 24px; margin: 5px 0;">${{ totalOut.toFixed(2) }}</p>
+            <small style="opacity: 0.7;">Solo transacciones activas</small>
           </div>
           <div style="padding: 15px; background-color: #e3f2fd; border-radius: 5px; flex: 1; min-width: 150px;">
             <strong>Balance</strong>
             <p style="font-size: 24px; margin: 5px 0;">${{ balance.toFixed(2) }}</p>
+            <small style="opacity: 0.7;">Excluye anuladas</small>
           </div>
           <div style="padding: 15px; background-color: #f3e5f5; border-radius: 5px; flex: 1; min-width: 150px;">
             <strong>Total Transacciones</strong>
             <p style="font-size: 24px; margin: 5px 0;">{{ total }}</p>
+            <small style="opacity: 0.7;">Según filtro actual</small>
           </div>
+        </div>
+
+        <!-- Advertencia cuando se ven anuladas -->
+        <div v-if="filters.showDeleted !== 'false'" style="padding: 10px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; margin-bottom: 15px;">
+          <strong>ℹ️ Nota:</strong> Estás viendo transacciones anuladas. Los totales de balance <strong>NO incluyen</strong> transacciones anuladas, solo se muestran para referencia y auditoría.
         </div>
 
         <!-- Tabla de transacciones -->
@@ -85,12 +100,23 @@
                 <th>Virtual</th>
                 <th>Descripción</th>
                 <th>Destino</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(transaction, i) in transactions" :key="transaction.id">
+              <tr 
+                v-for="(transaction, i) in transactions" 
+                :key="transaction.id"
+                :style="{ 
+                  opacity: transaction.deleted ? '0.5' : '1',
+                  backgroundColor: transaction.deleted ? '#f5f5f5' : 'transparent'
+                }"
+              >
                 <th>{{ (page - 1) * limit + i + 1 }}</th>
-                <td>{{ transaction.date | date }}</td>
+                <td>
+                  {{ transaction.date | date }}
+                  <span v-if="transaction.deleted" class="tag is-dark is-small" style="margin-left: 5px;">ANULADA</span>
+                </td>
                 <td>{{ transaction.userName }}</td>
                 <td>{{ transaction.userDni }}</td>
                 <td>
@@ -101,9 +127,12 @@
                     {{ transaction.type === 'in' ? 'Entrada' : 'Salida' }}
                   </span>
                 </td>
-                <td>{{ transaction.name || 'N/A' }}</td>
                 <td>
-                  <strong :style="{ color: transaction.type === 'in' ? 'green' : 'red' }">
+                  {{ transaction.name || 'N/A' }}
+                  <span v-if="transaction.isReversal" class="tag is-warning is-small" style="margin-left: 5px;">REVERSIÓN</span>
+                </td>
+                <td>
+                  <strong :style="{ color: transaction.type === 'in' ? 'green' : 'red', textDecoration: transaction.deleted ? 'line-through' : 'none' }">
                     {{ transaction.type === 'in' ? '+' : '-' }}${{ transaction.value }}
                   </strong>
                 </td>
@@ -114,6 +143,24 @@
                 </td>
                 <td>{{ transaction.desc || '-' }}</td>
                 <td>{{ transaction._userName || '-' }}</td>
+                <td>
+                  <button 
+                    v-if="!transaction.deleted"
+                    class="button is-warning is-small" 
+                    @click="deleteTransaction(transaction)"
+                    :disabled="transaction.processing"
+                  >
+                    {{ transaction.processing ? 'Anulando...' : 'Anular' }}
+                  </button>
+                  <button 
+                    v-else
+                    class="button is-success is-small" 
+                    @click="restoreTransaction(transaction)"
+                    :disabled="transaction.processing"
+                  >
+                    {{ transaction.processing ? 'Restaurando...' : 'Restaurar' }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -172,7 +219,8 @@ export default {
       filters: {
         type: 'all',
         virtual: 'all',
-        name: ''
+        name: '',
+        showDeleted: 'false'
       }
     }
   },
@@ -205,7 +253,8 @@ export default {
           search: this.search,
           type: this.filters.type,
           virtual: this.filters.virtual,
-          name: this.filters.name
+          name: this.filters.name,
+          showDeleted: this.filters.showDeleted
         })
 
         this.transactions = data.transactions
@@ -235,6 +284,7 @@ export default {
       this.filters.type = 'all'
       this.filters.virtual = 'all'
       this.filters.name = ''
+      this.filters.showDeleted = 'false'
       this.page = 1
       this.GET()
     },
@@ -251,6 +301,96 @@ export default {
         this.page++
         this.GET()
       }
+    },
+
+    async deleteTransaction(transaction) {
+      const typeText = transaction.type === 'in' ? 'ENTRADA (+)' : 'SALIDA (-)'
+      const reversalText = transaction.type === 'in' 
+        ? 'Se RESTARÁ el monto del balance del usuario' 
+        : 'Se DEVOLVERÁ el monto al balance del usuario'
+      
+      if (!confirm(`¿Estás seguro de que deseas ANULAR esta transacción?\n\n` +
+        `Usuario: ${transaction.userName}\n` +
+        `Valor: $${transaction.value}\n` +
+        `Tipo: ${typeText}\n` +
+        `Categoría: ${transaction.name}\n\n` +
+        `⚠️ IMPORTANTE:\n` +
+        `• La transacción será marcada como anulada\n` +
+        `• ${reversalText}\n` +
+        `• Se creará una transacción compensatoria automática\n` +
+        `• El historial completo se mantendrá`)) {
+        return
+      }
+
+      // Marcar como procesando
+      this.$set(transaction, 'processing', true)
+
+      try {
+        const response = await api.transactions.POST({
+          action: 'delete',
+          id: transaction.id,
+          deletedBy: this.$store.state.account?.name || 'admin'
+        })
+
+        // Recargar la lista de transacciones
+        await this.GET()
+        
+        alert('✅ Transacción anulada correctamente\n\n' +
+          '• Se ha marcado como anulada\n' +
+          '• Se creó una transacción compensatoria automática\n' +
+          '• El balance del usuario se ajustó correctamente')
+      } catch (error) {
+        console.error('Error al anular transacción:', error)
+        const errorMsg = error.response?.data?.error || 'Error al anular la transacción. Por favor intenta de nuevo.'
+        alert(`❌ Error:\n${errorMsg}`)
+        this.$set(transaction, 'processing', false)
+      }
+    },
+
+    async restoreTransaction(transaction) {
+      const typeText = transaction.type === 'in' ? 'ENTRADA (+)' : 'SALIDA (-)'
+      const reversalText = transaction.type === 'in' 
+        ? 'Se SUMARÁ el monto al balance del usuario nuevamente' 
+        : 'Se RESTARÁ el monto del balance del usuario nuevamente'
+      
+      if (!confirm(`¿Estás seguro de que deseas RESTAURAR esta transacción?\n\n` +
+        `Usuario: ${transaction.userName}\n` +
+        `Valor: $${transaction.value}\n` +
+        `Tipo: ${typeText}\n` +
+        `Categoría: ${transaction.name}\n\n` +
+        `⚠️ IMPORTANTE:\n` +
+        `• La transacción volverá a estar activa\n` +
+        `• ${reversalText}\n` +
+        `• Se anulará la transacción compensatoria automáticamente\n` +
+        `• El balance se restablecerá al estado original`)) {
+        return
+      }
+
+      // Marcar como procesando
+      this.$set(transaction, 'processing', true)
+
+      try {
+        const response = await api.transactions.POST({
+          action: 'restore',
+          id: transaction.id,
+          restoredBy: this.$store.state.account?.name || 'admin'
+        })
+
+        // Recargar la lista de transacciones
+        await this.GET()
+        
+        // Mostrar mensaje apropiado
+        if (response.data.data.warning) {
+          alert(`✅ Transacción restaurada\n\n⚠️ ADVERTENCIA:\n${response.data.data.warning}\n\nPor favor verifica el balance del usuario manualmente.`)
+        } else {
+          alert('✅ Transacción restaurada correctamente y balance restablecido automáticamente')
+        }
+      } catch (error) {
+        console.error('Error al restaurar transacción:', error)
+        const errorMsg = error.response?.data?.error || 'Error al restaurar la transacción. Por favor intenta de nuevo.'
+        alert(`❌ Error:\n${errorMsg}`)
+        this.$set(transaction, 'processing', false)
+      }
     }
   }
 }
@@ -265,4 +405,6 @@ export default {
   font-size: 12px;
 }
 </style>
+
+
 
