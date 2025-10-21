@@ -574,6 +574,29 @@ export default {
         this.new_product;
       // console.log({ name, type, price, aff_price_check, aff_price })
 
+      // Validaciones
+      if (!name || name.trim() === '') {
+        alert('Por favor ingresa el nombre del producto');
+        return;
+      }
+
+      if (!type || type.trim() === '') {
+        alert('Por favor ingresa la categoría del producto');
+        return;
+      }
+
+      if (!price || price.length === 0 || !price.some(p => p > 0)) {
+        alert('Por favor ingresa al menos un precio de compra');
+        return;
+      }
+
+      if (aff_price_check) {
+        if (!aff_price || aff_price.length === 0 || !aff_price.some(p => p > 0)) {
+          alert('Por favor completa los precios de afiliación o desmarca el checkbox "En Afiliación"');
+          return;
+        }
+      }
+
       await api.products.POST({
         action: "add",
         data: {
