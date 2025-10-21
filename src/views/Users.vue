@@ -35,6 +35,7 @@
                 <th>Estado</th>
                 <th>Código</th>
                 <th>Puntos</th>
+                <th>Puntos Afiliación</th>
                 <th>
                   Saldo disponible
                   <input type="checkbox" v-model="check" @change="fetchUsers" />
@@ -174,6 +175,20 @@
                     style="max-width: 120px"
                     v-if="user.edit"
                     @blur="user._points = Number(user._points).toFixed(2)"
+                  />
+                </td>
+                <td>
+                  <p v-if="!user.edit">{{ Number(user.affiliation_points || 0).toFixed(2) }}</p>
+
+                  <input
+                    class="input"
+                    v-model.number="user._affiliation_points"
+                    type="number"
+                    step="any"
+                    placeholder="Ptos. Afiliación"
+                    style="max-width: 120px"
+                    v-if="user.edit"
+                    @blur="user._affiliation_points = Number(user._affiliation_points).toFixed(2)"
                   />
                 </td>
                 <td>
@@ -405,6 +420,7 @@ export default {
           _parent_dni: "",
           _points: 0,
           _rank: "",
+          _affiliation_points: 0,
           transferAmount: 0,
           transferAmountVirtual: 0,
         }))
@@ -465,12 +481,15 @@ export default {
       if (!user._lastName) user._lastName = user.lastName;
       if (!user._dni) user._dni = user.dni;
       if (!user._points) user._points = user.points;
+      if (!user._affiliation_points) user._affiliation_points = user.affiliation_points || 0;
 
       if (!user._parent_dni) user._parent_dni = user.parent.dni;
       if (!user._rank) user._rank = user.rank;
     },
     async save(user) {
       user._points = Number(user._points); // asegura que sea número (float si aplica)
+      user._affiliation_points = Number(user._affiliation_points); // asegura que sea número
+      
       // post new name
       const { data } = await api.users.POST({
         action: "name",
@@ -483,6 +502,7 @@ export default {
           _parent_dni: user._parent_dni,
           _points: user._points, // ya es número
           _rank: user._rank,
+          _affiliation_points: user._affiliation_points, // puntos de afiliación
         },
       });
 
@@ -490,6 +510,7 @@ export default {
       user.lastName = user._lastName;
       user.dni = user._dni;
       user.points = user._points; // ya es número
+      user.affiliation_points = user._affiliation_points; // actualizar puntos de afiliación
 
       user.parent.dni = user._parent_dni;
       user.rank = user._rank;
