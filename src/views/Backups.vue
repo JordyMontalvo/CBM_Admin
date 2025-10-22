@@ -242,7 +242,7 @@ export default {
           },
           body: JSON.stringify({
             action: 'download',
-            filename: backup.filename
+            backupId: backup.id
           })
         });
 
@@ -253,7 +253,7 @@ export default {
 
         // Verificar si es un archivo ZIP
         const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/zip')) {
+        if (contentType && (contentType.includes('application/zip') || contentType.includes('application/json'))) {
           // Crear blob y descargar
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
@@ -261,7 +261,9 @@ export default {
           a.href = url;
           a.style.display = 'none';
           
-          a.download = backup.filename;
+          // Determinar extensión basada en content-type
+          const extension = contentType.includes('application/zip') ? '.zip' : '.json';
+          a.download = backup.filename + extension;
           document.body.appendChild(a);
           a.click();
           
@@ -273,7 +275,7 @@ export default {
           alert('✓ Backup descargado exitosamente');
         } else {
           const responseText = await response.text();
-          throw new Error('El servidor no devolvió un archivo ZIP válido: ' + responseText.substring(0, 200));
+          throw new Error('El servidor no devolvió un archivo válido: ' + responseText.substring(0, 200));
         }
         
       } catch (error) {
