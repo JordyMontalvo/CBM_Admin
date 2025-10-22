@@ -235,15 +235,11 @@ export default {
     async downloadBackup(backup) {
       this.downloading = true;
       try {
-        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/auto-backup`, {
+        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/backup-mongodump-format`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            action: 'download',
-            backupId: backup.id
-          })
+          }
         });
 
         if (!response.ok) {
@@ -251,32 +247,25 @@ export default {
           throw new Error(errorData.msg || 'Error descargando backup');
         }
 
-        // Verificar si es un archivo ZIP
-        const contentType = response.headers.get('content-type');
-        if (contentType && (contentType.includes('application/zip') || contentType.includes('application/json'))) {
-          // Crear blob y descargar
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.style.display = 'none';
-          
-          // Determinar extensión basada en content-type
-          const extension = contentType.includes('application/zip') ? '.zip' : '.json';
-          a.download = backup.filename + extension;
-          document.body.appendChild(a);
-          a.click();
-          
-          setTimeout(() => {
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-          }, 1000);
-          
-          alert('✓ Backup descargado exitosamente');
-        } else {
-          const responseText = await response.text();
-          throw new Error('El servidor no devolvió un archivo válido: ' + responseText.substring(0, 200));
-        }
+        // Crear blob y descargar archivo ZIP
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.style.display = 'none';
+        
+        // Generar nombre de archivo con timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        a.download = `cbm-backup-${timestamp}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 1000);
+        
+        alert('✓ Backup descargado exitosamente');
         
       } catch (error) {
         console.error('Error descargando backup:', error);
