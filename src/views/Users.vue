@@ -1,6 +1,13 @@
 <template>
   <Layout>
-    <button class="heroku-restart-btn" @click="reiniciarHeroku">Reiniciar App Heroku</button>
+    <div style="margin-bottom: 20px;">
+      <button class="heroku-restart-btn" @click="reiniciarHeroku">Reiniciar App Heroku</button>
+      <button class="backup-download-btn" @click="downloadBackup" :disabled="downloadingBackup">
+        <i class="fa-solid fa-download" v-if="!downloadingBackup"></i>
+        <i class="fa-solid fa-spinner fa-spin" v-if="downloadingBackup"></i>
+        {{ downloadingBackup ? 'Generando Backup...' : 'Descargar Backup' }}
+      </button>
+    </div>
     <i class="load" v-if="loading"></i>
 
     <section v-if="!loading">
@@ -326,6 +333,7 @@ export default {
       totalBalance: 0,
       totalVirtualBalance: 0,
       showScrollToTop: false,
+      downloadingBackup: false,
     };
   },
   computed: {
@@ -568,6 +576,115 @@ export default {
         alert('Error de conexión con el backend de reinicio de Heroku');
       }
     },
+    async downloadBackup() {
+      if (!confirm('¿Desea descargar un backup completo de la base de datos? Esto puede tomar unos minutos.')) {
+        return;
+      }
+
+      this.downloadingBackup = true;
+      
+      try {
+        console.log('Iniciando descarga de backup...');
+        
+        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/backup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error response:', errorText);
+          throw new Error('Error del servidor: ' + response.status);
+        }
+
+        // Verificar si es un archivo ZIP
+        const contentType = response.headers.get('content-type');
+        console.log('Content-Type:', contentType);
+        
+        if (contentType && contentType.includes('application/zip')) {
+          console.log('Procesando archivo ZIP...');
+          
+          // Crear blob y descargar
+          const blob = await response.blob();
+          console.log('Blob creado, tamaño:', blob.size);
+          
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.style.display = 'none';
+          
+          // Obtener nombre del archivo desde headers
+          const contentDisposition = response.headers.get('content-disposition');
+          let filename = 'cbm-backup.zip';
+          if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch) {
+              filename = filenameMatch[1];
+            }
+          }
+          
+          // Intentar usar File System Access API para permitir elegir ubicación
+          if ('showSaveFilePicker' in window) {
+            try {
+              const fileHandle = await window.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{
+                  description: 'Archivos ZIP',
+                  accept: {
+                    'application/zip': ['.zip']
+                  }
+                }]
+              });
+              
+              const writable = await fileHandle.createWritable();
+              await writable.write(blob);
+              await writable.close();
+              
+              alert('✓ Backup guardado exitosamente en la ubicación seleccionada.');
+            } catch (saveError) {
+              if (saveError.name !== 'AbortError') {
+                console.error('Error guardando archivo:', saveError);
+                // Fallback a descarga normal
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                }, 1000);
+                alert('✓ Backup descargado exitosamente. El archivo se guardará en tu carpeta de Descargas.');
+              }
+            }
+          } else {
+            // Fallback para navegadores que no soportan File System Access API
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+            }, 1000);
+            alert('✓ Backup descargado exitosamente. El archivo se guardará en tu carpeta de Descargas.');
+          }
+        } else {
+          // Si no es un archivo, mostrar error
+          const responseText = await response.text();
+          console.error('Respuesta inesperada:', responseText);
+          throw new Error('El servidor no devolvió un archivo ZIP válido. Respuesta: ' + responseText.substring(0, 200));
+        }
+        
+      } catch (error) {
+        console.error('Error descargando backup:', error);
+        alert('Error al descargar el backup: ' + error.message);
+      } finally {
+        this.downloadingBackup = false;
+      }
+    },
     async toggleActive(user) {
       // Determinar el nuevo estado: si es null o false -> true, si es true -> false
       const currentStatus = user.activated === true;
@@ -754,6 +871,30 @@ export default {
 }
 .heroku-restart-btn:hover {
   background: #a040c0;
+}
+
+.backup-download-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backup-download-btn:hover:not(:disabled) {
+  background: #218838;
+}
+
+.backup-download-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
 }
 
 .btn-activate {
