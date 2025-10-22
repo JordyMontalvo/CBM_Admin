@@ -586,7 +586,7 @@ export default {
       try {
         console.log('Iniciando descarga de backup...');
         
-        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/backup-heroku`, {
+        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/backup-complete`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
