@@ -21,6 +21,7 @@ import Products     from './views/Products.vue'
 import Kadex        from './views/Kadex.vue'
 import Closed       from './views/Closed.vue'
 import Transactions from './views/Transactions.vue'
+import Backups from './views/Backups.vue'
 
 // import Reports      from './views/Reports.vue'
 
@@ -137,6 +138,12 @@ const routes = [
   //   component: Reports,
   //   meta: { requiresAuth: true }
   // },
+  {
+    path: '/backups',
+    name: 'Backups',
+    component: Backups,
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = new Router({
