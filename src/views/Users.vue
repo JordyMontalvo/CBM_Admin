@@ -154,6 +154,7 @@
                   <br />
 
                   <p v-if="user.rank">rango: {{ user.rank | _rank }}</p>
+                  <div v-if="user.email && user.email.trim() !== ''" style="margin-top: 4px; margin-bottom: 4px;">{{ user.email }}</div>
                   tel: {{ user.phone }} <br />
                 </td>
                 <td>
@@ -416,22 +417,28 @@ export default {
 
       // success
       this.users = data.users
-        .map((i) => ({
-          ...i,
-          sending: false,
-          visible: true,
-          edit: false,
-          _name: "",
-          _lastName: "",
-          _dni: "",
-          _password: "",
-          _parent_dni: "",
-          _points: 0,
-          _rank: "",
-          _affiliation_points: 0,
-          transferAmount: 0,
-          transferAmountVirtual: 0,
-        }))
+        .map((i) => {
+          // Debug: verificar si el email está llegando
+          if (i.email) {
+            console.log('Usuario con email:', i.name, i.lastName, 'Email:', i.email);
+          }
+          return {
+            ...i,
+            sending: false,
+            visible: true,
+            edit: false,
+            _name: "",
+            _lastName: "",
+            _dni: "",
+            _password: "",
+            _parent_dni: "",
+            _points: 0,
+            _rank: "",
+            _affiliation_points: 0,
+            transferAmount: 0,
+            transferAmountVirtual: 0,
+          };
+        })
         .reverse();
 
       this.totalItems = data.total;
