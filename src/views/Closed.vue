@@ -84,6 +84,11 @@
       <br />
       <div class="container">
         <br />
+        <div v-if="selectedClosure" style="margin-bottom: 1em;">
+          <button class="button is-success" @click="exportToExcel">
+            <span>📊 Exportar a Excel</span>
+          </button>
+        </div>
         <br />
         <table class="table" v-if="selectedClosure">
           <thead>
@@ -277,6 +282,37 @@ export default {
       if (this.currentPage > 1) {
         this.getClosureDates(this.currentPage - 1);
       }
+    },
+    exportToExcel() {
+      if (!this.selectedClosure || !this.selectedClosure.users || this.selectedClosure.users.length === 0) {
+        alert("No hay datos para exportar. Por favor selecciona un cierre con datos.");
+        return;
+      }
+
+      // Crear nombre de archivo con la fecha del cierre
+      const date = new Date(this.selectedClosure.date);
+      const dateStr = date.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+      const filename = `Cierres_${dateStr}.xlsx`;
+
+      // Preparar los datos para Excel
+      let data_xls = [];
+
+      this.selectedClosure.users.forEach((user, index) => {
+        data_xls.push({
+          "#": index + 1,
+          "Nombre": user.name || "",
+          "Puntos Personales": user.points ? parseFloat(user.points.toFixed(2)) : 0.00,
+          "Puntos Grupales": user._total ? parseFloat(user._total.toFixed(2)) : 0.00,
+          "Rango": this.$options.filters._rank(user.rank) || "Ninguno",
+          "Bono Residual": user.residual_bonus ? parseFloat(user.residual_bonus.toFixed(2)) : 0.00
+        });
+      });
+
+      // Crear el archivo Excel
+      var ws = XLSX.utils.json_to_sheet(data_xls);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Cierres");
+      XLSX.writeFile(wb, filename);
     },
   },
   mounted() {
