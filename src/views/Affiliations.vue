@@ -461,36 +461,47 @@ export default {
       });
     },
     async performApprove(affiliation) {
-
       this.sending = true;
       affiliation.sending = true;
 
-      let { data } = await api.affiliations.POST({
-        action: "approve",
-        id: affiliation.id,
-      });
-      console.log({ data });
+      try {
+        const { data } = await api.affiliations.POST({
+          action: "approve",
+          id: affiliation.id,
+        });
 
-      affiliation.sending = false;
-      this.sending = false;
+        if (data.error && data.msg == "already approved") {
+          affiliation.status = "approved";
+          this.$toast.info('Información', 'La afiliación ya estaba aprobada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error && data.msg == "already rejected") {
+          affiliation.status = "rejected";
+          this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error && data.msg == "token unavailable") {
+          this.$toast.error('Error', 'No hay tokens disponibles');
+          return;
+        }
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al aprobar la afiliación');
+          return;
+        }
 
-      if (data.error && data.msg == "already approved") {
         affiliation.status = "approved";
-        this.$toast.info('Información', 'La afiliación ya estaba aprobada');
-        return;
+        this.$toast.success('Éxito', 'Afiliación aprobada correctamente');
+        // Recargar los datos para reflejar los cambios
+        await this.GET(this.$route.params.filter);
+      } catch (error) {
+        console.error('Error al aprobar:', error);
+        this.$toast.error('Error', error.message || 'Error al aprobar la afiliación');
+      } finally {
+        affiliation.sending = false;
+        this.sending = false;
       }
-      if (data.error && data.msg == "already rejected") {
-        affiliation.status = "rejected";
-        this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
-        return;
-      }
-      if (data.error && data.msg == "token unavailable") {
-        this.$toast.error('Error', 'No hay tokens disponibles');
-        return;
-      }
-
-      affiliation.status = "approved";
-      this.$toast.success('Éxito', 'Afiliación aprobada correctamente');
     },
     async reject(affiliation) {
       this.$confirm.show({
@@ -507,28 +518,40 @@ export default {
       this.sending = true;
       affiliation.sending = true;
 
-      const { data } = await api.affiliations.POST({
-        action: "reject",
-        id: affiliation.id,
-      });
-      console.log({ data });
+      try {
+        const { data } = await api.affiliations.POST({
+          action: "reject",
+          id: affiliation.id,
+        });
 
-      affiliation.sending = false;
-      this.sending = false;
+        if (data.error && data.msg == "already approved") {
+          affiliation.status = "approved";
+          this.$toast.info('Información', 'La afiliación ya estaba aprobada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error && data.msg == "already rejected") {
+          affiliation.status = "rejected";
+          this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al rechazar la afiliación');
+          return;
+        }
 
-      if (data.error && data.msg == "already approved") {
-        affiliation.status = "approved";
-        this.$toast.info('Información', 'La afiliación ya estaba aprobada');
-        return;
-      }
-      if (data.error && data.msg == "already rejected") {
         affiliation.status = "rejected";
-        this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
-        return;
+        this.$toast.success('Éxito', 'Afiliación rechazada correctamente');
+        // Recargar los datos para reflejar los cambios
+        await this.GET(this.$route.params.filter);
+      } catch (error) {
+        console.error('Error al rechazar:', error);
+        this.$toast.error('Error', error.message || 'Error al rechazar la afiliación');
+      } finally {
+        affiliation.sending = false;
+        this.sending = false;
       }
-
-      affiliation.status = "rejected";
-      this.$toast.success('Éxito', 'Afiliación rechazada');
     },
     input() {
       if (this.searchTimeout) {

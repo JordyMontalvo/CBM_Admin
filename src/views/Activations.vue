@@ -492,29 +492,41 @@ export default {
     async performApprove(activation) {
       activation.sending = true;
 
-      const { data } = await api.activations.POST({
-        action: "approve",
-        id: activation.id,
-      });
-      console.log({ data });
+      try {
+        const { data } = await api.activations.POST({
+          action: "approve",
+          id: activation.id,
+        });
 
-      activation.sending = false;
+        // error
+        if (data.error && data.msg == "already approved") {
+          activation.status = "approved";
+          this.$toast.info('Información', 'La activación ya estaba aprobada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error && data.msg == "already rejected") {
+          activation.status = "rejected";
+          this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al aprobar la activación');
+          return;
+        }
 
-      // error
-      if (data.error && data.msg == "already approved") {
+        // success
         activation.status = "approved";
-        this.$toast.info('Información', 'La activación ya estaba aprobada');
-        return;
+        this.$toast.success('Éxito', 'Activación confirmada correctamente');
+        // Recargar los datos para reflejar los cambios
+        await this.GET(this.$route.params.filter);
+      } catch (error) {
+        console.error('Error al aprobar:', error);
+        this.$toast.error('Error', error.message || 'Error al aprobar la activación');
+      } finally {
+        activation.sending = false;
       }
-      if (data.error && data.msg == "already rejected") {
-        activation.status = "rejected";
-        this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
-        return;
-      }
-
-      // success
-      activation.status = "approved";
-      this.$toast.success('Éxito', 'Activación confirmada correctamente');
     },
     async reject(activation) {
       this.$confirm.show({
@@ -530,29 +542,41 @@ export default {
     async performReject(activation) {
       activation.sending = true;
 
-      const { data } = await api.activations.POST({
-        action: "reject",
-        id: activation.id,
-      });
-      console.log({ data });
+      try {
+        const { data } = await api.activations.POST({
+          action: "reject",
+          id: activation.id,
+        });
 
-      activation.sending = false;
+        // error
+        if (data.error && data.msg == "already approved") {
+          activation.status = "approved";
+          this.$toast.info('Información', 'La activación ya estaba aprobada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error && data.msg == "already rejected") {
+          activation.status = "rejected";
+          this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
+          await this.GET(this.$route.params.filter);
+          return;
+        }
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al rechazar la activación');
+          return;
+        }
 
-      // error
-      if (data.error && data.msg == "already approved") {
-        activation.status = "approved";
-        this.$toast.info('Información', 'La activación ya estaba aprobada');
-        return;
-      }
-      if (data.error && data.msg == "already rejected") {
+        // success
         activation.status = "rejected";
-        this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
-        return;
+        this.$toast.success('Éxito', 'Activación rechazada correctamente');
+        // Recargar los datos para reflejar los cambios
+        await this.GET(this.$route.params.filter);
+      } catch (error) {
+        console.error('Error al rechazar:', error);
+        this.$toast.error('Error', error.message || 'Error al rechazar la activación');
+      } finally {
+        activation.sending = false;
       }
-
-      // success
-      activation.status = "rejected";
-      this.$toast.success('Éxito', 'Activación rechazada');
     },
     input() {
       if (this.searchTimeout) {
@@ -590,16 +614,24 @@ export default {
         onConfirm: async () => {
           activation.delivered = true;
 
-          const { data } = await api.activations.POST({
-            action: "check",
-            id: activation.id,
-          });
-          
-          if (data.error) {
-            this.$toast.error('Error', data.msg || 'Error al marcar como entregado');
+          try {
+            const { data } = await api.activations.POST({
+              action: "check",
+              id: activation.id,
+            });
+            
+            if (data.error) {
+              this.$toast.error('Error', data.msg || 'Error al marcar como entregado');
+              activation.delivered = false;
+            } else {
+              this.$toast.success('Éxito', 'Activación marcada como entregada');
+              // Recargar los datos para reflejar los cambios
+              await this.GET(this.$route.params.filter);
+            }
+          } catch (error) {
+            console.error('Error al marcar como entregado:', error);
+            this.$toast.error('Error', error.message || 'Error al marcar como entregado');
             activation.delivered = false;
-          } else {
-            this.$toast.success('Éxito', 'Activación marcada como entregada');
           }
         }
       });
@@ -608,16 +640,24 @@ export default {
       if (activation.delivered) return;
       activation.delivered = false;
 
-      const { data } = await api.activations.POST({
-        action: "uncheck",
-        id: activation.id,
-      });
-      
-      if (data.error) {
-        this.$toast.error('Error', data.msg || 'Error al desmarcar');
+      try {
+        const { data } = await api.activations.POST({
+          action: "uncheck",
+          id: activation.id,
+        });
+        
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al desmarcar');
+          activation.delivered = true;
+        } else {
+          this.$toast.success('Éxito', 'Estado actualizado');
+          // Recargar los datos para reflejar los cambios
+          await this.GET(this.$route.params.filter);
+        }
+      } catch (error) {
+        console.error('Error al desmarcar:', error);
+        this.$toast.error('Error', error.message || 'Error al desmarcar');
         activation.delivered = true;
-      } else {
-        this.$toast.success('Éxito', 'Estado actualizado');
       }
     },
 
@@ -634,8 +674,6 @@ export default {
       });
     },
     async performRevert(activation) {
-      console.log("revert ...");
-
       try {
         const { data } = await api.activations.POST({
           action: "revert",
@@ -646,12 +684,12 @@ export default {
           this.$toast.error('Error', data.msg || 'Error al revertir la activación');
         } else {
           this.$toast.success('Éxito', 'Activación revertida correctamente');
-          setTimeout(() => {
-            location.reload();
-          }, 1000);
+          // Recargar los datos en lugar de recargar toda la página
+          await this.GET(this.$route.params.filter);
         }
       } catch (error) {
-        this.$toast.error('Error', 'Error al revertir la activación');
+        console.error('Error al revertir:', error);
+        this.$toast.error('Error', error.message || 'Error al revertir la activación');
       }
     },
 
