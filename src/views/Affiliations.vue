@@ -368,22 +368,17 @@ export default {
 
       try {
         const data2 = await api.offices.GET();
-        console.log({ data2 });
-        this.accounts = data2.data.offices;
+        this.accounts = data2.data?.offices || [];
 
         const { data } = await api.affiliations.GET({
           filter,
-          account: this.account.id,
+          account: this.account?.id || 'admin',
           page: this.currentPage,
           limit: this.itemsPerPage,
           search: this.search || undefined,
           startDate: this.startDate || undefined,
           endDate: this.endDate || undefined
         });
-        console.log('Respuesta completa de API:', data);
-        console.log('Affiliations recibidas:', data.affiliations);
-        console.log('Total:', data.total);
-        console.log('Total pages:', data.totalPages);
         
         if (data.error) {
           if (data.msg == "invalid filter") {
@@ -396,10 +391,8 @@ export default {
 
         // Procesar datos - validar que affiliations existe y es un array
         if (!data.affiliations) {
-          console.warn('No se recibió el campo affiliations en la respuesta');
           this.affiliations = [];
         } else if (!Array.isArray(data.affiliations)) {
-          console.warn('El campo affiliations no es un array:', typeof data.affiliations);
           this.affiliations = [];
         } else {
           this.affiliations = data.affiliations.map((i) => ({
@@ -409,20 +402,17 @@ export default {
             editing: false,
             newVoucher: "",
           }));
-          console.log('Affiliations procesadas:', this.affiliations.length);
         }
 
         this.totalItems = data.total || 0;
         this.totalPages = data.totalPages || 0;
-        
-        console.log('Estado final - Total items:', this.totalItems, 'Total pages:', this.totalPages, 'Affiliations:', this.affiliations.length);
         
         // Validar que la página actual esté dentro del rango
         if (this.currentPage > this.totalPages && this.totalPages > 0) {
           this.currentPage = this.totalPages;
         }
         
-        this.pageInput = this.currentPage; // Sincronizar el input con la página actual
+        this.pageInput = this.currentPage;
 
         this.affiliations.forEach((affiliation) => {
           const office = this.accounts.find((x) => x.id == affiliation.office);

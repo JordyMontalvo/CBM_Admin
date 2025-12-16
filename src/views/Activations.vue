@@ -380,11 +380,6 @@ export default {
           endDate: this.endDate || undefined,
         });
         
-        console.log('Respuesta completa de API:', data);
-        console.log('Activations recibidas:', data.activations);
-        console.log('Total:', data.total);
-        console.log('Total pages:', data.totalPages);
-        
         if (data.error) {
           if (data.msg == "invalid filter") {
             this.$router.push("activations/all");
@@ -396,10 +391,8 @@ export default {
 
         // Procesar datos - validar que activations existe y es un array
         if (!data.activations) {
-          console.warn('No se recibió el campo activations en la respuesta');
           this.activations = [];
         } else if (!Array.isArray(data.activations)) {
-          console.warn('El campo activations no es un array:', typeof data.activations);
           this.activations = [];
         } else {
           this.activations = data.activations.map((i) => ({
@@ -409,7 +402,6 @@ export default {
             editing: false,
             newVoucher: "",
           }));
-          console.log('Activations procesadas:', this.activations.length);
         }
 
         this.totalItems = data.total || 0;
@@ -431,8 +423,6 @@ export default {
 
         this.title =
           filter === "all" ? "Todas las Activaciones" : "Activaciones Pendientes";
-        
-        console.log('Estado final - Total items:', this.totalItems, 'Total pages:', this.totalPages, 'Activations:', this.activations.length);
         
       } catch (error) {
         console.error('Error en GET:', error);
