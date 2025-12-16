@@ -2,15 +2,73 @@
   <div id="app">
     <router-view/>
     <Toast />
+    <ConfirmModal
+      :show.sync="confirmShow"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :details="confirmDetails"
+      :type="confirmType"
+      :confirm-text="confirmText"
+      :cancel-text="cancelText"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
   </div>
 </template>
 
 <script>
 import Toast from './components/Toast.vue'
+import ConfirmModal from './components/ConfirmModal.vue'
+import { ConfirmEventBus } from './utils/confirm'
 
 export default {
   components: {
-    Toast
+    Toast,
+    ConfirmModal
+  },
+  data() {
+    return {
+      confirmShow: false,
+      confirmTitle: 'Confirmar acción',
+      confirmMessage: '¿Estás seguro?',
+      confirmDetails: '',
+      confirmType: 'warning',
+      confirmText: 'Confirmar',
+      cancelText: 'Cancelar',
+      onConfirmCallback: null,
+      onCancelCallback: null
+    }
+  },
+  mounted() {
+    // Escuchar eventos del Event Bus
+    ConfirmEventBus.$on('show', (options) => {
+      this.confirmTitle = options.title || 'Confirmar acción'
+      this.confirmMessage = options.message || '¿Estás seguro?'
+      this.confirmDetails = options.details || ''
+      this.confirmType = options.type || 'warning'
+      this.confirmText = options.confirmText || 'Confirmar'
+      this.cancelText = options.cancelText || 'Cancelar'
+      this.onConfirmCallback = options.onConfirm || (() => {})
+      this.onCancelCallback = options.onCancel || (() => {})
+      this.confirmShow = true
+    })
+  },
+  beforeDestroy() {
+    ConfirmEventBus.$off('show')
+  },
+  methods: {
+    handleConfirm() {
+      if (this.onConfirmCallback) {
+        this.onConfirmCallback()
+      }
+      this.confirmShow = false
+    },
+    handleCancel() {
+      if (this.onCancelCallback) {
+        this.onCancelCallback()
+      }
+      this.confirmShow = false
+    }
   },
   created() {
     console.log('App ...')
