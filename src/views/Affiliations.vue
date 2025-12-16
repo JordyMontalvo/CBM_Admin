@@ -380,7 +380,10 @@ export default {
           startDate: this.startDate || undefined,
           endDate: this.endDate || undefined
         });
-        console.log({ data });
+        console.log('Respuesta completa de API:', data);
+        console.log('Affiliations recibidas:', data.affiliations);
+        console.log('Total:', data.total);
+        console.log('Total pages:', data.totalPages);
         
         if (data.error) {
           if (data.msg == "invalid filter") {
@@ -391,17 +394,28 @@ export default {
           throw new Error(data.msg || 'Error en la respuesta del servidor');
         }
 
-        // Procesar datos
-        this.affiliations = data.affiliations.map((i) => ({
-          ...i,
-          sending: false,
-          visible: true,
-          editing: false,
-          newVoucher: "",
-        }));
+        // Procesar datos - validar que affiliations existe y es un array
+        if (!data.affiliations) {
+          console.warn('No se recibió el campo affiliations en la respuesta');
+          this.affiliations = [];
+        } else if (!Array.isArray(data.affiliations)) {
+          console.warn('El campo affiliations no es un array:', typeof data.affiliations);
+          this.affiliations = [];
+        } else {
+          this.affiliations = data.affiliations.map((i) => ({
+            ...i,
+            sending: false,
+            visible: true,
+            editing: false,
+            newVoucher: "",
+          }));
+          console.log('Affiliations procesadas:', this.affiliations.length);
+        }
 
-        this.totalItems = data.total;
-        this.totalPages = data.totalPages;
+        this.totalItems = data.total || 0;
+        this.totalPages = data.totalPages || 0;
+        
+        console.log('Estado final - Total items:', this.totalItems, 'Total pages:', this.totalPages, 'Affiliations:', this.affiliations.length);
         
         // Validar que la página actual esté dentro del rango
         if (this.currentPage > this.totalPages && this.totalPages > 0) {

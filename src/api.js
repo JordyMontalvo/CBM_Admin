@@ -2,6 +2,21 @@ import axios from "axios";
 
 axios.defaults.baseURL = process.env.VUE_APP_SERVER + "/api";
 
+// Deshabilitar caché para requests GET
+axios.interceptors.request.use((config) => {
+  if (config.method === 'get') {
+    config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    config.headers['Pragma'] = 'no-cache';
+    config.headers['Expires'] = '0';
+    // Agregar timestamp para evitar caché
+    config.params = {
+      ...config.params,
+      _t: Date.now()
+    };
+  }
+  return config;
+});
+
 class API {
   constructor({
     users,
