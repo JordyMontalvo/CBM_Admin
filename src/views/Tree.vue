@@ -263,15 +263,24 @@ export default {
         return;
       }
       
-      if (!confirm(`¿Mover ${this.to} debajo de ${this.from}? Esta operación no puede revertirse.`)) {
-        return;
-      }
-      
+      this.$confirm.show({
+        title: 'Mover Nodo',
+        message: `¿Mover ${this.to} debajo de ${this.from}?`,
+        details: 'Esta operación no puede revertirse',
+        type: 'warning',
+        confirmText: 'Mover',
+        onConfirm: async () => {
+          await this.performMove();
+        }
+      });
+    },
+    async performMove() {
       try {
         const { data } = await api.Tree.POST({ to: this.to, from: this.from });
         
         if (data.error) {
           this.error = data.msg;
+          this.$toast.error('Error', data.msg);
           return;
         }
         

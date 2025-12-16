@@ -20,6 +20,7 @@ class API {
     offices,
     stock,
     transactions,
+    dashboard,
   }) {
     this.users = users;
     this.affiliations = affiliations;
@@ -37,6 +38,7 @@ class API {
     this.offices = offices;
     this.stock = stock;
     this.transactions = transactions;
+    this.dashboard = dashboard;
   }
 }
 
@@ -238,6 +240,12 @@ class Transactions {
   }
 }
 
+class Dashboard {
+  GET() {
+    return axios.get(`/admin/dashboard`);
+  }
+}
+
 export default new API({
   users: new Users(),
   affiliations: new Affiliations(),
@@ -255,4 +263,5 @@ export default new API({
   offices: new Offices(),
   stock: new Stock(),
   transactions: new Transactions(),
+  dashboard: new Dashboard(),
 });

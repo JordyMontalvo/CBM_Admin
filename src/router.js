@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Login        from './views/Login.vue'
 import Sucursal     from './views/Sucursal.vue'
 import Logout       from './views/Logout.vue'
+import Dashboard    from './views/Dashboard.vue'
 import Users        from './views/Users.vue'
 import Affiliations from './views/Affiliations.vue'
 import Collects     from './views/Collects.vue'
@@ -30,12 +31,17 @@ Vue.use(Router)
 const routes = [
   {
     path: '*',
-    redirect: '/login'
+    redirect: '/dashboard'
   },
   {
     path: '/login',
     component: Login,
     meta: { requiresNoAuth: true }
+  },
+  {
+    path: '/dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true }
   },
   {
     path: '/sucursal',
@@ -159,7 +165,7 @@ router.beforeEach((to, from, next) => {
 
   const session = localStorage.getItem('session')
 
-  if (requiresNoAuth &&  session) { next({ path: '/affiliations/all' }) }
+  if (requiresNoAuth &&  session) { next({ path: '/dashboard' }) }
   if (requiresAuth   && !session) { next({ path: '/login' }) }
 
   next()

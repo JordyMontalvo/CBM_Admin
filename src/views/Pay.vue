@@ -111,12 +111,27 @@ export default {
       const { dni, amount, desc } = this
       console.log('save ...')
 
-      if(!confirm(`Desea enviar USD ${amount} al dni: ${dni}`)) return
+      this.$confirm.show({
+        title: 'Enviar Pago',
+        message: `¿Desea enviar USD ${amount} al DNI: ${dni}?`,
+        type: 'info',
+        confirmText: 'Enviar',
+        onConfirm: async () => {
+          await this.performSave(dni, amount, desc);
+        }
+      });
+    },
+    async performSave(dni, amount, desc) {
+      const { data } = await api.pay.POST({ dni, amount, desc }); 
+      console.log({ data })
 
-      const { data } = await api.pay.POST({ dni, amount, desc }); console.log({ data })
-
-      if(data.error)  this.error   = true
-      if(!data.error) this.success = true
+      if(data.error) {
+        this.error = true
+        this.$toast.error('Error', data.msg || 'Error al enviar el pago');
+      } else {
+        this.success = true
+        this.$toast.success('Éxito', 'Pago enviado correctamente');
+      }
     },
   }
 };

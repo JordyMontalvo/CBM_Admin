@@ -309,18 +309,18 @@ export default {
         ? 'Se RESTARÁ el monto del balance del usuario' 
         : 'Se DEVOLVERÁ el monto al balance del usuario'
       
-      if (!confirm(`¿Estás seguro de que deseas ANULAR esta transacción?\n\n` +
-        `Usuario: ${transaction.userName}\n` +
-        `Valor: $${transaction.value}\n` +
-        `Tipo: ${typeText}\n` +
-        `Categoría: ${transaction.name}\n\n` +
-        `⚠️ IMPORTANTE:\n` +
-        `• La transacción será marcada como anulada\n` +
-        `• ${reversalText}\n` +
-        `• Se creará una transacción compensatoria automática\n` +
-        `• El historial completo se mantendrá`)) {
-        return
-      }
+      this.$confirm.show({
+        title: 'Anular Transacción',
+        message: `¿Estás seguro de que deseas ANULAR esta transacción?`,
+        details: `Usuario: ${transaction.userName}\nValor: $${transaction.value}\nTipo: ${typeText}\nCategoría: ${transaction.name}\n\n⚠️ IMPORTANTE:\n• La transacción será marcada como anulada\n• ${reversalText}\n• Se creará una transacción compensatoria automática\n• El historial completo se mantendrá`,
+        type: 'danger',
+        confirmText: 'Anular',
+        onConfirm: async () => {
+          await this.performDeleteTransaction(transaction);
+        }
+      });
+    },
+    async performDeleteTransaction(transaction) {
 
       // Marcar como procesando
       this.$set(transaction, 'processing', true)
@@ -335,14 +335,11 @@ export default {
         // Recargar la lista de transacciones
         await this.GET()
         
-        alert('✅ Transacción anulada correctamente\n\n' +
-          '• Se ha marcado como anulada\n' +
-          '• Se creó una transacción compensatoria automática\n' +
-          '• El balance del usuario se ajustó correctamente')
+        this.$toast.success('Transacción Anulada', 'Se ha marcado como anulada y se creó una transacción compensatoria automática')
       } catch (error) {
         console.error('Error al anular transacción:', error)
         const errorMsg = error.response?.data?.error || 'Error al anular la transacción. Por favor intenta de nuevo.'
-        alert(`❌ Error:\n${errorMsg}`)
+        this.$toast.error('Error', errorMsg)
         this.$set(transaction, 'processing', false)
       }
     },
@@ -353,19 +350,18 @@ export default {
         ? 'Se SUMARÁ el monto al balance del usuario nuevamente' 
         : 'Se RESTARÁ el monto del balance del usuario nuevamente'
       
-      if (!confirm(`¿Estás seguro de que deseas RESTAURAR esta transacción?\n\n` +
-        `Usuario: ${transaction.userName}\n` +
-        `Valor: $${transaction.value}\n` +
-        `Tipo: ${typeText}\n` +
-        `Categoría: ${transaction.name}\n\n` +
-        `⚠️ IMPORTANTE:\n` +
-        `• La transacción volverá a estar activa\n` +
-        `• ${reversalText}\n` +
-        `• Se anulará la transacción compensatoria automáticamente\n` +
-        `• El balance se restablecerá al estado original`)) {
-        return
-      }
-
+      this.$confirm.show({
+        title: 'Restaurar Transacción',
+        message: `¿Estás seguro de que deseas RESTAURAR esta transacción?`,
+        details: `Usuario: ${transaction.userName}\nValor: $${transaction.value}\nTipo: ${typeText}\nCategoría: ${transaction.name}\n\n⚠️ IMPORTANTE:\n• La transacción será restaurada\n• ${reversalText}\n• Se creará una transacción compensatoria automática`,
+        type: 'info',
+        confirmText: 'Restaurar',
+        onConfirm: async () => {
+          await this.performRestoreTransaction(transaction);
+        }
+      });
+    },
+    async performRestoreTransaction(transaction) {
       // Marcar como procesando
       this.$set(transaction, 'processing', true)
 
@@ -381,14 +377,14 @@ export default {
         
         // Mostrar mensaje apropiado
         if (response.data.data.warning) {
-          alert(`✅ Transacción restaurada\n\n⚠️ ADVERTENCIA:\n${response.data.data.warning}\n\nPor favor verifica el balance del usuario manualmente.`)
+          this.$toast.warning('Advertencia', response.data.data.warning + '. Por favor verifica el balance del usuario manualmente.')
         } else {
-          alert('✅ Transacción restaurada correctamente y balance restablecido automáticamente')
+          this.$toast.success('Transacción Restaurada', 'Transacción restaurada correctamente y balance restablecido automáticamente')
         }
       } catch (error) {
         console.error('Error al restaurar transacción:', error)
         const errorMsg = error.response?.data?.error || 'Error al restaurar la transacción. Por favor intenta de nuevo.'
-        alert(`❌ Error:\n${errorMsg}`)
+        this.$toast.error('Error', errorMsg)
         this.$set(transaction, 'processing', false)
       }
     }

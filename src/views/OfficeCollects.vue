@@ -132,8 +132,17 @@ export default {
     },
     async approve(collect) {
       console.log('approve: ', collect)
-      if(!confirm("Desea confirmar el retiro?")) return
-
+      this.$confirm.show({
+        title: 'Confirmar Retiro',
+        message: '¿Desea confirmar este retiro?',
+        type: 'info',
+        confirmText: 'Confirmar',
+        onConfirm: async () => {
+          await this.performApprove(collect);
+        }
+      });
+    },
+    async performApprove(collect) {
       collect.sending = true
 
       const { data } = await api.OfficeCollects.POST({ action: 'approve', id: collect.id })
@@ -142,10 +151,15 @@ export default {
       collect.sending = false
 
       // error
-      if(data.error && data.msg == 'already approved')  return collect.status = 'approved'
+      if(data.error && data.msg == 'already approved') {
+        collect.status = 'approved'
+        this.$toast.info('Información', 'El retiro ya estaba aprobado');
+        return;
+      }
 
       // success
       collect.status = 'approved'
+      this.$toast.success('Éxito', 'Retiro confirmado correctamente');
     },
     input() {
       console.log('input ...')

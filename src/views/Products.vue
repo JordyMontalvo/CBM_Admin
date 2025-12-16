@@ -611,13 +611,32 @@ export default {
       location.reload();
     },
     deleteProduct(product) {
-      if (confirm("¿Estás seguro que deseas eliminar el producto?")) {
-        api.products.POST({
-          action: "delete",
-          id: product.id,
-        });
-        location.reload();
-      }
+      this.$confirm.show({
+        title: 'Eliminar Producto',
+        message: '¿Estás seguro que deseas eliminar este producto?',
+        details: 'Esta acción no se puede revertir',
+        type: 'danger',
+        confirmText: 'Eliminar',
+        onConfirm: async () => {
+          try {
+            const { data } = await api.products.POST({
+              action: "delete",
+              id: product.id,
+            });
+            
+            if (data.error) {
+              this.$toast.error('Error', data.msg || 'Error al eliminar el producto');
+            } else {
+              this.$toast.success('Éxito', 'Producto eliminado correctamente');
+              setTimeout(() => {
+                location.reload();
+              }, 1000);
+            }
+          } catch (error) {
+            this.$toast.error('Error', 'Error al eliminar el producto');
+          }
+        }
+      });
     },
   },
 };

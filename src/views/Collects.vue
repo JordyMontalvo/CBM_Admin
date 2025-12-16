@@ -149,14 +149,30 @@ export default {
     },
     async approve(collect) {
       console.log('approve: ', collect)
-      if(!confirm("Desea confirmar el retiro?")) return
-
+      this.$confirm.show({
+        title: 'Confirmar Retiro',
+        message: '¿Desea confirmar este retiro?',
+        type: 'info',
+        confirmText: 'Confirmar',
+        onConfirm: async () => {
+          await this.performApprove(collect);
+        }
+      });
+    },
+    async performApprove(collect) {
       collect.sending = true
 
       const { data } = await api.Collects.POST({ action: 'approve', id: collect.id })
       console.log({ data })
 
       collect.sending = false
+      
+      if (data.error) {
+        this.$toast.error('Error', data.msg || 'Error al confirmar el retiro');
+      } else {
+        this.$toast.success('Éxito', 'Retiro confirmado correctamente');
+        collect.status = 'approved';
+      }
 
       // error
       if(data.error && data.msg == 'already approved')  return collect.status = 'approved'

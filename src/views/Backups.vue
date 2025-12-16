@@ -163,10 +163,17 @@ export default {
     },
 
     async generateBackup() {
-      if (!confirm('¿Desea generar un backup manual ahora?')) {
-        return;
-      }
-
+      this.$confirm.show({
+        title: 'Generar Backup',
+        message: '¿Desea generar un backup manual ahora?',
+        type: 'info',
+        confirmText: 'Generar',
+        onConfirm: async () => {
+          await this.performGenerateBackup();
+        }
+      });
+    },
+    async performGenerateBackup() {
       this.generating = true;
       try {
         const response = await fetch(`${process.env.VUE_APP_SERVER}/api/admin/auto-backup`, {
@@ -182,25 +189,34 @@ export default {
         const data = await response.json();
         
         if (data.error) {
-          alert('Error generando backup: ' + data.msg);
+          this.$toast.error('Error', 'Error generando backup: ' + data.msg);
           return;
         }
 
-        alert('✓ Backup generado exitosamente');
+        this.$toast.success('Éxito', 'Backup generado exitosamente');
         await this.loadBackups();
         
       } catch (error) {
         console.error('Error generando backup:', error);
-        alert('Error de conexión al generar backup');
+        this.$toast.error('Error', 'Error de conexión al generar backup');
       } finally {
         this.generating = false;
       }
     },
 
     async cleanOldBackups() {
-      if (!confirm('¿Desea limpiar los backups antiguos (más de 7 días)?')) {
-        return;
-      }
+      this.$confirm.show({
+        title: 'Limpiar Backups Antiguos',
+        message: '¿Desea limpiar los backups antiguos (más de 7 días)?',
+        details: 'Esta acción eliminará permanentemente los backups antiguos',
+        type: 'warning',
+        confirmText: 'Limpiar',
+        onConfirm: async () => {
+          await this.performCleanOldBackups();
+        }
+      });
+    },
+    async performCleanOldBackups() {
 
       this.cleaning = true;
       try {
@@ -217,16 +233,16 @@ export default {
         const data = await response.json();
         
         if (data.error) {
-          alert('Error limpiando backups: ' + data.msg);
+          this.$toast.error('Error', 'Error limpiando backups: ' + data.msg);
           return;
         }
 
-        alert('✓ Limpieza completada');
+        this.$toast.success('Éxito', 'Limpieza completada');
         await this.loadBackups();
         
       } catch (error) {
         console.error('Error limpiando backups:', error);
-        alert('Error de conexión al limpiar backups');
+        this.$toast.error('Error', 'Error de conexión al limpiar backups');
       } finally {
         this.cleaning = false;
       }

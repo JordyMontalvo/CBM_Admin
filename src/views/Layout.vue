@@ -24,6 +24,10 @@
         <div class="navbar-menu-modern" :class="{'is-active': open}">
           <!-- Primera fila -->
           <div class="navbar-menu-row">
+            <a class="navbar-item-modern" href="/dashboard">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dashboard</span>
+            </a>
             <div class="navbar-item-modern has-dropdown-modern">
               <a class="navbar-link-modern" @click.prevent="openSidebar('usuarios')">
                 <i class="fas fa-users"></i>
@@ -128,6 +132,7 @@
     </div>
 
     <div class="main-content" :class="{'sidebar-open': sidebarOpen}">
+      <Breadcrumbs :items="breadcrumbItems" />
       <slot/>
     </div>
 
@@ -159,8 +164,12 @@
 </template>
 
 <script>
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
 
 export default {
+  components: {
+    Breadcrumbs
+  },
   data() {
     return {
       open: false,
@@ -228,6 +237,150 @@ export default {
       // Si account es null, asumir que está cargado después de 2 segundos
       return this.$store.state.account !== null || this.accountLoadingTimeout;
     },
+    breadcrumbItems() {
+      const route = this.$route
+      
+      // Mapeo de rutas a breadcrumbs personalizados
+      const routeMap = {
+        '/dashboard': [
+          { label: 'Dashboard', icon: 'fas fa-tachometer-alt', to: '/dashboard' }
+        ],
+        '/users/all': [
+          { label: 'Usuarios', icon: 'fas fa-users', to: '/users/all' }
+        ],
+        '/users/affiliated': [
+          { label: 'Usuarios', icon: 'fas fa-users', to: '/users/all' },
+          { label: 'Afiliados', icon: 'fas fa-user-check', to: '/users/affiliated' }
+        ],
+        '/users/activated': [
+          { label: 'Usuarios', icon: 'fas fa-users', to: '/users/all' },
+          { label: 'Activados', icon: 'fas fa-user-shield', to: '/users/activated' }
+        ],
+        '/affiliations/all': [
+          { label: 'Afiliaciones', icon: 'fas fa-handshake', to: '/affiliations/all' }
+        ],
+        '/affiliations/pending': [
+          { label: 'Afiliaciones', icon: 'fas fa-handshake', to: '/affiliations/all' },
+          { label: 'Pendientes', icon: 'fas fa-clock', to: '/affiliations/pending' }
+        ],
+        '/activations/all': [
+          { label: 'Activaciones', icon: 'fas fa-key', to: '/activations/all' }
+        ],
+        '/activations/pending': [
+          { label: 'Activaciones', icon: 'fas fa-key', to: '/activations/all' },
+          { label: 'Pendientes', icon: 'fas fa-clock', to: '/activations/pending' }
+        ],
+        '/collects/all': [
+          { label: 'Retiros', icon: 'fas fa-money-bill-wave', to: '/collects/all' }
+        ],
+        '/collects/pending': [
+          { label: 'Retiros', icon: 'fas fa-money-bill-wave', to: '/collects/all' },
+          { label: 'Pendientes', icon: 'fas fa-clock', to: '/collects/pending' }
+        ],
+        '/products': [
+          { label: 'Productos', icon: 'fas fa-box', to: '/products' }
+        ],
+        '/kadex': [
+          { label: 'Inventario', icon: 'fas fa-warehouse', to: '/kadex' }
+        ],
+        '/banner': [
+          { label: 'Banner', icon: 'fas fa-image', to: '/banner' }
+        ],
+        '/tree': [
+          { label: 'Red', icon: 'fas fa-sitemap', to: '/tree' }
+        ],
+        '/backups': [
+          { label: 'Backups', icon: 'fas fa-database', to: '/backups' }
+        ],
+        '/pay': [
+          { label: 'Pagos', icon: 'fas fa-credit-card', to: '/pay' },
+          { label: 'Pagar', icon: 'fas fa-money-check', to: '/pay' }
+        ],
+        '/wallet': [
+          { label: 'Pagos', icon: 'fas fa-credit-card', to: '/pay' },
+          { label: 'Billetera', icon: 'fas fa-wallet', to: '/wallet' }
+        ],
+        '/stock': [
+          { label: 'Stock', icon: 'fas fa-boxes', to: '/stock' }
+        ],
+        '/offices': [
+          { label: 'Oficinas', icon: 'fas fa-building', to: '/offices' },
+          { label: 'Productos', icon: 'fas fa-box', to: '/offices' }
+        ],
+        '/office-collects/all': [
+          { label: 'Oficinas', icon: 'fas fa-building', to: '/offices' },
+          { label: 'Retiros', icon: 'fas fa-money-bill-wave', to: '/office-collects/all' }
+        ],
+        '/operations/plan': [
+          { label: 'Compras', icon: 'fas fa-shopping-cart', to: '/operations/plan' },
+          { label: 'Afiliación', icon: 'fas fa-handshake', to: '/operations/plan' }
+        ],
+        '/operations/products': [
+          { label: 'Compras', icon: 'fas fa-shopping-cart', to: '/operations/products' },
+          { label: 'Reconsumo', icon: 'fas fa-redo', to: '/operations/products' }
+        ],
+        '/closed': [
+          { label: 'Cierres', icon: 'fas fa-lock', to: '/closed' }
+        ],
+        '/transactions': [
+          { label: 'Transacciones', icon: 'fas fa-exchange-alt', to: '/transactions' }
+        ]
+      }
+
+      // Obtener breadcrumbs del mapeo o generar automáticamente
+      const path = this.$route.path
+      if (routeMap[path]) {
+        return routeMap[path]
+      }
+
+      // Generar breadcrumbs automáticamente desde la ruta
+      const pathParts = path.split('/').filter(p => p)
+      const breadcrumbs = [
+        { label: 'Dashboard', icon: 'fas fa-tachometer-alt', to: '/dashboard' }
+      ]
+
+      // Mapeo de nombres amigables
+      const nameMap = {
+        'users': { label: 'Usuarios', icon: 'fas fa-users' },
+        'affiliations': { label: 'Afiliaciones', icon: 'fas fa-handshake' },
+        'activations': { label: 'Activaciones', icon: 'fas fa-key' },
+        'collects': { label: 'Retiros', icon: 'fas fa-money-bill-wave' },
+        'products': { label: 'Productos', icon: 'fas fa-box' },
+        'kadex': { label: 'Inventario', icon: 'fas fa-warehouse' },
+        'banner': { label: 'Banner', icon: 'fas fa-image' },
+        'tree': { label: 'Red', icon: 'fas fa-sitemap' },
+        'backups': { label: 'Backups', icon: 'fas fa-database' },
+        'pay': { label: 'Pagar', icon: 'fas fa-money-check' },
+        'wallet': { label: 'Billetera', icon: 'fas fa-wallet' },
+        'stock': { label: 'Stock', icon: 'fas fa-boxes' },
+        'offices': { label: 'Oficinas', icon: 'fas fa-building' },
+        'office-collects': { label: 'Retiros de Oficina', icon: 'fas fa-money-bill-wave' },
+        'operations': { label: 'Compras', icon: 'fas fa-shopping-cart' },
+        'closed': { label: 'Cierres', icon: 'fas fa-lock' },
+        'transactions': { label: 'Transacciones', icon: 'fas fa-exchange-alt' },
+        'all': { label: 'Todos', icon: 'fas fa-list' },
+        'pending': { label: 'Pendientes', icon: 'fas fa-clock' },
+        'affiliated': { label: 'Afiliados', icon: 'fas fa-user-check' },
+        'activated': { label: 'Activados', icon: 'fas fa-user-shield' },
+        'plan': { label: 'Afiliación', icon: 'fas fa-handshake' },
+        'products': { label: 'Reconsumo', icon: 'fas fa-redo' }
+      }
+
+      let currentPath = ''
+      pathParts.forEach((part, index) => {
+        currentPath += '/' + part
+        const isLast = index === pathParts.length - 1
+        const nameInfo = nameMap[part] || { label: part.charAt(0).toUpperCase() + part.slice(1), icon: 'fas fa-circle' }
+        
+        breadcrumbs.push({
+          label: nameInfo.label,
+          icon: nameInfo.icon,
+          to: isLast ? null : currentPath
+        })
+      })
+
+      return breadcrumbs
+    }
   },
   mounted() {
     // Timeout para evitar carga infinita

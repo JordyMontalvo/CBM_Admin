@@ -478,8 +478,17 @@ export default {
     },
 
     async approve(activation) {
-      if (!confirm("Desea confirmar la activación?")) return;
-
+      this.$confirm.show({
+        title: 'Confirmar Activación',
+        message: '¿Desea confirmar esta activación?',
+        type: 'info',
+        confirmText: 'Confirmar',
+        onConfirm: async () => {
+          await this.performApprove(activation);
+        }
+      });
+    },
+    async performApprove(activation) {
       activation.sending = true;
 
       const { data } = await api.activations.POST({
@@ -491,17 +500,33 @@ export default {
       activation.sending = false;
 
       // error
-      if (data.error && data.msg == "already approved")
-        return (activation.status = "approved");
-      if (data.error && data.msg == "already rejected")
-        return (activation.status = "rejected");
+      if (data.error && data.msg == "already approved") {
+        activation.status = "approved";
+        this.$toast.info('Información', 'La activación ya estaba aprobada');
+        return;
+      }
+      if (data.error && data.msg == "already rejected") {
+        activation.status = "rejected";
+        this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
+        return;
+      }
 
       // success
       activation.status = "approved";
+      this.$toast.success('Éxito', 'Activación confirmada correctamente');
     },
     async reject(activation) {
-      if (!confirm("Desea rechazar la activación?")) return;
-
+      this.$confirm.show({
+        title: 'Rechazar Activación',
+        message: '¿Desea rechazar esta activación?',
+        type: 'danger',
+        confirmText: 'Rechazar',
+        onConfirm: async () => {
+          await this.performReject(activation);
+        }
+      });
+    },
+    async performReject(activation) {
       activation.sending = true;
 
       const { data } = await api.activations.POST({
@@ -513,13 +538,20 @@ export default {
       activation.sending = false;
 
       // error
-      if (data.error && data.msg == "already approved")
-        return (activation.status = "approved");
-      if (data.error && data.msg == "already rejected")
-        return (activation.status = "rejected");
+      if (data.error && data.msg == "already approved") {
+        activation.status = "approved";
+        this.$toast.info('Información', 'La activación ya estaba aprobada');
+        return;
+      }
+      if (data.error && data.msg == "already rejected") {
+        activation.status = "rejected";
+        this.$toast.warning('Advertencia', 'La activación ya estaba rechazada');
+        return;
+      }
 
       // success
       activation.status = "rejected";
+      this.$toast.success('Éxito', 'Activación rechazada');
     },
     input() {
       if (this.searchTimeout) {
@@ -548,39 +580,78 @@ export default {
     },
 
     async check(activation) {
-      if (
-        !confirm("Seguro que desea marcar entregado? esto no se puede revertir")
-      )
-        return;
-      // console.log('check', { activation })
-      activation.delivered = true;
+      this.$confirm.show({
+        title: 'Marcar como Entregado',
+        message: '¿Seguro que desea marcar como entregado?',
+        details: 'Esta acción no se puede revertir',
+        type: 'warning',
+        confirmText: 'Marcar Entregado',
+        onConfirm: async () => {
+          activation.delivered = true;
 
-      const { data } = await api.activations.POST({
-        action: "check",
-        id: activation.id,
+          const { data } = await api.activations.POST({
+            action: "check",
+            id: activation.id,
+          });
+          
+          if (data.error) {
+            this.$toast.error('Error', data.msg || 'Error al marcar como entregado');
+            activation.delivered = false;
+          } else {
+            this.$toast.success('Éxito', 'Activación marcada como entregada');
+          }
+        }
       });
     },
     async uncheck(activation) {
       if (activation.delivered) return;
-      // console.log('uncheck', { activation })
       activation.delivered = false;
 
       const { data } = await api.activations.POST({
         action: "uncheck",
         id: activation.id,
       });
+      
+      if (data.error) {
+        this.$toast.error('Error', data.msg || 'Error al desmarcar');
+        activation.delivered = true;
+      } else {
+        this.$toast.success('Éxito', 'Estado actualizado');
+      }
     },
 
     async revert(activation) {
-      if (!confirm("Desea revertir la activación?")) return;
-
+      this.$confirm.show({
+        title: 'Revertir Activación',
+        message: '¿Desea revertir esta activación?',
+        details: 'Esta acción revertirá el estado de la activación',
+        type: 'danger',
+        confirmText: 'Revertir',
+        onConfirm: async () => {
+          await this.performRevert(activation);
+        }
+      });
+    },
+    async performRevert(activation) {
       console.log("revert ...");
 
-      const { data } = await api.activations.POST({
-        action: "revert",
-        id: activation.id,
-      });
-      location.reload();
+      try {
+        const { data } = await api.activations.POST({
+          action: "revert",
+          id: activation.id,
+        });
+        
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al revertir la activación');
+        } else {
+          this.$toast.success('Éxito', 'Activación revertida correctamente');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        }
+      } catch (error) {
+        this.$toast.error('Error', 'Error al revertir la activación');
+      }
     },
 
 

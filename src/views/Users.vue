@@ -482,13 +482,29 @@ export default {
       console.log("migrate ..");
       console.log({ user });
 
-      if (!confirm("Desea migrar el saldo no disponible?")) return;
+      this.$confirm.show({
+        title: 'Migrar saldo',
+        message: '¿Desea migrar el saldo no disponible al disponible?',
+        type: 'warning',
+        confirmText: 'Migrar',
+        onConfirm: async () => {
+          try {
+            user.balance += user.virtualbalance;
+            user.virtualbalance = 0;
 
-      user.balance += user.virtualbalance;
-      user.virtualbalance = 0;
-
-      const { data } = await api.users.POST({ action: "migrate", id: user.id });
-      console.log({ data });
+            const { data } = await api.users.POST({ action: "migrate", id: user.id });
+            console.log({ data });
+            
+            if (data.error) {
+              this.$toast.error('Error', data.msg || 'Error al migrar el saldo')
+            } else {
+              this.$toast.success('Éxito', 'Saldo migrado correctamente')
+            }
+          } catch (error) {
+            this.$toast.error('Error', 'Error al migrar el saldo')
+          }
+        }
+      });
     },
     edit(user) {
       user.edit = true;
@@ -502,34 +518,46 @@ export default {
       if (!user._rank) user._rank = user.rank;
     },
     async save(user) {
-      user._points = Number(user._points); // asegura que sea número (float si aplica)
-      user._affiliation_points = Number(user._affiliation_points); // asegura que sea número
-      
-      // post new name
-      const { data } = await api.users.POST({
-        action: "name",
-        id: user.id,
-        data: {
-          _name: user._name,
-          _lastName: user._lastName,
-          _dni: user._dni,
-          _password: user._password,
-          _parent_dni: user._parent_dni,
-          _points: user._points, // ya es número
-          _rank: user._rank,
-          _affiliation_points: user._affiliation_points, // puntos de afiliación
-        },
-      });
+      try {
+        user._points = Number(user._points); // asegura que sea número (float si aplica)
+        user._affiliation_points = Number(user._affiliation_points); // asegura que sea número
+        
+        // post new name
+        const { data } = await api.users.POST({
+          action: "name",
+          id: user.id,
+          data: {
+            _name: user._name,
+            _lastName: user._lastName,
+            _dni: user._dni,
+            _password: user._password,
+            _parent_dni: user._parent_dni,
+            _points: user._points, // ya es número
+            _rank: user._rank,
+            _affiliation_points: user._affiliation_points, // puntos de afiliación
+          },
+        });
 
-      user.name = user._name;
-      user.lastName = user._lastName;
-      user.dni = user._dni;
-      user.points = user._points; // ya es número
-      user.affiliation_points = user._affiliation_points; // actualizar puntos de afiliación
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al guardar los cambios');
+          return;
+        }
 
-      user.parent.dni = user._parent_dni;
-      user.rank = user._rank;
-      user.edit = false;
+        user.name = user._name;
+        user.lastName = user._lastName;
+        user.dni = user._dni;
+        user.points = user._points; // ya es número
+        user.affiliation_points = user._affiliation_points; // actualizar puntos de afiliación
+
+        user.parent.dni = user._parent_dni;
+        user.rank = user._rank;
+        user.edit = false;
+        
+        this.$toast.success('Éxito', 'Usuario actualizado correctamente');
+      } catch (error) {
+        this.$toast.error('Error', 'Error al guardar los cambios del usuario');
+        console.error('Error saving user:', error);
+      }
     },
     cancel(user) {
       user.edit = false;
@@ -571,22 +599,40 @@ export default {
       }
     },
     async reiniciarHeroku() {
-      try {
-        const response = await fetch(`${process.env.VUE_APP_SERVER}/api/reiniciar-heroku`, { method: 'POST' });
-        const data = await response.json();
-        if (data.success) {
-          alert('¡App de Heroku reiniciada correctamente!');
-        } else {
-          alert('Error al reiniciar Heroku: ' + data.error);
+      this.$confirm.show({
+        title: 'Reiniciar App Heroku',
+        message: '¿Desea reiniciar la aplicación de Heroku?',
+        details: 'Esto puede tomar unos momentos.',
+        type: 'warning',
+        confirmText: 'Reiniciar',
+        onConfirm: async () => {
+          try {
+            const response = await fetch(`${process.env.VUE_APP_SERVER}/api/reiniciar-heroku`, { method: 'POST' });
+            const data = await response.json();
+            if (data.success) {
+              this.$toast.success('Éxito', '¡App de Heroku reiniciada correctamente!');
+            } else {
+              this.$toast.error('Error', 'Error al reiniciar Heroku: ' + data.error);
+            }
+          } catch (e) {
+            this.$toast.error('Error', 'Error de conexión con el backend de reinicio de Heroku');
+          }
         }
-      } catch (e) {
-        alert('Error de conexión con el backend de reinicio de Heroku');
-      }
+      });
     },
     async downloadBackup() {
-      if (!confirm('¿Desea descargar un backup completo de la base de datos? Esto puede tomar unos minutos.')) {
-        return;
-      }
+      this.$confirm.show({
+        title: 'Descargar Backup',
+        message: '¿Desea descargar un backup completo de la base de datos?',
+        details: 'Esto puede tomar unos minutos.',
+        type: 'info',
+        confirmText: 'Descargar',
+        onConfirm: async () => {
+          await this.performDownloadBackup();
+        }
+      });
+    },
+    async performDownloadBackup() {
 
       this.downloadingBackup = true;
       
@@ -652,7 +698,7 @@ export default {
               await writable.write(blob);
               await writable.close();
               
-              alert('✓ Backup guardado exitosamente en la ubicación seleccionada.');
+              this.$toast.success('Backup guardado', 'Backup guardado exitosamente en la ubicación seleccionada.');
             } catch (saveError) {
               if (saveError.name !== 'AbortError') {
                 console.error('Error guardando archivo:', saveError);
@@ -664,7 +710,7 @@ export default {
                   window.URL.revokeObjectURL(url);
                   document.body.removeChild(a);
                 }, 1000);
-                alert('✓ Backup descargado exitosamente. El archivo se guardará en tu carpeta de Descargas.');
+                this.$toast.success('Backup descargado', 'El archivo se guardará en tu carpeta de Descargas.');
               }
             }
           } else {
@@ -687,7 +733,7 @@ export default {
         
       } catch (error) {
         console.error('Error descargando backup:', error);
-        alert('Error al descargar el backup: ' + error.message);
+        this.$toast.error('Error', 'Error al descargar el backup: ' + error.message);
       } finally {
         this.downloadingBackup = false;
       }
@@ -707,7 +753,17 @@ export default {
         ? '¿Desea activar este usuario?' 
         : '¿Desea desactivar este usuario?';
       
-      if (!confirm(confirmMessage)) return;
+      this.$confirm.show({
+        title: newStatus ? 'Activar Usuario' : 'Desactivar Usuario',
+        message: confirmMessage,
+        type: newStatus ? 'info' : 'warning',
+        confirmText: newStatus ? 'Activar' : 'Desactivar',
+        onConfirm: async () => {
+          await this.performToggleActive(user, newStatus);
+        }
+      });
+    },
+    async performToggleActive(user, newStatus) {
 
       try {
         const payload = { 
@@ -724,18 +780,18 @@ export default {
         console.log('Respuesta del servidor:', data);
         
         if (data.error) {
-          alert('Error: ' + data.msg);
+          this.$toast.error('Error', data.msg || 'Error desconocido');
           return;
         }
 
         // Actualizar el estado localmente con el valor del servidor
         user.activated = data.activated;
-        alert(`✓ Usuario ${data.activated ? 'activado' : 'desactivado'} correctamente`);
+        this.$toast.success('Éxito', `Usuario ${data.activated ? 'activado' : 'desactivado'} correctamente`);
         
         // Recargar la lista para asegurar que los datos estén sincronizados
         await this.GET(this.$route.params.filter);
       } catch (e) {
-        alert('Error al cambiar el estado del usuario: ' + (e.message || 'Error de conexión'));
+        this.$toast.error('Error', 'Error al cambiar el estado del usuario: ' + (e.message || 'Error de conexión'));
         console.error('Error completo:', e);
       }
     },
@@ -743,16 +799,26 @@ export default {
       const amount = parseFloat(user.transferAmount);
       
       if (!amount || amount <= 0 || isNaN(amount)) {
-        alert('Por favor ingrese un monto válido mayor a 0');
+        this.$toast.warning('Advertencia', 'Por favor ingrese un monto válido mayor a 0');
         return;
       }
 
       if (amount > user.balance) {
-        alert(`El monto excede el saldo disponible. Disponible: USD ${user.balance.toFixed(2)}`);
+        this.$toast.warning('Advertencia', `El monto excede el saldo disponible. Disponible: USD ${user.balance.toFixed(2)}`);
         return;
       }
 
-      if (!confirm(`¿Desea transferir USD ${amount.toFixed(2)} del saldo disponible al no disponible?`)) return;
+      this.$confirm.show({
+        title: 'Transferir Saldo',
+        message: `¿Desea transferir USD ${amount.toFixed(2)} del saldo disponible al no disponible?`,
+        type: 'warning',
+        confirmText: 'Transferir',
+        onConfirm: async () => {
+          await this.performTransferToVirtual(user, amount);
+        }
+      });
+    },
+    async performTransferToVirtual(user, amount) {
 
       try {
         console.log('Enviando transferencia:', { action: "transfer-balance", id: user.id, amount: amount, direction: 'toVirtual' });
@@ -767,7 +833,7 @@ export default {
         console.log('Respuesta del servidor:', data);
         
         if (data.error) {
-          alert('Error: ' + (data.msg || 'Error desconocido'));
+          this.$toast.error('Error', data.msg || 'Error desconocido');
           return;
         }
 
@@ -776,12 +842,12 @@ export default {
         user.virtualbalance = parseFloat((user.virtualbalance + amount).toFixed(2));
         user.transferAmount = 0;
         
-        alert('✓ Transferencia realizada correctamente');
+        this.$toast.success('Éxito', 'Transferencia realizada correctamente');
         
         // Recargar la lista para asegurar datos actualizados
         await this.GET(this.$route.params.filter);
       } catch (e) {
-        alert('Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
+        this.$toast.error('Error', 'Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
         console.error('Error completo:', e);
       }
     },
@@ -789,16 +855,26 @@ export default {
       const amount = parseFloat(user.transferAmountVirtual);
       
       if (!amount || amount <= 0 || isNaN(amount)) {
-        alert('Por favor ingrese un monto válido mayor a 0');
+        this.$toast.warning('Advertencia', 'Por favor ingrese un monto válido mayor a 0');
         return;
       }
 
       if (amount > user.virtualbalance) {
-        alert(`El monto excede el saldo no disponible. Disponible: USD ${user.virtualbalance.toFixed(2)}`);
+        this.$toast.warning('Advertencia', `El monto excede el saldo no disponible. Disponible: USD ${user.virtualbalance.toFixed(2)}`);
         return;
       }
 
-      if (!confirm(`¿Desea transferir USD ${amount.toFixed(2)} del saldo no disponible al disponible?`)) return;
+      this.$confirm.show({
+        title: 'Transferir Saldo',
+        message: `¿Desea transferir USD ${amount.toFixed(2)} del saldo no disponible al disponible?`,
+        type: 'warning',
+        confirmText: 'Transferir',
+        onConfirm: async () => {
+          await this.performTransferToAvailable(user, amount);
+        }
+      });
+    },
+    async performTransferToAvailable(user, amount) {
 
       try {
         console.log('Enviando transferencia:', { action: "transfer-balance", id: user.id, amount: amount, direction: 'toAvailable' });
@@ -813,7 +889,7 @@ export default {
         console.log('Respuesta del servidor:', data);
         
         if (data.error) {
-          alert('Error: ' + (data.msg || 'Error desconocido'));
+          this.$toast.error('Error', data.msg || 'Error desconocido');
           return;
         }
 
@@ -822,12 +898,12 @@ export default {
         user.balance = parseFloat((user.balance + amount).toFixed(2));
         user.transferAmountVirtual = 0;
         
-        alert('✓ Transferencia realizada correctamente');
+        this.$toast.success('Éxito', 'Transferencia realizada correctamente');
         
         // Recargar la lista para asegurar datos actualizados
         await this.GET(this.$route.params.filter);
       } catch (e) {
-        alert('Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
+        this.$toast.error('Error', 'Error al realizar la transferencia: ' + (e.message || 'Error de conexión'));
         console.error('Error completo:', e);
       }
     },

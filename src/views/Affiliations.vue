@@ -53,7 +53,26 @@
 
       <div class="container">
         <div class="table-container">
-          <table class="table">
+          <div v-if="affiliations.length === 0 && !loading" class="empty-state">
+            <i class="fas fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 16px;"></i>
+            <p style="color: #666; font-size: 16px;">
+              <span v-if="search || startDate || endDate">
+                No se encontraron afiliaciones con los filtros aplicados
+              </span>
+              <span v-else>
+                No hay afiliaciones registradas
+              </span>
+            </p>
+            <button 
+              v-if="search || startDate || endDate" 
+              @click="clearDateFilter(); search = ''; GET($route.params.filter)"
+              class="button is-primary"
+              style="margin-top: 16px;"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+          <table v-else class="table">
             <thead>
               <tr>
                 <th>#</th>
@@ -364,44 +383,49 @@ export default {
         console.log({ data });
         
         if (data.error) {
+          if (data.msg == "invalid filter") {
+            this.$router.push("affiliations/all");
+            this.loading = false;
+            return;
+          }
           throw new Error(data.msg || 'Error en la respuesta del servidor');
         }
 
-      this.loading = false;
+        // Procesar datos
+        this.affiliations = data.affiliations.map((i) => ({
+          ...i,
+          sending: false,
+          visible: true,
+          editing: false,
+          newVoucher: "",
+        }));
 
-      if (data.error && data.msg == "invalid filter")
-        this.$router.push("affiliations/all");
+        this.totalItems = data.total;
+        this.totalPages = data.totalPages;
+        
+        // Validar que la página actual esté dentro del rango
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+          this.currentPage = this.totalPages;
+        }
+        
+        this.pageInput = this.currentPage; // Sincronizar el input con la página actual
 
-      this.affiliations = data.affiliations.map((i) => ({
-        ...i,
-        sending: false,
-        visible: true,
-        editing: false,
-        newVoucher: "",
-      }));
+        this.affiliations.forEach((affiliation) => {
+          const office = this.accounts.find((x) => x.id == affiliation.office);
+          affiliation.office = office ? office.name : "";
+        });
 
-      this.totalItems = data.total;
-      this.totalPages = data.totalPages;
-      
-      // Validar que la página actual esté dentro del rango
-      if (this.currentPage > this.totalPages && this.totalPages > 0) {
-        this.currentPage = this.totalPages;
-      }
-      
-      this.pageInput = this.currentPage; // Sincronizar el input con la página actual
-
-      this.affiliations.forEach((affiliation) => {
-        const office = this.accounts.find((x) => x.id == affiliation.office);
-        affiliation.office = office ? office.name : "";
-      });
-
-      if (filter == "all") this.title = "Todas las Afiliaciones";
-      if (filter == "pending") this.title = "Afiliaciones Pendientes";
-      
+        if (filter == "all") this.title = "Todas las Afiliaciones";
+        if (filter == "pending") this.title = "Afiliaciones Pendientes";
+        
       } catch (error) {
         console.error('Error en GET:', error);
+        this.$toast.error('Error', error.message || 'Error al cargar las afiliaciones');
+        this.affiliations = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
+      } finally {
         this.loading = false;
-        throw error; // Re-lanzar el error para que lo maneje el método que lo llamó
       }
     },
 
@@ -422,7 +446,17 @@ export default {
     },
 
     async approve(affiliation) {
-      if (!confirm("Desea aprovar la afiliación?")) return;
+      this.$confirm.show({
+        title: 'Aprobar Afiliación',
+        message: '¿Desea aprobar esta afiliación?',
+        type: 'info',
+        confirmText: 'Aprobar',
+        onConfirm: async () => {
+          await this.performApprove(affiliation);
+        }
+      });
+    },
+    async performApprove(affiliation) {
 
       this.sending = true;
       affiliation.sending = true;
@@ -436,18 +470,36 @@ export default {
       affiliation.sending = false;
       this.sending = false;
 
-      if (data.error && data.msg == "already approved")
-        return (affiliation.status = "approved");
-      if (data.error && data.msg == "already rejected")
-        return (affiliation.status = "rejected");
-      if (data.error && data.msg == "token unavailable")
-        return alert("No hay tokens disponibles");
+      if (data.error && data.msg == "already approved") {
+        affiliation.status = "approved";
+        this.$toast.info('Información', 'La afiliación ya estaba aprobada');
+        return;
+      }
+      if (data.error && data.msg == "already rejected") {
+        affiliation.status = "rejected";
+        this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
+        return;
+      }
+      if (data.error && data.msg == "token unavailable") {
+        this.$toast.error('Error', 'No hay tokens disponibles');
+        return;
+      }
 
       affiliation.status = "approved";
+      this.$toast.success('Éxito', 'Afiliación aprobada correctamente');
     },
     async reject(affiliation) {
-      if (!confirm("Desea rechazar la afiliación?")) return;
-
+      this.$confirm.show({
+        title: 'Rechazar Afiliación',
+        message: '¿Desea rechazar esta afiliación?',
+        type: 'danger',
+        confirmText: 'Rechazar',
+        onConfirm: async () => {
+          await this.performReject(affiliation);
+        }
+      });
+    },
+    async performReject(affiliation) {
       this.sending = true;
       affiliation.sending = true;
 
@@ -460,12 +512,19 @@ export default {
       affiliation.sending = false;
       this.sending = false;
 
-      if (data.error && data.msg == "already approved")
-        return (affiliation.status = "approved");
-      if (data.error && data.msg == "already rejected")
-        return (affiliation.status = "rejected");
+      if (data.error && data.msg == "already approved") {
+        affiliation.status = "approved";
+        this.$toast.info('Información', 'La afiliación ya estaba aprobada');
+        return;
+      }
+      if (data.error && data.msg == "already rejected") {
+        affiliation.status = "rejected";
+        this.$toast.warning('Advertencia', 'La afiliación ya estaba rechazada');
+        return;
+      }
 
       affiliation.status = "rejected";
+      this.$toast.success('Éxito', 'Afiliación rechazada');
     },
     input() {
       if (this.searchTimeout) {
@@ -494,15 +553,27 @@ export default {
     },
 
     async check(affiliation) {
-      if (
-        !confirm("Seguro que desea marcar entregado? esto no se puede revertir")
-      )
-        return;
-      affiliation.delivered = true;
+      this.$confirm.show({
+        title: 'Marcar como Entregado',
+        message: '¿Seguro que desea marcar como entregado?',
+        details: 'Esta acción no se puede revertir',
+        type: 'warning',
+        confirmText: 'Marcar Entregado',
+        onConfirm: async () => {
+          affiliation.delivered = true;
 
-      const { data } = await api.affiliations.POST({
-        action: "check",
-        id: affiliation.id,
+          const { data } = await api.affiliations.POST({
+            action: "check",
+            id: affiliation.id,
+          });
+          
+          if (data.error) {
+            this.$toast.error('Error', data.msg || 'Error al marcar como entregado');
+            affiliation.delivered = false;
+          } else {
+            this.$toast.success('Éxito', 'Afiliación marcada como entregada');
+          }
+        }
       });
     },
     async uncheck(affiliation) {
@@ -513,18 +584,47 @@ export default {
         action: "uncheck",
         id: affiliation.id,
       });
+      
+      if (data.error) {
+        this.$toast.error('Error', data.msg || 'Error al desmarcar');
+        affiliation.delivered = true;
+      } else {
+        this.$toast.success('Éxito', 'Estado actualizado');
+      }
     },
 
     async revert(affiliation) {
-      if (!confirm("Desea revertir la afiliación?")) return;
-
+      this.$confirm.show({
+        title: 'Revertir Afiliación',
+        message: '¿Desea revertir esta afiliación?',
+        details: 'Esta acción revertirá el estado de la afiliación',
+        type: 'danger',
+        confirmText: 'Revertir',
+        onConfirm: async () => {
+          await this.performRevert(affiliation);
+        }
+      });
+    },
+    async performRevert(affiliation) {
       console.log("revert ...");
 
-      const { data } = await api.affiliations.POST({
-        action: "revert",
-        id: affiliation.id,
-      });
-      location.reload();
+      try {
+        const { data } = await api.affiliations.POST({
+          action: "revert",
+          id: affiliation.id,
+        });
+        
+        if (data.error) {
+          this.$toast.error('Error', data.msg || 'Error al revertir la afiliación');
+        } else {
+          this.$toast.success('Éxito', 'Afiliación revertida correctamente');
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        }
+      } catch (error) {
+        this.$toast.error('Error', 'Error al revertir la afiliación');
+      }
     },
 
     download() {
@@ -715,6 +815,14 @@ export default {
 </script>
 
 <style>
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
 .scroll-to-top {
   position: fixed;
   bottom: 20px;

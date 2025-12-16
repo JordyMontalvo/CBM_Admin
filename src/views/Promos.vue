@@ -197,9 +197,17 @@ export default {
 
     },
     async approve(promo) {
-
-      if(!confirm("Desea aprovar la promoción?")) return
-
+      this.$confirm.show({
+        title: 'Aprobar Promoción',
+        message: '¿Desea aprobar esta promoción?',
+        type: 'info',
+        confirmText: 'Aprobar',
+        onConfirm: async () => {
+          await this.performApprove(promo);
+        }
+      });
+    },
+    async performApprove(promo) {
       promo.sending = true
 
       let { data } = await api.promos.POST({ action: 'approve', id: promo.id })
@@ -208,17 +216,33 @@ export default {
       promo.sending = false
 
       // error
-      if(data.error && data.msg == 'already approved')  return promo.status = 'approved'
-      if(data.error && data.msg == 'already rejected')  return promo.status = 'rejected'
+      if(data.error && data.msg == 'already approved') {
+        promo.status = 'approved'
+        this.$toast.info('Información', 'La promoción ya estaba aprobada');
+        return;
+      }
+      if(data.error && data.msg == 'already rejected') {
+        promo.status = 'rejected'
+        this.$toast.warning('Advertencia', 'La promoción ya estaba rechazada');
+        return;
+      }
 
       // success
       promo.status = 'approved'
-
+      this.$toast.success('Éxito', 'Promoción aprobada correctamente');
     },
     async reject(promo) {
-
-      if(!confirm("Desea rechazar la promoción?")) return
-      
+      this.$confirm.show({
+        title: 'Rechazar Promoción',
+        message: '¿Desea rechazar esta promoción?',
+        type: 'danger',
+        confirmText: 'Rechazar',
+        onConfirm: async () => {
+          await this.performReject(promo);
+        }
+      });
+    },
+    async performReject(promo) {
       promo.sending = true
 
       const { data } = await api.promos.POST({ action: 'reject', id: promo.id })
@@ -227,12 +251,20 @@ export default {
       promo.sending = false
 
       // error
-      if(data.error && data.msg == 'already approved') return promo.status = 'approved'
-      if(data.error && data.msg == 'already rejected') return promo.status = 'rejected'
+      if(data.error && data.msg == 'already approved') {
+        promo.status = 'approved'
+        this.$toast.info('Información', 'La promoción ya estaba aprobada');
+        return;
+      }
+      if(data.error && data.msg == 'already rejected') {
+        promo.status = 'rejected'
+        this.$toast.warning('Advertencia', 'La promoción ya estaba rechazada');
+        return;
+      }
 
       // success
       promo.status = 'rejected'
-
+      this.$toast.success('Éxito', 'Promoción rechazada');
     },
     input() {
       console.log('input ...')

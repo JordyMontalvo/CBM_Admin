@@ -203,12 +203,18 @@ export default {
     },
 
     async save() {
-      if (
-        !confirm(
-          "Esta por guardar el cierre, este proceso no se puede revertir"
-        )
-      )
-        return;
+      this.$confirm.show({
+        title: 'Guardar Cierre',
+        message: '¿Está seguro de guardar el cierre?',
+        details: 'Este proceso no se puede revertir',
+        type: 'danger',
+        confirmText: 'Guardar',
+        onConfirm: async () => {
+          await this.performSave();
+        }
+      });
+    },
+    async performSave() {
       console.log(this.activations);
       // return
 
@@ -225,7 +231,14 @@ export default {
 
       this.saving = false;
 
-      location.reload();
+      if (data.error) {
+        this.$toast.error('Error', data.msg || 'Error al guardar el cierre');
+      } else {
+        this.$toast.success('Éxito', 'Cierre guardado correctamente');
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      }
     },
 
     updateTable() {

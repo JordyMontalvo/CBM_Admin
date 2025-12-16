@@ -218,13 +218,29 @@ export default {
 
       console.log({id, products})
 
-      confirm('Seguro que desea hacer la recarga de productos?')
-
+      this.$confirm.show({
+        title: 'Recargar Productos',
+        message: '¿Seguro que desea hacer la recarga de productos?',
+        type: 'warning',
+        confirmText: 'Recargar',
+        onConfirm: async () => {
+          await this.performRecharge(id, products);
+        }
+      });
+    },
+    async performRecharge(id, products) {
       this.selected_office.products.forEach((p, i) => {
         p.total += products[i].total
       })
 
-      const { data } = await api.offices.POST({ id, products }); console.log({ data })
+      const { data } = await api.offices.POST({ id, products }); 
+      console.log({ data })
+      
+      if (data.error) {
+        this.$toast.error('Error', data.msg || 'Error al recargar productos');
+      } else {
+        this.$toast.success('Éxito', 'Productos recargados correctamente');
+      }
 
     },
 
