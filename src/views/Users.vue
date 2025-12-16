@@ -835,90 +835,165 @@ export default {
 };
 </script>
 
-<style>
-.scroll-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: inline-block;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-.scroll-to-top:hover {
-  background-color: #0056b3;
-}
-.scroll-to-top i {
-  font-size: 20px;
-}
+<style lang="stylus">
+.scroll-to-top
+  position fixed
+  bottom 30px
+  right 30px
+  width 50px
+  height 50px
+  background linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+  color white
+  border none
+  border-radius 50%
+  cursor pointer
+  z-index 1000
+  box-shadow 0 4px 15px rgba(102, 126, 234, 0.4)
+  display flex
+  align-items center
+  justify-content center
+  transition all 0.3s ease
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-.pagination button {
-  margin: 0 5px;
-}
-.heroku-restart-btn {
-  background: #8000b0;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  margin: 20px 0 10px 0;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.heroku-restart-btn:hover {
-  background: #a040c0;
-}
+  &:hover
+    transform translateY(-5px) scale(1.1)
+    box-shadow 0 6px 20px rgba(102, 126, 234, 0.5)
 
-.backup-download-btn {
-  background: #28a745;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  margin-left: 10px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
+  i
+    font-size 20px
 
-.backup-download-btn:hover:not(:disabled) {
-  background: #218838;
-}
+.pagination
+  display flex
+  justify-content center
+  align-items center
+  gap 10px
+  margin 30px 0
+  flex-wrap wrap
 
-.backup-download-btn:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
+.pagination-button
+  padding 10px 20px
+  background white
+  border 2px solid #e0e0e0
+  border-radius 8px
+  cursor pointer
+  font-weight 600
+  transition all 0.3s ease
+  color #333
 
-.btn-activate {
-  background-color: #4caf50;
-  color: white;
-}
+  &:hover:not(:disabled)
+    background #667eea
+    color white
+    border-color #667eea
+    transform translateY(-2px)
+    box-shadow 0 4px 12px rgba(102, 126, 234, 0.3)
 
-.btn-activate:hover {
-  background-color: #45a049;
-}
+  &:disabled
+    opacity 0.5
+    cursor not-allowed
 
-.btn-deactivate {
-  background-color: #f44336;
-  color: white;
-}
+.pagination-info
+  padding 10px 20px
+  font-weight 600
+  color #666
 
-.btn-deactivate:hover {
-  background-color: #da190b;
-}
+.pagination-input
+  width 80px
+  padding 10px
+  border 2px solid #e0e0e0
+  border-radius 8px
+  text-align center
+  font-weight 600
+
+  &:focus
+    border-color #667eea
+    outline none
+    box-shadow 0 0 0 4px rgba(102, 126, 234, 0.1)
+
+.heroku-restart-btn
+  background linear-gradient(135deg, #8000b0 0%, #a040c0 100%)
+  color #fff
+  border none
+  border-radius 10px
+  padding 12px 24px
+  margin 20px 10px 10px 0
+  font-size 1em
+  font-weight 600
+  cursor pointer
+  transition all 0.3s ease
+  box-shadow 0 4px 12px rgba(128, 0, 176, 0.3)
+  display inline-flex
+  align-items center
+  gap 8px
+
+  &:hover
+    transform translateY(-2px)
+    box-shadow 0 6px 18px rgba(128, 0, 176, 0.4)
+
+  &:active
+    transform translateY(0)
+
+.backup-download-btn
+  background linear-gradient(135deg, #28a745 0%, #20c997 100%)
+  color #fff
+  border none
+  border-radius 10px
+  padding 12px 24px
+  margin-left 10px
+  font-size 1em
+  font-weight 600
+  cursor pointer
+  transition all 0.3s ease
+  display inline-flex
+  align-items center
+  gap 8px
+  box-shadow 0 4px 12px rgba(40, 167, 69, 0.3)
+
+  &:hover:not(:disabled)
+    transform translateY(-2px)
+    box-shadow 0 6px 18px rgba(40, 167, 69, 0.4)
+
+  &:disabled
+    background #6c757d
+    cursor not-allowed
+    opacity 0.7
+    transform none
+    box-shadow none
+
+  &:active:not(:disabled)
+    transform translateY(0)
+
+.btn-activate
+  background linear-gradient(135deg, #4caf50 0%, #45a049 100%)
+  color white
+  border none
+  border-radius 6px
+  padding 6px 12px
+  font-weight 600
+  cursor pointer
+  transition all 0.3s ease
+  box-shadow 0 2px 8px rgba(76, 175, 80, 0.3)
+
+  &:hover
+    transform translateY(-2px)
+    box-shadow 0 4px 12px rgba(76, 175, 80, 0.4)
+
+  &:active
+    transform translateY(0)
+
+.btn-deactivate
+  background linear-gradient(135deg, #f44336 0%, #da190b 100%)
+  color white
+  border none
+  border-radius 6px
+  padding 6px 12px
+  font-weight 600
+  cursor pointer
+  transition all 0.3s ease
+  box-shadow 0 2px 8px rgba(244, 67, 54, 0.3)
+
+  &:hover
+    transform translateY(-2px)
+    box-shadow 0 4px 12px rgba(244, 67, 54, 0.4)
+
+  &:active
+    transform translateY(0)
 </style>
