@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { eventBus } from '@/utils/toast'
+
 export default {
   name: 'Toast',
   data() {
@@ -28,11 +30,19 @@ export default {
     }
   },
   mounted() {
-    // Escuchar eventos globales de toast
-    this.$root.$on('toast', this.addToast)
+    // Escuchar eventos globales de toast desde eventBus o $root
+    if (eventBus) {
+      eventBus.$on('toast', this.addToast)
+    } else if (this.$root) {
+      this.$root.$on('toast', this.addToast)
+    }
   },
   beforeDestroy() {
-    this.$root.$off('toast', this.addToast)
+    if (eventBus) {
+      eventBus.$off('toast', this.addToast)
+    } else if (this.$root) {
+      this.$root.$off('toast', this.addToast)
+    }
   },
   methods: {
     addToast(toast) {

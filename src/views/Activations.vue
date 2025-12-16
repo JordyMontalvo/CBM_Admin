@@ -380,78 +380,89 @@ export default {
           endDate: this.endDate || undefined,
         });
         
+        console.log('Respuesta completa de API:', data);
+        console.log('Activations recibidas:', data.activations);
+        console.log('Total:', data.total);
+        console.log('Total pages:', data.totalPages);
+        
         if (data.error) {
+          if (data.msg == "invalid filter") {
+            this.$router.push("activations/all");
+            this.loading = false;
+            return;
+          }
           throw new Error(data.msg || 'Error en la respuesta del servidor');
         }
 
-      this.loading = false;
-
-      if (data.error && data.msg == "invalid filter") {
-        this.$router.push("activations/all");
-        return;
-      }
-
-      this.totalItems = data.total;
-      this.totalPages = data.totalPages;
-      
-      // Validar que la página actual esté dentro del rango
-      if (this.currentPage > this.totalPages && this.totalPages > 0) {
-        this.currentPage = this.totalPages;
-      }
-      
-      this.pageInput = this.currentPage; // Sincronizar el input con la página actual
-      this.activations = data.activations.map((i) => ({
-        ...i,
-        sending: false,
-        visible: true,
-        editing: false,
-        newVoucher: "",
-      }));
-
-      this.activations.forEach((activation) => {
-        const office = this.accounts.find((x) => x.id == activation.office);
-        if (office) activation.office = office.name;
-      });
-
-      this.activations.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      this.title =
-        filter === "all" ? "Todas las Activaciones" : "Activaciones Pendientes";
-        
-              } catch (error) {
-          console.error('Error en GET:', error);
-          this.loading = false;
-          
-          // Mostrar mensaje específico para páginas muy altas
-          if (error.response && error.response.status === 500) {
-            const errorMsg = error.response.data?.msg || 'Error del servidor';
-            console.error('Server error message:', errorMsg);
-            
-            if (errorMsg.includes('Página demasiado alta')) {
-              alert('La página solicitada es demasiado alta. Use la búsqueda para encontrar resultados específicos.');
-              // Volver a la página 1
-              this.currentPage = 1;
-              this.pageInput = 1;
-              return;
-            }
-            
-            if (errorMsg.includes('consulta es demasiado grande') || errorMsg.includes('Error de ordenamiento')) {
-              alert('La consulta es demasiado grande para esta página. Use la búsqueda para encontrar resultados específicos o navegue a páginas más bajas.');
-              // Volver a la página 1
-              this.currentPage = 1;
-              this.pageInput = 1;
-              return;
-            }
-            
-            // Mostrar el error del servidor
-            alert(`Error del servidor: ${errorMsg}`);
-            return;
-          }
-          
-          // Error de red u otro tipo
-          alert('Error de conexión. Por favor, intente nuevamente.');
-          console.error('Full error object:', error);
+        // Procesar datos - validar que activations existe y es un array
+        if (!data.activations) {
+          console.warn('No se recibió el campo activations en la respuesta');
+          this.activations = [];
+        } else if (!Array.isArray(data.activations)) {
+          console.warn('El campo activations no es un array:', typeof data.activations);
+          this.activations = [];
+        } else {
+          this.activations = data.activations.map((i) => ({
+            ...i,
+            sending: false,
+            visible: true,
+            editing: false,
+            newVoucher: "",
+          }));
+          console.log('Activations procesadas:', this.activations.length);
         }
+
+        this.totalItems = data.total || 0;
+        this.totalPages = data.totalPages || 0;
+        
+        // Validar que la página actual esté dentro del rango
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+          this.currentPage = this.totalPages;
+        }
+        
+        this.pageInput = this.currentPage; // Sincronizar el input con la página actual
+
+        this.activations.forEach((activation) => {
+          const office = this.accounts.find((x) => x.id == activation.office);
+          if (office) activation.office = office.name;
+        });
+
+        this.activations.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        this.title =
+          filter === "all" ? "Todas las Activaciones" : "Activaciones Pendientes";
+        
+        console.log('Estado final - Total items:', this.totalItems, 'Total pages:', this.totalPages, 'Activations:', this.activations.length);
+        
+      } catch (error) {
+        console.error('Error en GET:', error);
+        
+        // Mostrar mensaje específico para páginas muy altas
+        if (error.response && error.response.status === 500) {
+          const errorMsg = error.response.data?.msg || 'Error del servidor';
+          console.error('Server error message:', errorMsg);
+          
+          if (errorMsg.includes('Página demasiado alta')) {
+            this.$toast.error('Error', 'La página solicitada es demasiado alta. Use la búsqueda para encontrar resultados específicos.');
+            this.currentPage = 1;
+            this.pageInput = 1;
+          } else if (errorMsg.includes('consulta es demasiado grande') || errorMsg.includes('Error de ordenamiento')) {
+            this.$toast.error('Error', 'La consulta es demasiado grande. Use la búsqueda para encontrar resultados específicos.');
+            this.currentPage = 1;
+            this.pageInput = 1;
+          } else {
+            this.$toast.error('Error', `Error del servidor: ${errorMsg}`);
+          }
+        } else {
+          this.$toast.error('Error', error.message || 'Error al cargar las activaciones');
+        }
+        
+        this.activations = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
+      } finally {
+        this.loading = false;
+      }
     },
     async changePage(page) {
       console.log("Changing to page:", page, "Type:", typeof page);

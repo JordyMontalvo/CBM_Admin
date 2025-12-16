@@ -34,12 +34,18 @@ export const toast = {
   }
 }
 
+// Event bus para toasts
+let eventBus = null;
+
 // Plugin para usar en componentes
 export default {
   install(Vue) {
+    // Crear un event bus
+    eventBus = new Vue();
+    
     Vue.prototype.$toast = {
       success: (title, message) => {
-        Vue.prototype.$root.$emit('toast', {
+        eventBus.$emit('toast', {
           type: 'success',
           title,
           message,
@@ -47,7 +53,7 @@ export default {
         })
       },
       error: (title, message) => {
-        Vue.prototype.$root.$emit('toast', {
+        eventBus.$emit('toast', {
           type: 'error',
           title,
           message,
@@ -55,7 +61,7 @@ export default {
         })
       },
       warning: (title, message) => {
-        Vue.prototype.$root.$emit('toast', {
+        eventBus.$emit('toast', {
           type: 'warning',
           title,
           message,
@@ -63,7 +69,7 @@ export default {
         })
       },
       info: (title, message) => {
-        Vue.prototype.$root.$emit('toast', {
+        eventBus.$emit('toast', {
           type: 'info',
           title,
           message,
@@ -73,4 +79,7 @@ export default {
     }
   }
 }
+
+// Exportar eventBus para uso en componentes
+export { eventBus }
 

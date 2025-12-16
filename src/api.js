@@ -2,17 +2,15 @@ import axios from "axios";
 
 axios.defaults.baseURL = process.env.VUE_APP_SERVER + "/api";
 
-// Deshabilitar caché para requests GET
+// Deshabilitar caché para requests GET usando solo parámetros (sin headers que causen problemas CORS)
 axios.interceptors.request.use((config) => {
-  if (config.method === 'get') {
-    config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
-    config.headers['Pragma'] = 'no-cache';
-    config.headers['Expires'] = '0';
-    // Agregar timestamp para evitar caché
-    config.params = {
-      ...config.params,
-      _t: Date.now()
-    };
+  if (config.method === 'get' || config.method === 'GET') {
+    // Agregar timestamp como parámetro para evitar caché (más seguro que headers)
+    if (config.params) {
+      config.params._t = Date.now();
+    } else {
+      config.params = { _t: Date.now() };
+    }
   }
   return config;
 });
