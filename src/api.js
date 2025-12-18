@@ -232,8 +232,14 @@ class Offices {
   GET() {
     return axios.get(`/admin/offices`);
   }
-  POST({ id, products, office }) {
-    return axios.post(`/admin/offices`, { id, products, office });
+  POST({ action, id, products, office, newOffice }) {
+    return axios.post(`/admin/offices`, { action, id, products, office, newOffice });
+  }
+  CREATE(newOffice) {
+    return axios.post(`/admin/offices`, { action: 'create', newOffice });
+  }
+  TOGGLE_ACTIVE(id) {
+    return axios.post(`/admin/offices`, { action: 'toggleActive', id });
   }
 }
 
