@@ -46,8 +46,7 @@
         </tbody>
       </table>
 
-      Activos simple: {{ tree.filter((e) => e._activated).length }} <br />
-      Activos full: {{ tree.filter((e) => e.activated).length }} <br /><br />
+      Usuarios activados: {{ tree.filter((e) => e.activated).length }} <br /><br />
 
       Afiliaciones: {{ affiliations.length }} <br />
       Compras: {{ activations.length }} <br />
