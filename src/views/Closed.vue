@@ -62,14 +62,14 @@
       <div class="notification" style="margin-bottom: 0">
         <div class="container">
           <strong>Selecciona una fecha de cierre</strong>
-          <select v-model="selectedDate" @change="onDateChange">
+          <select v-model="selectedId" @change="onDateChange">
             <option value="" disabled>Selecciona una fecha</option>
             <option
-              v-for="date in closureDates.slice().reverse()"
-              :key="date"
-              :value="date"
+              v-for="c in closeds"
+              :key="c.id"
+              :value="c.id"
             >
-              {{ date | date }}
+              {{ c.date | date }}
             </option>
           </select>
         </div>
@@ -142,10 +142,9 @@ export default {
       tree: [],
       affiliations: [],
       activations: [],
-      closureDates: [],
       errorMessage: "",
       saving: false,
-      selectedDate: "",
+      selectedId: "",
       selectedClosure: null,
       closeds: [],
       totalCloseds: 0, // total de cierres
@@ -241,9 +240,7 @@ export default {
     },
 
     updateTable() {
-      this.selectedClosure = this.closeds.find(
-        (closed) => closed.date === this.selectedDate
-      );
+      // Función obsoleta ahora que usamos GET_BY_ID
     },
 
     async getClosureDates(page = 1) {
@@ -252,7 +249,6 @@ export default {
       try {
         const { data } = await api.closeds.GET({ page, limit: this.limit });
         this.closeds = data.closeds || [];
-        this.closureDates = this.closeds.map(c => c.date);
         this.totalCloseds = data.total || 0;
         this.totalPages = data.totalPages || 1;
         this.currentPage = data.currentPage || 1;
@@ -263,19 +259,19 @@ export default {
       }
     },
     async onDateChange() {
-      if (!this.selectedDate) {
+      if (!this.selectedId) {
         this.selectedClosure = null;
         return;
       }
       this.loading = true;
       this.errorMessage = "";
       try {
-        // Busca el cierre por fecha en el array ya cargado
-        this.selectedClosure = this.closeds.find(
-          closed => closed.date === this.selectedDate
-        );
-        if (!this.selectedClosure) {
+        const { data } = await api.closeds.GET_BY_ID(this.selectedId);
+        if (data.closed) {
+          this.selectedClosure = data.closed;
+        } else {
           this.errorMessage = "No hay datos para la fecha seleccionada.";
+          this.selectedClosure = null;
         }
       } catch (error) {
         this.errorMessage = "Hubo un problema al cargar el cierre. Inténtalo de nuevo más tarde.";
