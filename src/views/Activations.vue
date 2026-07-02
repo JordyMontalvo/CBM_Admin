@@ -326,12 +326,10 @@ export default {
       showScrollToTop: false,
       pageInput: 1,
       searchTimeout: null,
+      accounts: [],
     };
   },
   computed: {
-    accounts() {
-      return this.$store.state.accounts;
-    },
     account() {
       return this.$store.state.account;
     },
@@ -370,6 +368,9 @@ export default {
       );
       
       try {
+        const data2 = await api.offices.GET();
+        this.accounts = data2.data?.offices || [];
+
         const { data } = await api.activations.GET({
           filter,
           account: this.account.id,
@@ -416,7 +417,7 @@ export default {
 
         this.activations.forEach((activation) => {
           const office = this.accounts.find((x) => x.id == activation.office);
-          if (office) activation.office = office.name;
+          activation.office = office ? office.name : "";
         });
 
         this.activations.sort((a, b) => new Date(b.date) - new Date(a.date));

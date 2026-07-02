@@ -93,10 +93,10 @@ export default {
       title: null,
 
       search: null,
+      accounts: [],
     }
   },
   computed: {
-    accounts() { return this.$store.state.accounts },
     account()  { return this.$store.state.account  },
   },
   filters: {
@@ -124,6 +124,9 @@ export default {
 
       this.loading = true
 
+      const data2 = await api.offices.GET()
+      this.accounts = data2.data?.offices || []
+
       // GET data
       const { data } = await api.Collects.GET({ filter, account: this.account.id }); console.log({ data })
 
@@ -140,7 +143,7 @@ export default {
 
       this.collects.forEach((collect) => {
         const office = this.accounts.find(x => x.id == collect.office)
-        collect.office = office.name
+        collect.office = office ? office.name : ""
       })
 
       if(filter == 'all')     this.title = 'Todos las Retiros'
