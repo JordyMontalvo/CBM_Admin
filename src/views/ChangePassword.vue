@@ -10,27 +10,49 @@
         <form @submit.prevent="submit" class="form">
           <div class="field">
             <label class="label">Contraseña actual</label>
-            <input
-              class="input"
-              type="password"
-              autocomplete="current-password"
-              v-model="oldPassword"
-              :disabled="loading"
-              @input="clearMessages"
-            />
+            <div class="password-input-wrapper">
+              <input
+                class="input"
+                :type="showOldPassword ? 'text' : 'password'"
+                autocomplete="current-password"
+                v-model="oldPassword"
+                :disabled="loading"
+                @input="clearMessages"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                :disabled="loading"
+                :aria-label="showOldPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                @click="showOldPassword = !showOldPassword"
+              >
+                <i :class="showOldPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
             <p v-if="errors.oldPassword" class="error">{{ errors.oldPassword }}</p>
           </div>
 
           <div class="field">
             <label class="label">Nueva contraseña</label>
-            <input
-              class="input"
-              type="password"
-              autocomplete="new-password"
-              v-model="newPassword"
-              :disabled="loading"
-              @input="clearMessages"
-            />
+            <div class="password-input-wrapper">
+              <input
+                class="input"
+                :type="showNewPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+                v-model="newPassword"
+                :disabled="loading"
+                @input="clearMessages"
+              />
+              <button
+                type="button"
+                class="toggle-password"
+                :disabled="loading"
+                :aria-label="showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                @click="showNewPassword = !showNewPassword"
+              >
+                <i :class="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
             <p class="hint">Recomendado: mínimo 8 caracteres.</p>
             <p v-if="errors.newPassword" class="error">{{ errors.newPassword }}</p>
           </div>
@@ -69,6 +91,8 @@ export default {
     return {
       oldPassword: "",
       newPassword: "",
+      showOldPassword: false,
+      showNewPassword: false,
       revokeOthers: true,
       loading: false,
       alert: null,
@@ -182,14 +206,40 @@ export default {
   margin-bottom 8px
   color #111827
 
+.password-input-wrapper
+  position relative
+
 .input
   width 100%
   border 2px solid #e5e7eb
   border-radius 10px
-  padding 12px 14px
+  padding 12px 44px 12px 14px
   font-size 15px
   outline none
   transition all .2s ease
+
+.toggle-password
+  position absolute
+  top 50%
+  right 12px
+  transform translateY(-50%)
+  border none
+  background transparent
+  color #9ca3af
+  cursor pointer
+  padding 4px
+  display flex
+  align-items center
+  justify-content center
+  font-size 16px
+  transition color .2s ease
+
+.toggle-password:hover:not(:disabled)
+  color #667eea
+
+.toggle-password:disabled
+  opacity 0.5
+  cursor not-allowed
 
 .input:focus
   border-color #667eea
