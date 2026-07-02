@@ -76,13 +76,9 @@ export default {
     const path = this.$router.history.current.path ; console.log({ path })
 
     if(path != '/login' && path != '/sucursal' && path != '/logout') {
-      console.log('validate security token ...')
+      const sessionToken = localStorage.getItem('sessionToken')
 
-      const token = localStorage.getItem('token')
-
-      if(token != 'xTzntsznsih1jrD9nj') {
-        console.log('invalid security token ...')
-
+      if(!sessionToken) {
         this.$router.push('/logout')
       }
     }

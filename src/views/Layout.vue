@@ -80,6 +80,13 @@
               <i class="fas fa-database"></i>
               <span>Backups</span>
             </a>
+            <div class="navbar-item-modern has-dropdown-modern" v-if="account && account.type == 'admin'">
+              <a class="navbar-link-modern" @click.prevent="openSidebar('cuenta')">
+                <i class="fas fa-user-cog"></i>
+                <span>Cuenta</span>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+              </a>
+            </div>
             <div class="navbar-item-modern has-dropdown-modern">
               <a class="navbar-link-modern" @click.prevent="openSidebar('pagos')">
                 <i class="fas fa-credit-card"></i>
@@ -226,6 +233,12 @@ export default {
           items: [
             { href: '/operations/plan', icon: 'fas fa-handshake', label: 'Afiliación' },
             { href: '/operations/products', icon: 'fas fa-redo', label: 'Reconsumo' }
+          ]
+        },
+        cuenta: {
+          title: 'Cuenta',
+          items: [
+            { href: '/change-password', icon: 'fas fa-key', label: 'Contraseña' },
           ]
         }
       }
@@ -401,6 +414,9 @@ export default {
             }
             return this.account && this.account.type === 'admin';
           });
+        }
+        if (menuKey === 'cuenta') {
+          items = items.filter(() => this.account && this.account.type === 'admin');
         }
         
         this.currentSidebarTitle = menu.title;

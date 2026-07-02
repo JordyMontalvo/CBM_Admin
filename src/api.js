@@ -17,6 +17,7 @@ axios.interceptors.request.use((config) => {
 
 class API {
   constructor({
+    auth,
     users,
     affiliations,
     Collects,
@@ -35,6 +36,7 @@ class API {
     transactions,
     dashboard,
   }) {
+    this.auth = auth;
     this.users = users;
     this.affiliations = affiliations;
     this.Collects = Collects;
@@ -52,6 +54,30 @@ class API {
     this.stock = stock;
     this.transactions = transactions;
     this.dashboard = dashboard;
+  }
+}
+
+function authHeaders() {
+  const sessionToken = localStorage.getItem("sessionToken");
+  if (!sessionToken) return {};
+  return { Authorization: `Bearer ${sessionToken}` };
+}
+
+class Auth {
+  ADMIN_LOGIN({ username, password } = {}) {
+    return axios.post(`/admin/auth/login`, { username, password });
+  }
+
+  ADMIN_LOGOUT() {
+    return axios.post(`/admin/auth/logout`, {}, { headers: authHeaders() });
+  }
+
+  CHANGE_PASSWORD({ oldPassword, newPassword, revokeOthers = true } = {}) {
+    return axios.post(
+      `/admin/auth/change-password`,
+      { oldPassword, newPassword, revokeOthers },
+      { headers: authHeaders() }
+    );
   }
 }
 
@@ -266,6 +292,7 @@ class Dashboard {
 }
 
 export default new API({
+  auth: new Auth(),
   users: new Users(),
   affiliations: new Affiliations(),
   Collects: new Collects(),

@@ -85,9 +85,6 @@ export default {
       loading: false,
     }
   },
-  computed: {
-    accounts() { return this.$store.state.accounts },
-  },
   filters: {
     alert(msg) {
       if (msg == 'invalid email')   return 'Usuario incorrecto'
@@ -112,19 +109,35 @@ export default {
         return this.error.password = true 
       }
 
-      const account = this.accounts.find(x => x.email == email && x.password == password)
+      // Login real contra backend (admin_users). Esto elimina la contraseña hardcodeada del panel.
+      try {
+        const resp = await api.auth.ADMIN_LOGIN({ username: email, password })
+        if (resp?.data?.error) {
+          this.loading = false
+          return this.alert = resp.data.msg || 'invalid account'
+        }
 
-      // error
-      if(!account) {
+        const sessionToken = resp?.data?.session
+        if (!sessionToken) {
+          this.loading = false
+          return this.alert = 'invalid account'
+        }
+
+        localStorage.setItem('sessionToken', sessionToken)
+
+        // Guardar sesión mínima para UI/guards del panel
+        const account = {
+          type: 'admin',
+          email,
+          id: 'admin',
+          name: 'Administrador',
+        }
+        localStorage.setItem('session', JSON.stringify(account))
+        this.$store.commit('SET_ACCOUNT', account)
+      } catch (e) {
         this.loading = false
         return this.alert = 'invalid account'
       }
-
-      // login
-      localStorage.setItem('session', JSON.stringify(account))
-
-      // token
-      localStorage.setItem('token', 'xTzntsznsih1jrD9nj')
 
       // routing
       this.$router.push('/affiliations/all')

@@ -23,6 +23,7 @@ import Kadex        from './views/Kadex.vue'
 import Closed       from './views/Closed.vue'
 import Transactions from './views/Transactions.vue'
 import Backups from './views/Backups.vue'
+import ChangePassword from './views/ChangePassword.vue'
 
 // import Reports      from './views/Reports.vue'
 
@@ -150,6 +151,11 @@ const routes = [
     component: Backups,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/change-password',
+    component: ChangePassword,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
 ]
 
 const router = new Router({
@@ -162,11 +168,21 @@ router.beforeEach((to, from, next) => {
 
   const requiresNoAuth = to.matched.some(record => record.meta.requiresNoAuth)
   const requiresAuth   = to.matched.some(record => record.meta.requiresAuth)
+  const requiresAdmin  = to.matched.some(record => record.meta.requiresAdmin)
 
   const session = localStorage.getItem('session')
+  const sessionToken = localStorage.getItem('sessionToken')
 
-  if (requiresNoAuth &&  session) { next({ path: '/dashboard' }) }
-  if (requiresAuth   && !session) { next({ path: '/login' }) }
+  if (requiresNoAuth &&  sessionToken) { next({ path: '/dashboard' }) }
+  if (requiresAuth   && !sessionToken) { next({ path: '/login' }) }
+  if (requiresAdmin && session) {
+    try {
+      const account = JSON.parse(session)
+      if (!account || account.type !== 'admin') return next({ path: '/dashboard' })
+    } catch (e) {
+      return next({ path: '/login' })
+    }
+  }
 
   next()
 })
