@@ -159,7 +159,7 @@ export default {
     this.$store.commit("SET_ACCOUNT", account);
     this.getClosureDates();
     // Detectar si el usuario es admin (sin importar mayúsculas/minúsculas)
-    this.isAdmin = account && account.role && account.role.toLowerCase() === 'admin';
+    this.isAdmin = account && account.type === 'admin';
   },
   filters: {
     date(val) {

@@ -20,6 +20,7 @@
 import Toast from './components/Toast.vue'
 import ConfirmModal from './components/ConfirmModal.vue'
 import { ConfirmEventBus } from './utils/confirm'
+import { hasActiveSession } from './utils/session'
 
 export default {
   components: {
@@ -76,9 +77,7 @@ export default {
     const path = this.$router.history.current.path ; console.log({ path })
 
     if(path != '/login' && path != '/sucursal' && path != '/logout') {
-      const sessionToken = localStorage.getItem('sessionToken')
-
-      if(!sessionToken) {
+      if(!hasActiveSession()) {
         this.$router.push('/logout')
       }
     }

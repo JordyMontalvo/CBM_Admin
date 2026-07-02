@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import { hasActiveSession } from './utils/session'
 
 import Login        from './views/Login.vue'
 import Sucursal     from './views/Sucursal.vue'
@@ -171,10 +172,9 @@ router.beforeEach((to, from, next) => {
   const requiresAdmin  = to.matched.some(record => record.meta.requiresAdmin)
 
   const session = localStorage.getItem('session')
-  const sessionToken = localStorage.getItem('sessionToken')
 
-  if (requiresNoAuth &&  sessionToken) { next({ path: '/dashboard' }) }
-  if (requiresAuth   && !sessionToken) { next({ path: '/login' }) }
+  if (requiresNoAuth && hasActiveSession()) { next({ path: '/dashboard' }) }
+  if (requiresAuth && !hasActiveSession()) { next({ path: '/login' }) }
   if (requiresAdmin && session) {
     try {
       const account = JSON.parse(session)
