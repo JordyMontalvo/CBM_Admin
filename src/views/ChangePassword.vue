@@ -79,10 +79,9 @@ export default {
       },
     };
   },
-  computed: {
-    account() {
-      return this.$store.state.account;
-    },
+  created() {
+    const account = JSON.parse(localStorage.getItem("session") || "null");
+    if (account) this.$store.commit("SET_ACCOUNT", account);
   },
   methods: {
     clearMessages() {
@@ -159,16 +158,19 @@ export default {
   padding 28px
 
 .header
-  margin-bottom 18px
+  margin-bottom 28px
 
 .title
-  margin 0
-  font-size 34px
+  margin 0 0 12px 0
+  font-size 28px
+  line-height 1.3
   font-weight 800
   color #1f2937
 
 .subtitle
-  margin 8px 0 0 0
+  margin 0
+  font-size 15px
+  line-height 1.5
   color #6b7280
 
 .field

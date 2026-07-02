@@ -337,6 +337,10 @@ export default {
         ],
         '/transactions': [
           { label: 'Transacciones', icon: 'fas fa-exchange-alt', to: '/transactions' }
+        ],
+        '/change-password': [
+          { label: 'Cuenta', icon: 'fas fa-user-cog', to: '/change-password' },
+          { label: 'Contraseña', icon: 'fas fa-key', to: '/change-password' }
         ]
       }
 
@@ -396,6 +400,13 @@ export default {
     }
   },
   mounted() {
+    if (!this.$store.state.account) {
+      try {
+        const session = localStorage.getItem('session')
+        if (session) this.$store.commit('SET_ACCOUNT', JSON.parse(session))
+      } catch (e) {}
+    }
+
     // Timeout para evitar carga infinita
     setTimeout(() => {
       this.accountLoadingTimeout = true;
