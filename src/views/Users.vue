@@ -155,7 +155,7 @@
 
                   <p v-if="user.rank">rango: {{ user.rank | _rank }}</p>
                   <div v-if="user.email && user.email.trim() !== ''" style="margin-top: 4px; margin-bottom: 4px;">{{ user.email }}</div>
-                  tel: {{ user.phone }} <br />
+                  tel: {{ user.country | countryCode }} {{ user.phone }} <br />
                 </td>
                 <td>
                   <span v-if="user.activated === true">✓ Activado</span>
@@ -352,6 +352,16 @@ export default {
     },
   },
   filters: {
+    countryCode(val) {
+      if (val === 'Ecuador') return '+593';
+      if (val === 'Perú') return '+51';
+      if (val === 'Argentina') return '+54';
+      if (val === 'Bolivia') return '+591';
+      if (val === 'Colombia') return '+57';
+      if (val === 'Costa Rica') return '+506';
+      if (val === 'Chile') return '+56';
+      return '';
+    },
     date(val) {
       return new Date(val).toLocaleDateString();
     },
