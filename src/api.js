@@ -72,6 +72,10 @@ class Auth {
     return axios.post(`/admin/auth/logout`, {}, { headers: authHeaders() });
   }
 
+  SESSION() {
+    return axios.get(`/admin/auth/session`, { headers: authHeaders() });
+  }
+
   CHANGE_PASSWORD({ oldPassword, newPassword, revokeOthers = true } = {}) {
     return axios.post(
       `/admin/auth/change-password`,

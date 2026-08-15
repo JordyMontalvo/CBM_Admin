@@ -20,7 +20,9 @@
 import Toast from './components/Toast.vue'
 import ConfirmModal from './components/ConfirmModal.vue'
 import { ConfirmEventBus } from './utils/confirm'
-import { hasActiveSession } from './utils/session'
+import { hasActiveSession, enforceAdminSession } from './utils/session'
+
+const SESSION_CHECK_INTERVAL = 30000
 
 export default {
   components: {
@@ -37,7 +39,8 @@ export default {
       confirmText: 'Confirmar',
       cancelText: 'Cancelar',
       onConfirmCallback: null,
-      onCancelCallback: null
+      onCancelCallback: null,
+      sessionTimer: null
     }
   },
   mounted() {
@@ -53,9 +56,15 @@ export default {
       this.onCancelCallback = options.onCancel || (() => {})
       this.confirmShow = true
     })
+
+    this.checkSession()
+    this.sessionTimer = setInterval(this.checkSession, SESSION_CHECK_INTERVAL)
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
   },
   beforeDestroy() {
     ConfirmEventBus.$off('show')
+    clearInterval(this.sessionTimer)
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },
   methods: {
     handleConfirm() {
@@ -69,6 +78,14 @@ export default {
         this.onCancelCallback()
       }
       this.confirmShow = false
+    },
+    checkSession() {
+      const path = this.$router.history.current.path
+      if (path === '/login' || path === '/sucursal' || path === '/logout') return
+      enforceAdminSession()
+    },
+    onVisibilityChange() {
+      if (!document.hidden) this.checkSession()
     }
   },
   created() {

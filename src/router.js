@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { hasActiveSession } from './utils/session'
+import { hasActiveSession, enforceAdminSession } from './utils/session'
 
 import Login        from './views/Login.vue'
 import Sucursal     from './views/Sucursal.vue'
@@ -175,6 +175,7 @@ router.beforeEach((to, from, next) => {
 
   if (requiresNoAuth && hasActiveSession()) { next({ path: '/dashboard' }) }
   if (requiresAuth && !hasActiveSession()) { next({ path: '/login' }) }
+  if (requiresAuth) { enforceAdminSession() }
   if (requiresAdmin && session) {
     try {
       const account = JSON.parse(session)
