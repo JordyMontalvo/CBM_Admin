@@ -360,6 +360,7 @@ export default {
       if (val === 'Colombia') return '+57';
       if (val === 'Costa Rica') return '+506';
       if (val === 'Chile') return '+56';
+      if (val === 'España') return '+34';
       return '';
     },
     date(val) {
