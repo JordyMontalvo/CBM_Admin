@@ -69,7 +69,7 @@
                 <th>Precio Total</th>
                 <th>Puntos</th>
                 <th>Medio de Pago</th>
-                <th>Voucher</th>
+                <th>Vouchers</th>
                 <th>Saldo</th>
                 <th>Estado</th>
                 <th></th>
@@ -126,27 +126,27 @@
                   <div v-if="activation.pay_method == 'bank'">
                     <span>Banco</span> <br />
                     <small>Nombre: {{ activation.bank }}</small> <br />
-                    <small>Fecha: {{ activation.voucher_date }}</small> <br />
-                    <small>Núm: {{ activation.voucher_number }}</small>
-                    <template v-if="activation.voucher2">
-                      <br />
-                      <small>Núm. voucher 2: {{ activation.voucher_number2 }}</small>
-                    </template>
+                    <small>Fecha: {{ activation.voucher_date }}</small>
                   </div>
                 </td>
                 <td>
-                  <a :href="activation.voucher" target="_blank">
-                    <img
-                      :src="activation.voucher"
-                      style="max-height: 80px; max-width: 80px"
-                    />
-                  </a>
-                  <a v-if="activation.voucher2" :href="activation.voucher2" target="_blank" title="Voucher 2" style="margin-left: 4px">
-                    <img
-                      :src="activation.voucher2"
-                      style="max-height: 80px; max-width: 80px"
-                    />
-                  </a>
+                  <!-- Cada voucher con su propio código de operación -->
+                  <div class="vouchers">
+                    <div class="voucher-item" v-if="activation.voucher || activation.voucher_number">
+                      <small class="voucher-tag" v-if="activation.voucher2">Voucher 1</small>
+                      <a v-if="activation.voucher" :href="activation.voucher" target="_blank" title="Voucher 1">
+                        <img :src="activation.voucher" />
+                      </a>
+                      <small v-if="activation.voucher_number">Cód. op.: <b>{{ activation.voucher_number }}</b></small>
+                    </div>
+                    <div class="voucher-item" v-if="activation.voucher2">
+                      <small class="voucher-tag">Voucher 2</small>
+                      <a :href="activation.voucher2" target="_blank" title="Voucher 2">
+                        <img :src="activation.voucher2" />
+                      </a>
+                      <small v-if="activation.voucher_number2">Cód. op.: <b>{{ activation.voucher_number2 }}</b></small>
+                    </div>
+                  </div>
                   <span v-if="!activation.editing">
                     <button @click="editVoucher(activation)">Editar</button>
                   </span>
@@ -857,6 +857,25 @@ export default {
 </script>
 
 <style>
+.vouchers {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.voucher-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 80px;
+}
+.voucher-item img {
+  max-height: 80px;
+  max-width: 80px;
+}
+.voucher-tag {
+  font-weight: 700;
+}
 .scroll-to-top {
   position: fixed;
   bottom: 20px;
