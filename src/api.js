@@ -158,6 +158,10 @@ class Products {
   POST({ action, id, data }) {
     return axios.post(`/admin/products`, { action, id, data });
   }
+  // Sube la imagen a Bunny a través del servidor; devuelve { url }.
+  uploadImage({ fileName, fileData }) {
+    return axios.post(`/admin/product-image`, { fileName, fileData }, { headers: authHeaders() });
+  }
 }
 
 class Kadex {

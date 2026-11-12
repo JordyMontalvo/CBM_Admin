@@ -17,6 +17,7 @@
                 <th>#</th>
                 <!-- <th>id</th> -->
                 <th>Nombre</th>
+                <th>Imagen</th>
                 <th>Categoría</th>
                 <th>Precios Compra</th>
                 <th>Precios Afiliación</th>
@@ -39,6 +40,13 @@
                     v-model="product._name"
                     v-if="product.edit"
                   />
+                </td>
+                <td>
+                  <template v-if="!product.edit">
+                    <img v-if="product.img" :src="product.img" class="prod-thumb" alt="" />
+                    <span v-else class="prod-noimg">Sin imagen</span>
+                  </template>
+                  <ProductImageInput v-else v-model="product._img" />
                 </td>
                 <td>
                   <span v-if="!product.edit">{{ product.type }}</span>
@@ -273,6 +281,7 @@
                 <th>#</th>
                 <!-- <th>id</th> -->
                 <th>Nombre</th>
+                <th>Imagen</th>
                 <th>Categoría</th>
                 <th>Precios Compra</th>
                 <th>Precios Afiliación</th>
@@ -288,6 +297,9 @@
                     style="max-width: 220px"
                     v-model="new_product.name"
                   />
+                </td>
+                <td>
+                  <ProductImageInput v-model="new_product.img" />
                 </td>
                 <td>
                   <input
@@ -406,14 +418,16 @@
 import Layout from "@/views/Layout";
 import api from "@/api";
 import lib from "@/lib";
+import ProductImageInput from "@/components/ProductImageInput";
 
 export default {
-  components: { Layout },
+  components: { Layout, ProductImageInput },
   data() {
     return {
       loading: false,
       products: [],
       new_product: {
+        img: "",
         price: [],
         aff_price: [],
       },
@@ -450,6 +464,7 @@ export default {
         edit: false,
         _name: "",
         _type: "",
+        _img: "",
         _price: [0, 0, 0, 0, 0],
 
         _aff_price: [0, 0, 0, 0, 0],
@@ -472,6 +487,7 @@ export default {
 
       product._name = product.name;
       product._type = product.type;
+      product._img = product.img || "";
 
       product._price[0] = product.price[0];
       product._price[1] = product.price[1];
@@ -523,12 +539,13 @@ export default {
       // }
     },
     async save(product) {
-      await api.products.POST({
+      const { data: resp } = await api.products.POST({
         action: "edit",
         id: product.id,
         data: {
           _name: product._name,
           _type: product._type,
+          _img: product._img || "",
           _price: product._price,
 
           aff_price_check: product.aff_price_check,
@@ -545,8 +562,14 @@ export default {
         },
       });
 
+      if (resp && resp.error) {
+        alert(resp.msg || "No se pudo guardar el producto");
+        return;
+      }
+
       product.name = product._name;
       product.type = product._type;
+      product.img = product._img || null;
       product.price = product._price;
 
       if (product.aff_price_check) product.aff_price = product._aff_price;
@@ -570,7 +593,7 @@ export default {
     async add() {
       /*; console.log('save ...')*/
 
-      const { name, type, price, aff_price_check, aff_price } =
+      const { name, type, price, aff_price_check, aff_price, img } =
         this.new_product;
       // console.log({ name, type, price, aff_price_check, aff_price })
 
@@ -597,7 +620,7 @@ export default {
         }
       }
 
-      await api.products.POST({
+      const { data: resp } = await api.products.POST({
         action: "add",
         data: {
           name,
@@ -605,8 +628,14 @@ export default {
           price,
           aff_price_check,
           aff_price,
+          img: img || "",
         },
       });
+
+      if (resp && resp.error) {
+        alert(resp.msg || "No se pudo crear el producto");
+        return;
+      }
 
       location.reload();
     },
@@ -641,3 +670,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.prod-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #fafafa;
+}
+.prod-noimg {
+  font-size: 12px;
+  color: #aaa;
+}
+</style>
