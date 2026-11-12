@@ -22,6 +22,10 @@
 
       <a class="pimg-remove" v-if="value && !uploading" @click="setValue('')">Quitar imagen</a>
       <small class="pimg-error" v-if="error">{{ error }}</small>
+      <small class="pimg-error" v-else-if="value && broken">
+        Ese enlace no es una imagen. Abre la foto, haz clic derecho sobre ella y elige
+        «Copiar dirección de imagen» (suele terminar en .jpg, .png o .webp), o descárgala y usa «Subir desde el equipo».
+      </small>
     </div>
   </div>
 </template>
